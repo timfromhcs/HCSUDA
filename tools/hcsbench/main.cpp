@@ -432,6 +432,103 @@ int main(int argc, char** argv)
             if (bufC) hcsBufferDestroy(bufC);
         }
 
+        /* scan: exclusive chunked prefix sum */
+        {
+            const uint32_t n = options.vecElements;
+            const uint32_t groups = 256;
+            std::vector<float> x(n);
+            fill(x, 7);
+            hcsBufferDesc inDesc{};
+            inDesc.struct_size = sizeof(inDesc);
+            inDesc.size = static_cast<uint64_t>(n) * sizeof(float);
+            hcsBufferDesc outDesc = inDesc;
+            hcsBuffer in = nullptr, out = nullptr;
+            if (hcsBufferCreate(context, &inDesc, &in) == HCS_SUCCESS &&
+                hcsBufferCreate(context, &outDesc, &out) == HCS_SUCCESS &&
+                hcsBufferUpload(in, 0, x.data(), inDesc.size) == HCS_SUCCESS) {
+                hcsKernel kernel = nullptr;
+                if (hcsKernelCreate(context, "scan_f32", &kernel) == HCS_SUCCESS) {
+                    struct {
+                        uint32_t n;
+                        uint32_t groups;
+                        uint32_t p0, p1;
+                    } push{n, groups, 0, 0};
+                    hcsDispatchDesc desc{};
+                    desc.struct_size = sizeof(desc);
+                    desc.buffer_count = 2;
+                    desc.buffers[0] = in;
+                    desc.buffers[1] = out;
+                    desc.group_count_x = groups;
+                    desc.group_count_y = 1;
+                    desc.group_count_z = 1;
+                    desc.push_constants_size = sizeof(push);
+                    std::memcpy(desc.push_constants, &push, sizeof(push));
+                    BenchRow row;
+                    row.device = deviceName;
+                    row.backend = backendName;
+                    row.kernel = "scan_f32";
+                    row.shape = "n=" + std::to_string(n) + ", g=" + std::to_string(groups);
+                    row.gbytes = 2.0 * n * sizeof(float) / 1e9;
+                    row.gflops = n / 1e9;
+                    row.timing = measure(options.warmup, options.reps, [&]() {
+                        return hcsDispatch(kernel, &desc, nullptr);
+                    });
+                    rows.push_back(row);
+                    hcsKernelDestroy(kernel);
+                }
+            }
+            if (in) hcsBufferDestroy(in);
+            if (out) hcsBufferDestroy(out);
+        }
+
+        /* transpose: 16x16 tiled row-major transpose */
+        {
+            const uint32_t d = options.matSize;
+            const uint64_t elements = static_cast<uint64_t>(d) * d;
+            std::vector<float> a(static_cast<size_t>(elements));
+            fill(a, 8);
+            hcsBufferDesc bd{};
+            bd.struct_size = sizeof(bd);
+            bd.size = elements * sizeof(float);
+            hcsBuffer in = nullptr, out = nullptr;
+            if (hcsBufferCreate(context, &bd, &in) == HCS_SUCCESS &&
+                hcsBufferCreate(context, &bd, &out) == HCS_SUCCESS &&
+                hcsBufferUpload(in, 0, a.data(), bd.size) == HCS_SUCCESS) {
+                hcsKernel kernel = nullptr;
+                if (hcsKernelCreate(context, "transpose_f32", &kernel) == HCS_SUCCESS) {
+                    struct {
+                        uint32_t rows;
+                        uint32_t cols;
+                        uint32_t p0, p1;
+                    } push{d, d, 0, 0};
+                    hcsDispatchDesc desc{};
+                    desc.struct_size = sizeof(desc);
+                    desc.buffer_count = 2;
+                    desc.buffers[0] = in;
+                    desc.buffers[1] = out;
+                    desc.group_count_x = (d + 15) / 16;
+                    desc.group_count_y = (d + 15) / 16;
+                    desc.group_count_z = 1;
+                    desc.push_constants_size = sizeof(push);
+                    std::memcpy(desc.push_constants, &push, sizeof(push));
+                    BenchRow row;
+                    row.device = deviceName;
+                    row.backend = backendName;
+                    row.kernel = "transpose_f32";
+                    row.shape = std::to_string(d) + "x" + std::to_string(d);
+                    row.gbytes = 2.0 * static_cast<double>(elements) * sizeof(float) / 1e9;
+                    row.gflops = 0.0;
+                    row.timing = measure(options.warmup, options.reps, [&]() {
+                        return hcsDispatch(kernel, &desc, nullptr);
+                    });
+                    rows.push_back(row);
+                    hcsKernelDestroy(kernel);
+                }
+            }
+            if (in) hcsBufferDestroy(in);
+            if (out) hcsBufferDestroy(out);
+        }
+
         for (const auto& row : rows) {
             printRow(row, options.json, firstJson);
             firstJson = false;

@@ -259,3 +259,11 @@ ctest --preset windows-tests --output-on-failure -> 55/55
 ```
 
 Build fix: `hcsport` needed the private `src` include directory, like `hcscc`.
+
+## 2026-11-25 — Benchmarks extended
+
+`hcsbench` now measures scan and transpose as well. A local variable named `count` shadowed an
+outer one; renamed to `elements`. Real medians (warm-up 5, 25 repetitions, Radeon 680M):
+scan 0.088 ms, transpose 0.134 ms; CPU 1.133 ms and 1.061 ms respectively. Raw results were
+appended to `benchmarks/baselines/radeon680m-2026-11-25.json`. These numbers include submit +
+fence wait and are not pure kernel timings.

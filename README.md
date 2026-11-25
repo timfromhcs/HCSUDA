@@ -155,6 +155,8 @@ wait** (V1 dispatches are synchronous). Median and p10/p90 reported. Raw JSON:
 | scale_f32 | 1,048,576 | 0.220 ms | 38.1 | 1.264 ms | 6.6 |
 | reduce_sum_f32 | 1,048,576 (256 groups) | 0.150 ms | 28.0 | 1.173 ms | 3.6 |
 | matmul_f32 | 256³ | 0.208 ms (161 GFLOP/s) | 3.8 | 1.918 ms (17.5 GFLOP/s) | 0.4 |
+| scan_f32 | 1,048,576 (256 chunks) | 0.088 ms | 95.8 | 1.133 ms | 7.4 |
+| transpose_f32 | 256² | 0.134 ms | 3.9 | 1.061 ms | 0.5 |
 
 These are single-run medians on one machine, not SOTA claims. On UMA hardware "GB/s" refers
 to shared system memory traffic. Buffers are host-visible in V1; a device-local + staging
