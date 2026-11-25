@@ -342,3 +342,18 @@ CLI check produced a valid module and a report with `translated:1`, `host_manual
 ctest --preset windows-tests --output-on-failure -> 72/72
 ctest --preset windows-validation --timeout 180 -> 72/72, zero validation errors
 ```
+
+## 2026-11-25 — Wave 10 (first slice): local browser UI
+
+Added `src/api/rest/ui_page.{h,cpp}` and a public `GET /ui/` route on the local REST service.
+The page is self-contained HTML/CSS/JS with no remote resources. It injects the process bearer
+token for same-origin requests and renders only data returned by `/api/v1/health`, `/version`,
+`/runtime/status` and `/memory/budget`. Missing metrics render as "Not exposed by this
+driver/API"; there are no fabricated utilization or temperature values.
+
+```
+ctest --preset windows-tests --output-on-failure -> 73/73
+live: GET http://127.0.0.1:18711/ui/ -> 200 text/html, 4381 bytes
+```
+
+No screenshot was produced by an automated browser, so none is claimed as product evidence.

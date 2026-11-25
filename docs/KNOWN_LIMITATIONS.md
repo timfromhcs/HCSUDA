@@ -99,3 +99,12 @@ product.
   translation endpoint yet.
 * MCP tool arguments do not currently open model files; `hcsuda_list_models` is intentionally
   absent until path scopes are configured in a service layer.
+
+## UI (updated Wave 10)
+
+* The V1 UI is a self-contained page served by the local REST service. There is no Qt or
+  WebView2 native shell in this build (see ADR-0003).
+* It currently has Dashboard, Devices, Memory budget and Compatibility sections. Settings,
+  Models, Translate, Benchmarks, Visualizer, API/MCP, Diagnostics and About pages are not
+  present; they are not advertised as working features.
+* No automated browser screenshot exists, so the README contains no product screenshot.

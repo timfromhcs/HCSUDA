@@ -4,7 +4,7 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **1/1 CTest target passed; 72/72 HCS tests passed** (2026-11-25).
+Last result: **1/1 CTest target passed; 73/73 HCS tests passed** (2026-11-25).
 
 | ID | Test | Backend | Result | What it proves |
 |---|---|---|---|---|
@@ -51,7 +51,7 @@ Last result: **1/1 CTest target passed; 72/72 HCS tests passed** (2026-11-25).
 | FL-03 | flow_event_timeout_and_validation | Vulkan | PASS | idle-flow event is immediately satisfied; null flow/event misuse rejected |
 | FL-04 | flow_cpu_backend_completes_immediately | CPU | PASS | CPU flow/event complete synchronously with zero timeout |
 | FL-05 | flow_event_wait_timeout_path | mock flow | PASS | a backend flow whose counter never advances yields `HCS_E_TIMEOUT` |
-| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 72/72 tests, no validation errors |
+| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 73/73 tests, no validation errors |
 | GR-01 | graph_runs_on_cpu_backend | CPU | PASS | 2-node linear DAG with dependency, replayed on a flow, both outputs verified |
 | GR-02 | graph_runs_on_vulkan_backend | Vulkan | PASS | same DAG executes on the Radeon 680M and matches the CPU result |
 | GR-03 | graph_rejects_invalid_dependencies | CPU | PASS | empty graph, future dependency, zero group count, >8 dependencies all rejected |
@@ -83,6 +83,8 @@ Last result: **1/1 CTest target passed; 72/72 HCS tests passed** (2026-11-25).
 | TR-01 | translate_vecadd_subset_produces_runnable_hcsir | translator | PASS | fixture → HCSIR → compile → interpreter over 1001 elements matches CPU reference |
 | TR-02 | translate_fma_variant_uses_fma_opcode | translator | PASS | scalar-factor variant emits `fma` |
 | TR-03 | translate_fails_closed_on_unsupported_constructs | translator | PASS | atomics/no-kernel/null input rejected with no partial output |
+| UI-01 | rest_serves_self_contained_local_ui | UI | PASS | self-contained HTML with live data calls, no remote resources, explicit unavailable state |
+| UI-02 | live browser UI fetch (manual) | UI + REST | PASS | GET /ui/ -> 200 text/html, 4381 bytes from the running service |
 
 ## Not yet covered (explicit gaps)
 
@@ -95,7 +97,7 @@ Last result: **1/1 CTest target passed; 72/72 HCS tests passed** (2026-11-25).
 | PTX textual importer | not implemented | 7 (experimental) |
 | Model catalog / checksum / path safety | **tested** (MV-01..04); no inference adapter | 8 |
 | MCP stdio protocol conformance | **tested** (MCP-01..06) | 9 |
-| UI automation + screenshots | untested | 10 |
+| Browser UI served locally | **tested** (UI-01..02); no automated screenshot capture yet | 10 |
 | Installer clean-VM install/upgrade/uninstall | untested | 11 |
 | Stress/soak (10k dispatches, 60 min) | untested | 12 |
 | Intel/NVIDIA Vulkan hardware | **not verified** | requires hardware |

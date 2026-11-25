@@ -119,6 +119,7 @@ add_library(hcsuda_core STATIC
     src/model_store/model_vault.cpp
     src/api/mcp/mcp_server.cpp
     src/api/rest/rest_server.cpp
+    src/api/rest/ui_page.cpp
     src/backends/cpu/cpu_backend.cpp
     src/backends/vulkan/vk_backend.cpp
     ${HCS_SHADER_GENERATED})

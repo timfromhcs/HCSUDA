@@ -104,3 +104,18 @@ HCS_TEST(rest_returns_real_runtime_data)
     CHECK(statusIs(budget, 200));
     CHECK_MSG(budget.find("heap_bytes") != std::string::npos, budget);
 }
+
+HCS_TEST(rest_serves_self_contained_local_ui)
+{
+    hcs::rest::RestConfig config;
+    config.token = "ui-token";
+    const std::string page =
+        hcs::rest::handleRequest("GET", "/ui/", "", "", config);
+    CHECK(page.rfind("HTTP/1.1 200 ", 0) == 0);
+    CHECK_MSG(page.find("Content-Type: text/html") != std::string::npos, page);
+    CHECK_MSG(page.find("HCSUDA") != std::string::npos, page);
+    CHECK_MSG(page.find("ui-token") != std::string::npos, "token must be embedded for same-origin use");
+    CHECK_MSG(page.find("http://") == std::string::npos, "no remote resources");
+    CHECK_MSG(page.find("Not exposed by this driver/API") != std::string::npos,
+              "unavailable metrics must be marked explicitly");
+}

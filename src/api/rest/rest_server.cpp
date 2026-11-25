@@ -2,6 +2,7 @@
 
 #include "api/mcp/mcp_server.h"
 #include "core/internal.h"
+#include "api/rest/ui_page.h"
 #include "model_store/sha256.h"
 
 #include <cctype>
@@ -34,6 +35,17 @@ std::string response(int status, const std::string& body)
     out += "Connection: close\r\n\r\n";
     out += body;
     return out;
+}
+
+std::string htmlResponse(const std::string& body)
+{
+    std::string out = "HTTP/1.1 200 OK\r\n";
+    out += "Content-Type: text/html; charset=utf-8\r\n";
+    out += "Content-Length: " + std::to_string(body.size()) + "\r\n";
+    out += "X-Content-Type-Options: nosniff\r\n";
+    out += "Cache-Control: no-store\r\n";
+    out += "Connection: close\r\n\r\n";
+    return out + body;
 }
 
 std::string headerValue(const std::string& headers, const std::string& name)
@@ -159,6 +171,9 @@ std::string handleRequest(const std::string& method, const std::string& target,
     }
 
     const std::string path = target.substr(0, target.find('?'));
+    if (method == "GET" && (path == "/" || path == "/ui/" || path == "/ui")) {
+        return htmlResponse(uiPage(config.token));
+    }
     if (method == "GET" && path == "/api/v1/health") {
         return response(200, "{\"status\":\"ok\",\"local_only\":true}");
     }
