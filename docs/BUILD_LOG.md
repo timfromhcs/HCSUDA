@@ -80,3 +80,34 @@ pre-fix "fast" numbers were the no-op dispatch and are discarded, not reported.
 
 Final reference numbers are recorded in `README.md` and
 `benchmarks/baselines/radeon680m-2026-11-25.json`.
+
+## 2026-11-25 — Wave 4: HCSIR v1 parser, verifier, interpreter
+
+New code: `src/ir/hcsir.h`, `src/ir/hcsir.cpp`, `tests/unit/test_ir.cpp`, wired into
+`hcsuda_core` and `hcs_tests`.
+
+Iterations and real failures fixed:
+
+1. `tests/unit/test_ir.cpp` could not include `ir/hcsir.h` (C1083). The library's include
+   directory is `PRIVATE`; added `${CMAKE_CURRENT_SOURCE_DIR}/src` to the test target.
+2. A test module failed with `unknown opcode '0.0'`. Root cause: the grammar had no way to
+   name a constant, so a bare literal assignment had no defined meaning. Fixed by adding a
+   real declaration form — `const <name> : <type> = <literal>` — plus `ConstantDecl` in the
+   module and constant initialisation in the interpreter. A test-only workaround was rejected
+   because the gap was in the language, not the test.
+3. `ir_branch_and_select_execute` produced `y[0] == 0`. Root cause: the interpreter used a
+   single `done` flag both to terminate the current block and to finish the invocation, so the
+   first `branch` ended the invocation before the target block ran. Fixed by separating
+   `terminated` (block reached its terminator) from `finished` (invocation returned).
+4. Diagnostics reported the filtered line index instead of the source line. Fixed by tracking
+   line numbers alongside the trimmed lines.
+
+Results:
+
+```
+cmake --build --preset windows-tests --parallel   -> hcsuda_core.lib, hcs_tests.exe
+ctest --preset windows-tests --output-on-failure  -> 100% tests passed, 30/30 HCS tests
+```
+
+Not done in this wave (and not claimed): HCSIR → GLSL/SPIR-V lowering, serialization,
+integer/bitwise opcodes, atomics, subgroup or matrix operations.

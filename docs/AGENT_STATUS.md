@@ -1,6 +1,6 @@
 # Agent status
 
-Updated: 2026-11-25 (Wave 0–3 complete, Wave 4 not started)
+Updated: 2026-11-25 (Wave 0–3 complete, Wave 4 partially complete)
 
 ## Environment (measured, not assumed)
 
@@ -24,10 +24,10 @@ Updated: 2026-11-25 (Wave 0–3 complete, Wave 4 not started)
 | Wave | Scope | Status | Notes |
 |---|---|---|---|
 | 0 | Reconnaissance, project contract, build skeleton | **Done** | MSVC + Vulkan SDK verified; presets build |
-| 1 | Core API + CPU reference backend | **Done** | 18 registered tests, all passing |
+| 1 | Core API + CPU reference backend | **Done** | 30 registered tests, all passing |
 | 2 | Vulkan discovery + diagnostics | **Done** | `hcsdoctor` reports real 680M caps/budget |
 | 3 | Minimal Vulkan compute | **Done** | vecadd/scale/reduce/matmul verified vs CPU |
-| 4 | HCSIR/HCS-PIR verifier + compiler path | Next | design drafted in ADR-0004 |
+| 4 | HCSIR/HCS-PIR verifier + compiler path | **Partial** | parser, verifier, CPU interpreter, 12 tests; no GLSL/SPIR-V lowering |
 | 5 | HCSFlow/HEvent/HCSGraph async | Pending | V1 dispatch is synchronous today |
 | 6 | Math kernels + tuning (scan, transpose, histogram) | Pending | |
 | 7 | CUDA source migration (`hcsport`) | Pending | matrix is conservative |
@@ -48,17 +48,20 @@ Updated: 2026-11-25 (Wave 0–3 complete, Wave 4 not started)
   host-visible coherent buffers, compute pipelines, synchronous dispatch, device-loss mapping.
 * Built-in kernels: `vecadd_f32`, `scale_f32`, `reduce_sum_f32`, `matmul_f32`.
 * Tools: `hcsdoctor`, `hcsbench`; SPIR-V compiled at build time by `glslc` and embedded.
-* Tests: 18 tests covering API contract, CPU correctness, Vulkan correctness against CPU
-  reference, memory cap enforcement, device report sanity.
+* HCSIR v1: bounded parser, verifier and CPU interpreter for the elementwise subset
+  (`load`/`store`/`add`/`sub`/`mul`/`fma`/`min`/`max`/comparisons/`select`/`branch`/`jump`),
+  with `const` declarations and source-line diagnostics. Internal only — not in the C ABI.
+* Tests: 30 tests covering API contract, CPU correctness, Vulkan correctness against CPU
+  reference, memory cap enforcement, device report sanity, and HCSIR accept/reject behaviour.
 
-## Immediate next actions (Wave 4)
+## Immediate next actions (finish Wave 4)
 
-1. Write `docs/architecture/ADR-0004-hcsir.md` (opcode semantics, versioning, limits).
-2. Implement `hcs::ir::Module` parsing/verification for HCSIR v1 text format (bounded input).
-3. Add CPU interpreter for the verified subset and unit tests including rejection cases.
-4. Add HCSIR → GLSL lowering for elementwise ops; keep the existing hand-written kernels as
-   conformance references.
-5. Re-run `ctest`, update `docs/TEST_MATRIX.md` and this file.
+1. Implement HCSIR → GLSL lowering for the elementwise subset and compile it in tests with
+   `glslc`; compare GPU output against the interpreter for the same module.
+2. Keep the hand-written kernels as the conformance baseline until the generated path matches.
+3. Add module serialization + round-trip verification so compiled modules can be cached.
+4. Then Wave 5: real asynchronous HCSFlow/HEvent with validation-layer runs in a dedicated
+   CTest profile.
 
 ## Known gaps that block a V1 release
 

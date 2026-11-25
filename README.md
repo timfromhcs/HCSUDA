@@ -29,7 +29,7 @@ migration tooling.
 | HCSFlow (synchronous submit/wait in V1) | **Native / Beta** | dispatch tests |
 | Diagnostics CLI (`hcsdoctor`) | **Native / Stable** | this repo |
 | Benchmarks (`hcsbench`) | **Native / Stable** | `benchmarks/baselines/` |
-| HCSIR / HCS-PIR verifier | **Planned (Wave 4)** | — |
+| HCSIR v1 parser/verifier/interpreter (CPU only, internal) | **Experimental** | `ir_*` tests, `docs/api/hcsir.md` |
 | CUDA source migration (`hcsport`) | **Planned (Wave 7)** | — |
 | Model vault / GGUF inference | **Planned (Wave 8)** | — |
 | REST API / MCP server | **Planned (Wave 9)** | — |

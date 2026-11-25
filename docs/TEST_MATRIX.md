@@ -4,7 +4,7 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **1/1 CTest target passed; 18/18 HCS tests passed** (2026-11-25).
+Last result: **1/1 CTest target passed; 30/30 HCS tests passed** (2026-11-25).
 
 | ID | Test | Backend | Result | What it proves |
 |---|---|---|---|---|
@@ -26,12 +26,24 @@ Last result: **1/1 CTest target passed; 18/18 HCS tests passed** (2026-11-25).
 | VK-03 | vulkan_reduce_matches_cpu_reference | Vulkan | PASS | 100000 elements, 64 groups, rel 2e-4 |
 | VK-04 | vulkan_matmul_matches_cpu_reference | Vulkan | PASS | 64³ tiled matmul vs double reference, rel 1e-4 |
 | VK-05 | vulkan_memory_cap_is_enforced | Vulkan | PASS | 4 MiB cap rejects 16 MiB allocation with `HCS_E_OUT_OF_MEMORY` |
+| IR-01 | ir_vecadd_matches_reference | interpreter | PASS | 1000 invocations (not a multiple of `local_size`) match a double reference, rel 1e-5 |
+| IR-02 | ir_branch_and_select_execute | interpreter | PASS | `gt` + `branch` + constants; 3 blocks execute in source order, 257 invocations |
+| IR-03 | ir_rejects_unknown_version | interpreter | PASS | `hcsir 2` → `HCS_E_UNSUPPORTED_API_VERSION`, diagnostic carries line 1 |
+| IR-04 | ir_rejects_unknown_opcode | interpreter | PASS | unknown opcode → `HCS_E_UNSUPPORTED_FEATURE` |
+| IR-05 | ir_rejects_undefined_value | interpreter | PASS | undefined operand → `HCS_E_INVALID_ARGUMENT` |
+| IR-06 | ir_rejects_type_mismatch | interpreter | PASS | `add f32, u32` rejected; no implicit conversion |
+| IR-07 | ir_rejects_missing_terminator | interpreter | PASS | block without terminator rejected |
+| IR-08 | ir_rejects_unknown_branch_target | interpreter | PASS | branch to non-existent label rejected |
+| IR-09 | ir_rejects_oversized_source | interpreter | PASS | >1 MiB source → `HCS_E_SECURITY_POLICY` |
+| IR-10 | ir_rejects_out_of_bounds_access | interpreter | PASS | 1024 invocations over 8 elements → `HCS_E_INVALID_ARGUMENT`, no OOB access |
+| IR-11 | ir_rejects_unbound_buffer | interpreter | PASS | missing buffer binding rejected |
+| IR-12 | ir_rejects_zero_and_huge_invocation_counts | interpreter | PASS | 0 is a no-op; 4M+1 → `HCS_E_SECURITY_POLICY` |
 
 ## Not yet covered (explicit gaps)
 
 | Area | Status | Planned wave |
 |---|---|---|
-| HCSIR parser/verifier/serializer | untested (not implemented) | 4 |
+| HCSIR parser/verifier/interpreter | **tested** (IR-01..IR-12); no serializer, no lowering to GLSL/SPIR-V | 4 |
 | Async flows, events, graphs, races under validation layers | untested | 5 |
 | Scan, transpose, histogram, image primitives | untested | 6 |
 | CUDA source translation corpus | untested | 7 |

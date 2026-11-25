@@ -73,6 +73,7 @@ endif()
 # ---------------------------------------------------------------------------
 add_library(hcsuda_core STATIC
     src/core/runtime.cpp
+    src/ir/hcsir.cpp
     src/backends/cpu/cpu_backend.cpp
     src/backends/vulkan/vk_backend.cpp
     ${HCS_SHADER_GENERATED})
@@ -121,9 +122,12 @@ if(HCS_BUILD_TESTS)
         tests/unit/test_main.cpp
         tests/unit/test_api.cpp
         tests/unit/test_cpu.cpp
+        tests/unit/test_ir.cpp
         tests/unit/test_vulkan.cpp)
     target_link_libraries(hcs_tests PRIVATE hcsuda_core)
-    target_include_directories(hcs_tests PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/tests/unit")
+    target_include_directories(hcs_tests PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/tests/unit"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src")
     if(MSVC)
         target_compile_options(hcs_tests PRIVATE /W4 /permissive- /utf-8)
     endif()

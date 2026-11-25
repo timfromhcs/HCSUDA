@@ -14,7 +14,11 @@ the current truth of the code in this repository.
   specialization constants, or push-descriptor support yet.
 * **No shader compilation at runtime.** Only the four built-in SPDC/SPIR-V kernels compiled
   from `shaders/hksl/` at build time are available. `hcsProgramCreateSpirv` is not exposed.
-* **No HCSIR/HCS-PIR implementation yet.** Design is in ADR-0004; the verifier is Wave 4.
+* **HCSIR v1 runs only on the CPU interpreter.** The parser, verifier and interpreter exist
+  and are tested (`ir_*` tests), but there is no HCSIR → GLSL/SPIR-V lowering yet, so an HCSIR
+  module cannot execute on a GPU. HCSIR is internal and not part of the C ABI.
+* **HCSIR covers an elementwise subset only.** No integer/bitwise opcodes, no atomics, no
+  subgroup or matrix operations, no structured loops, no module serialization.
 * **Reduce is two-stage by design.** `reduce_sum_f32` writes one partial sum per workgroup;
   the caller performs the final reduction. There is no single-call full reduction kernel yet.
 * **Single device per context.** Multi-GPU and peer access are out of scope for V1.
