@@ -442,6 +442,55 @@ hcsResult hcsKernelCreate(hcsContext context, const char* name, hcsKernel* out_k
 
 void hcsKernelDestroy(hcsKernel kernel) { delete kernel; }
 
+hcsResult hcsProgramCreateSpirv(hcsContext context, const void* spirv, size_t byte_size,
+                                hcsProgram* out_program)
+{
+    if (!context || !spirv || !out_program || byte_size == 0) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsProgramCreateSpirv",
+                         "context, SPIR-V data and output must not be null/empty");
+    }
+    if (byte_size > 8u * 1024u * 1024u || byte_size % 4u != 0) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsProgramCreateSpirv",
+                         "SPIR-V must be a 4-byte-aligned module of at most 8 MiB");
+    }
+    const uint32_t magic = *static_cast<const uint32_t*>(spirv);
+    if (magic != 0x07230203u) {
+        return hcs::fail(HCS_E_SPIRV_INVALID, "hcsProgramCreateSpirv",
+                         "missing SPIR-V magic number 0x07230203");
+    }
+    auto program = std::make_unique<hcs_program_t>();
+    program->context = context;
+    const hcsResult result = context->impl->createProgram(program.get(), spirv, byte_size);
+    if (result != HCS_SUCCESS) {
+        return result;
+    }
+    *out_program = program.release();
+    return HCS_SUCCESS;
+}
+
+void hcsProgramDestroy(hcsProgram program) { delete program; }
+
+hcsResult hcsKernelFromProgram(hcsProgram program, hcsKernel* out_kernel)
+{
+    if (!program || !program->context || !out_kernel) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsKernelFromProgram",
+                         "program and output must not be null");
+    }
+    auto kernel = std::make_unique<hcs_kernel_t>();
+    kernel->context = program->context;
+    kernel->program = program;
+    static std::atomic<uint64_t> nextUid{1};
+    kernel->uid = nextUid.fetch_add(1, std::memory_order_relaxed);
+    const hcsResult result =
+        program->context->impl->createProgramKernel(program, kernel.get());
+    if (result != HCS_SUCCESS) {
+        return result;
+    }
+    *out_kernel = kernel.release();
+    return HCS_SUCCESS;
+}
+
+
 hcsResult hcsDispatch(hcsKernel kernel, const hcsDispatchDesc* desc, hcsFlow flow)
 {
     if (!kernel || !desc) {

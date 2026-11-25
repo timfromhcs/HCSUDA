@@ -1,6 +1,6 @@
 # Agent status
 
-Updated: 2026-11-25 (Wave 0–3 complete, Wave 4 code complete except GPU execution)
+Updated: 2026-11-25 (Wave 0–4 complete)
 
 ## Environment (measured, not assumed)
 
@@ -24,11 +24,11 @@ Updated: 2026-11-25 (Wave 0–3 complete, Wave 4 code complete except GPU execut
 | Wave | Scope | Status | Notes |
 |---|---|---|---|
 | 0 | Reconnaissance, project contract, build skeleton | **Done** | MSVC + Vulkan SDK verified; presets build |
-| 1 | Core API + CPU reference backend | **Done** | 34 registered tests, all passing |
+| 1 | Core API + CPU reference backend | **Done** | 37 registered tests, all passing |
 | 2 | Vulkan discovery + diagnostics | **Done** | `hcsdoctor` reports real 680M caps/budget |
 | 3 | Minimal Vulkan compute | **Done** | vecadd/scale/reduce/matmul verified vs CPU |
 | 4 | HCSIR/HCS-PIR verifier + compiler path | **Almost** | parser, verifier, CPU interpreter, GLSL lowering with build-time `glslc` check, 34/34 tests; GPU execution of HCSIR via the C ABI still missing |
-| 5 | HCSFlow/HEvent/HCSGraph async | Pending | V1 dispatch is synchronous today |
+| 5 | HCSFlow/HEvent/HCSGraph async | Next | V1 dispatch is synchronous today |
 | 6 | Math kernels + tuning (scan, transpose, histogram) | Pending | |
 | 7 | CUDA source migration (`hcsport`) | Pending | matrix is conservative |
 | 8 | Model vault + GGUF (llama.cpp Vulkan) | Pending | no model bundled |
@@ -53,19 +53,21 @@ Updated: 2026-11-25 (Wave 0–3 complete, Wave 4 code complete except GPU execut
   with `const` declarations and source-line diagnostics. Internal only — not in the C ABI.
 * HCSCC: lowers verified HCSIR to GLSL 450 compute shaders (state-machine CFG, bounds
   checks, push constants); the build compiles the generated shader with `glslc`.
-* Tests: 34 tests covering API contract, CPU correctness, Vulkan correctness against CPU
+* Experimental program API: HCSCC-generated SPIR-V can be loaded into a Vulkan pipeline
+  and dispatched. The CPU backend reports this as unsupported rather than decoding SPIR-V.
+* Tests: 37 tests covering API contract, CPU correctness, Vulkan correctness against CPU
   reference, memory cap enforcement, device report sanity, HCSIR accept/reject behaviour,
-  and generated-GLSL properties/determinism.
+  generated-GLSL properties, and GPU execution of a generated HCSIR module.
 
-## Immediate next actions (finish Wave 4)
+## Immediate next actions (Wave 5)
 
-1. Add an internal (not yet public ABI) path to create a Vulkan compute pipeline from the
-   `glslc`-compiled SPIR-V produced by HCSCC, and compare GPU output against the interpreter
-   for the same HCSIR module. This is the remaining gate before claiming HCSIR executes on GPU.
-2. Keep the hand-written kernels as the conformance baseline until the generated path matches.
-3. Add module serialization + round-trip verification so compiled modules can be cached.
-4. Then Wave 5: real asynchronous HCSFlow/HEvent with validation-layer runs in a dedicated
-   CTest profile.
+1. Replace the single synchronous command buffer with reusable per-context command pools and
+   add a real HEvent (fence fallback, timeline semaphore when the capability bit is present).
+2. Wire Vulkan validation layers into a dedicated Debug/CTest profile.
+3. Add race/ordering tests with multiple flows and repeated randomized schedules.
+4. Only then add a bounded HCSGraph recording/replay subset, marked experimental until tested.
+
+Deferred from Wave 4 (not a release blocker): HCSIR serialization/round-trip caching.
 
 ## Known gaps that block a V1 release
 

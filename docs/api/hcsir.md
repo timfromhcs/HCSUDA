@@ -6,9 +6,11 @@ because it is checked against the test suite (`ir_*` tests).
 
 HCSIR v1 is not exposed through the stable C ABI yet. It is an internal, verifiable
 intermediate representation used by the CPU interpreter and by the HCSCC GLSL lowering pass.
-The lowering output is compiled by `glslc` at build time and the resulting SPIR-V is checked
-into the build tree, but no API loads it into a Vulkan pipeline yet. The Vulkan path still
-runs the hand-written kernels in `shaders/hksl/`.
+The lowering output is compiled by `glslc` at build time and the resulting SPIR-V is embedded
+into `hcsuda_ir_spv`. The experimental program API (`hcsProgramCreateSpirv`,
+`hcsKernelFromProgram`) loads that SPIR-V into a Vulkan pipeline; test IR-18 dispatches the
+same HCSIR vecadd module on the Radeon 680M and compares it against the CPU reference. The CPU
+backend rejects the program API with `HCS_E_UNSUPPORTED_FEATURE` instead of decoding SPIR-V.
 
 ## Example
 
@@ -115,8 +117,9 @@ The build lowers `tests/fixtures/ir/vecadd.hcsir` and compiles the generated sha
 
 ## Not implemented (do not claim)
 
-* Loading HCSCC-generated SPIR-V into a Vulkan pipeline through the C ABI, so HCSIR modules
-  cannot run on the GPU yet.
+* Entry-point reflection: the program API assumes a shader entry point named `main`.
+* Arbitrary user-supplied SPIR-V: only build-time HCSCC output is tested.
+* HCSIR serialization / binary module format and caching.
 * Integer arithmetic opcodes, shifts, bitwise operations.
 * Atomics, subgroup operations, matrix/tile operations.
 * Loops as structured opcodes (`jump`/`branch` only).

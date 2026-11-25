@@ -43,6 +43,9 @@ public:
     virtual hcsResult createBuffer(hcs_buffer_t* buffer) = 0;
     virtual void destroyBuffer(hcs_buffer_t* buffer) = 0;
     virtual hcsResult dispatch(hcs_kernel_t* kernel, const hcsDispatchDesc* desc) = 0;
+    virtual hcsResult createProgram(hcs_program_t* program, const void* data,
+                                    size_t byteSize) = 0;
+    virtual hcsResult createProgramKernel(hcs_program_t* program, hcs_kernel_t* kernel) = 0;
     virtual hcsResult synchronize() = 0;
     virtual const char* name() const = 0;
 };
@@ -97,7 +100,14 @@ struct hcs_flow_t {
     std::atomic<uint64_t> submissions{0};
 };
 
+struct hcs_program_t {
+    hcs_context_t* context = nullptr;
+    std::vector<unsigned char> spirv;
+};
+
 struct hcs_kernel_t {
     hcs_context_t* context = nullptr;
     const hcs::KernelDef* def = nullptr;
+    hcs_program_t* program = nullptr; /* set only for hcsKernelFromProgram kernels */
+    uint64_t uid = 0;                 /* unique pipeline key, never reused */
 };

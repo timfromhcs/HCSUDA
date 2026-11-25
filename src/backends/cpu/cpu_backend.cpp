@@ -226,8 +226,25 @@ public:
         }
     }
 
+    hcsResult createProgram(hcs_program_t*, const void*, size_t) override
+    {
+        return fail(HCS_E_UNSUPPORTED_FEATURE, "cpu.createProgram",
+                    "the CPU backend does not decode SPIR-V; run the HCSIR module "
+                    "through the interpreter instead");
+    }
+
+    hcsResult createProgramKernel(hcs_program_t*, hcs_kernel_t*) override
+    {
+        return fail(HCS_E_UNSUPPORTED_FEATURE, "cpu.createProgramKernel",
+                    "the CPU backend does not decode SPIR-V");
+    }
+
     hcsResult dispatch(hcs_kernel_t* kernel, const hcsDispatchDesc* desc) override
     {
+        if (!kernel->def) {
+            return fail(HCS_E_UNSUPPORTED_FEATURE, "cpu.dispatch",
+                        "program kernels require a backend that supports SPIR-V");
+        }
         switch (kernel->def->id) {
         case KernelId::VecAddF32:
             return dispatchVecAdd(desc);

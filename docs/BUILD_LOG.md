@@ -133,3 +133,22 @@ ctest --preset windows-tests --output-on-failure
 The build fails if either `hcscc` or `glslc` rejects the generated shader. This proves the
 emitted GLSL is syntactically valid for Vulkan 1.1; it does **not** prove GPU execution of
 HCSIR modules, because no runtime SPIR-V program-loading API exists yet.
+
+## 2026-11-25 — Wave 4 complete: generated HCSIR executes on Vulkan
+
+Added the experimental program API (`hcsProgramCreateSpirv`, `hcsProgramDestroy`,
+`hcsKernelFromProgram`) to the stable header, with a Vulkan pipeline keyed by a unique kernel
+uid and an explicit `HCS_E_UNSUPPORTED_FEATURE` on the CPU backend. Generated SPIR-V from the
+fixture is embedded into a separate `hcsuda_ir_spv` static library so the build graph stays
+acyclic (`hcscc` links `hcsuda_core`; `hcsuda_core` must not depend on `hcscc`).
+
+One warning was fixed: `fopen` deprecation in `hcscc` (`_CRT_SECURE_NO_WARNINGS` on MSVC).
+
+```
+cmake --build --preset windows-tests --parallel   -> all targets, no project warnings
+ctest --preset windows-tests --output-on-failure  -> 37/37 HCS tests
+.\hcs_tests.exe --filter hcsir_generated          -> PASS (real Vulkan dispatch)
+```
+
+HCSIR vecadd now has two independent execution paths that agree: the CPU interpreter and a
+GPU pipeline compiled from HCSCC-generated GLSL.

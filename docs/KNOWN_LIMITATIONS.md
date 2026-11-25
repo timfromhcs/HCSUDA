@@ -14,10 +14,12 @@ the current truth of the code in this repository.
   specialization constants, or push-descriptor support yet.
 * **No shader compilation at runtime.** Only the four built-in SPDC/SPIR-V kernels compiled
   from `shaders/hksl/` at build time are available. `hcsProgramCreateSpirv` is not exposed.
-* **HCSIR v1 runs only on the CPU interpreter.** The parser, verifier, interpreter and
-  GLSL lowering exist and are tested (`ir_*` tests); `hcscc` output is compiled by `glslc`
-  at build time. But no API loads that SPIR-V into a Vulkan pipeline, so an HCSIR module
-  still cannot execute on a GPU. HCSIR is internal and not part of the C ABI.
+* **Only a narrow HCSIR subset executes on the GPU.** The verified vecadd-style module runs
+  both in the CPU interpreter and as HCSCC-generated Vulkan SPIR-V (test IR-18). The program
+  API is an explicitly experimental extension, loads only modules produced by the build-time
+  HCSCC path, does not reflect entry points, and returns `HCS_E_UNSUPPORTED_FEATURE` on CPU.
+* **No HCSIR serialization/caching.** Modules are recompiled by `hcscc` at build time; there
+  is no stable binary module format yet.
 * **HCSIR covers an elementwise subset only.** No integer/bitwise opcodes, no atomics, no
   subgroup or matrix operations, no structured loops, no module serialization.
 * **Reduce is two-stage by design.** `reduce_sum_f32` writes one partial sum per workgroup;

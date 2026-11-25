@@ -695,7 +695,7 @@ public:
         }
 
         VkPipeline pipeline = VK_NULL_HANDLE;
-        hcsResult result = pipelineFor(kernel->def->id, &pipeline);
+        hcsResult result = pipelineFor(kernel, &pipeline);
         if (result != HCS_SUCCESS) {
             return result;
         }
@@ -886,22 +886,54 @@ private:
         return true;
     }
 
-    hcsResult pipelineFor(KernelId id, VkPipeline* out)
+    hcsResult createProgram(hcs_program_t* program, const void* data, size_t byteSize) override
     {
-        auto it = pipelines_.find(static_cast<int>(id));
+        if (!program || !data || byteSize == 0) {
+            return fail(HCS_E_INVALID_ARGUMENT, "vulkan.createProgram",
+                        "program, data and size must be valid");
+        }
+        const unsigned char* bytes = static_cast<const unsigned char*>(data);
+        program->spirv.assign(bytes, bytes + byteSize);
+        return HCS_SUCCESS;
+    }
+
+    hcsResult createProgramKernel(hcs_program_t* program, hcs_kernel_t*) override
+    {
+        if (!program || program->spirv.empty()) {
+            return fail(HCS_E_INVALID_ARGUMENT, "vulkan.createProgramKernel",
+                        "program has no SPIR-V module");
+        }
+        return HCS_SUCCESS;
+    }
+
+    hcsResult pipelineFor(hcs_kernel_t* kernel, VkPipeline* out)
+    {
+        const uint64_t key = kernel->def ? (0x10000ull + static_cast<uint64_t>(kernel->def->id))
+                                         : kernel->uid;
+        auto it = pipelines_.find(key);
         if (it != pipelines_.end()) {
             *out = it->second;
             return HCS_SUCCESS;
         }
-        const SpvBlob blob = blobFor(id);
-        if (!blob.data || blob.size == 0) {
+        const unsigned char* bytes = nullptr;
+        size_t byteCount = 0;
+        SpvBlob blob{nullptr, 0};
+        if (kernel->def) {
+            blob = blobFor(kernel->def->id);
+            bytes = blob.data;
+            byteCount = blob.size;
+        } else if (kernel->program) {
+            bytes = kernel->program->spirv.data();
+            byteCount = kernel->program->spirv.size();
+        }
+        if (!bytes || byteCount == 0) {
             return fail(HCS_E_KERNEL_NOT_FOUND, "vulkan.pipeline",
                         "no SPIR-V module for this kernel");
         }
         VkShaderModuleCreateInfo moduleInfo{};
         moduleInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        moduleInfo.codeSize = blob.size;
-        moduleInfo.pCode = reinterpret_cast<const uint32_t*>(blob.data);
+        moduleInfo.codeSize = byteCount;
+        moduleInfo.pCode = reinterpret_cast<const uint32_t*>(bytes);
         VkShaderModule module = VK_NULL_HANDLE;
         VkResult vk =
             g_api.vkCreateShaderModule(device_, &moduleInfo, nullptr, &module);
@@ -923,7 +955,7 @@ private:
         if (vk != VK_SUCCESS) {
             return mapVkResult(vk, "vulkan.createComputePipeline");
         }
-        pipelines_[static_cast<int>(id)] = pipeline;
+        pipelines_[key] = pipeline;
         *out = pipeline;
         return HCS_SUCCESS;
     }
@@ -939,7 +971,7 @@ private:
     VkDescriptorSetLayout descriptorLayout_ = VK_NULL_HANDLE;
     VkPipelineLayout pipelineLayout_ = VK_NULL_HANDLE;
     VkDescriptorPool descriptorPool_ = VK_NULL_HANDLE;
-    std::unordered_map<int, VkPipeline> pipelines_;
+    std::unordered_map<uint64_t, VkPipeline> pipelines_;
     std::mutex mutex_;
     uint64_t memoryCap_ = 0;
     uint64_t allocated_ = 0;

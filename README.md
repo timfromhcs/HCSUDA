@@ -29,7 +29,7 @@ migration tooling.
 | HCSFlow (synchronous submit/wait in V1) | **Native / Beta** | dispatch tests |
 | Diagnostics CLI (`hcsdoctor`) | **Native / Stable** | this repo |
 | Benchmarks (`hcsbench`) | **Native / Stable** | `benchmarks/baselines/` |
-| HCSIR v1 parser/verifier/interpreter + HCSCC GLSL lowering (CPU execution only, internal) | **Experimental** | `ir_*` tests, build-time `glslc` check, `docs/api/hcsir.md` |
+| HCSIR v1 parser/verifier + CPU interpreter + HCSCC GLSL lowering → Vulkan execution | **Experimental** | `ir_*` tests, IR-18 GPU run, `docs/api/hcsir.md` |
 | CUDA source migration (`hcsport`) | **Planned (Wave 7)** | — |
 | Model vault / GGUF inference | **Planned (Wave 8)** | — |
 | REST API / MCP server | **Planned (Wave 9)** | — |

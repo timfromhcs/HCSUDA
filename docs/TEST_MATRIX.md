@@ -4,7 +4,7 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **1/1 CTest target passed; 34/34 HCS tests passed** (2026-11-25).
+Last result: **1/1 CTest target passed; 37/37 HCS tests passed** (2026-11-25).
 
 | ID | Test | Backend | Result | What it proves |
 |---|---|---|---|---|
@@ -43,6 +43,9 @@ Last result: **1/1 CTest target passed; 34/34 HCS tests passed** (2026-11-25).
 | IR-15 | ir_glsl_lowering_rejects_barrier | lowering | PASS | barrier → `HCS_E_UNSUPPORTED_FEATURE`, no partial output |
 | IR-16 | ir_glsl_lowering_rejects_uncompiled_module | lowering | PASS | uncompiled module / null output rejected |
 | IR-17 | build-time generated shader compiles | `glslc` | PASS | `hcscc` lowers `tests/fixtures/ir/vecadd.hcsir`; `glslc --target-env=vulkan1.1 -O` produces SPIR-V during `cmake --build` |
+| IR-18 | hcsir_generated_spirv_runs_on_vulkan | Vulkan | PASS | HCSCC-generated SPIR-V loaded via the experimental program API; 4096 invocations match the HCSIR reference within 2e-5 |
+| IR-19 | hcsir_program_rejects_invalid_spirv | Vulkan | PASS | bad magic → `HCS_E_SPIRV_INVALID`; unaligned/null input → `HCS_E_INVALID_ARGUMENT` |
+| IR-20 | hcsir_program_is_unsupported_on_cpu_backend | CPU | PASS | CPU returns `HCS_E_UNSUPPORTED_FEATURE` instead of pretending to decode SPIR-V |
 
 ## Not yet covered (explicit gaps)
 

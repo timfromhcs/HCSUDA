@@ -7,6 +7,8 @@
  * No Vulkan handle is ever exposed through this header.
  */
 
+#include <stddef.h>
+
 #include "hcsuda_errors.h"
 #include "hcsuda_types.h"
 #include "hcsuda_version.h"
@@ -25,6 +27,7 @@ typedef struct hcs_buffer_t hcs_buffer_t;
 typedef struct hcs_flow_t hcs_flow_t;
 typedef struct hcs_kernel_t hcs_kernel_t;
 typedef struct hcs_event_t hcs_event_t;
+typedef struct hcs_program_t hcs_program_t;
 
 typedef hcs_device_t* hcsDevice;
 typedef hcs_context_t* hcsContext;
@@ -32,6 +35,7 @@ typedef hcs_buffer_t* hcsBuffer;
 typedef hcs_flow_t* hcsFlow;
 typedef hcs_kernel_t* hcsKernel;
 typedef hcs_event_t* hcsEvent;
+typedef hcs_program_t* hcsProgram;
 
 /* Lifetime ---------------------------------------------------------------- */
 
@@ -87,6 +91,17 @@ HCS_API hcsResult hcsKernelCreate(hcsContext context, const char* name,
 HCS_API void hcsKernelDestroy(hcsKernel kernel);
 HCS_API hcsResult hcsDispatch(hcsKernel kernel, const hcsDispatchDesc* desc,
                               hcsFlow flow);
+
+/*
+ * EXPERIMENTAL HCS_API_VERSION 1 extension: load SPIR-V produced by HCSCC from a
+ * verified HCSIR module. Only the Vulkan backend accepts it; the CPU backend
+ * returns HCS_E_UNSUPPORTED_FEATURE. No entry-point reflection is performed: the
+ * shader must expose `main`. This is not a general SPIR-V loader guarantee.
+ */
+HCS_API hcsResult hcsProgramCreateSpirv(hcsContext context, const void* spirv,
+                                        size_t byte_size, hcsProgram* out_program);
+HCS_API void hcsProgramDestroy(hcsProgram program);
+HCS_API hcsResult hcsKernelFromProgram(hcsProgram program, hcsKernel* out_kernel);
 
 /* Diagnostics ------------------------------------------------------------- */
 

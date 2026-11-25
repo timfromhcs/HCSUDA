@@ -9,7 +9,7 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 1 | CPU-only sample passes; ABI and error tests | **GREEN** |
 | 2 | Accurate device report on real hardware; CPU fallback | **GREEN** |
 | 3 | Vulkan vector-add (and more) passes vs CPU reference | **GREEN** |
-| 4 | HCSIR v1 parser/verifier/interpreter + GLSL lowering | **PARTIAL** — 34/34 tests green; lowering compiles through `glslc` at build time; HCSIR→GPU execution via an API is still missing |
+| 4 | HCSIR v1 parser/verifier/interpreter + GLSL lowering + GPU execution | **GREEN** — 37/37 tests; the same HCSIR vecadd module passes on the CPU interpreter and on the Vulkan GPU |
 | 5 | Async flows/events/graphs; race-free under stress | RED |
 | 6 | Reduction/scan/matmul suite + benchmark data | PARTIAL (reduce, matmul done) |
 | 7 | CUDA source subset migration with report | RED |
@@ -20,14 +20,15 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 12 | Stress/soak/fuzz/static analysis; no critical issues | RED |
 | 13 | README/matrix match build; release candidate | RED |
 
-## Next concrete task (remainder of Wave 4)
+## Next concrete task (Wave 5)
 
-1. Load the `glslc`-compiled SPIR-V produced by HCSCC into the Vulkan backend and compare GPU
-   output against the interpreter for the same module. No public ABI until that passes.
-2. Only after that passes: expose HCSIR module compilation through an explicitly experimental
-   API entry point (`HCS_E_UNSUPPORTED_FEATURE` for anything outside the verified subset).
-3. Add a serialization round-trip (serialize → parse → compare) so modules can be cached.
-4. Keep the existing hand-written kernels untouched as the conformance baseline.
+1. Replace the single synchronous command buffer with reusable per-context command pools and
+   implement HEvent with a fence fallback plus timeline semaphores where the capability exists.
+2. Wire Vulkan validation layers into a dedicated Debug/CTest profile.
+3. Add deterministic ordering tests over multiple flows and repeated randomized schedules.
+4. Add a bounded HCSGraph DAG subset, marked Experimental until conformance tests exist.
+
+Deferred from Wave 4: HCSIR serialization/round-trip caching.
 
 ## Definition of done for any wave
 
