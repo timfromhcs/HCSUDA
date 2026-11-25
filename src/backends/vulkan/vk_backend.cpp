@@ -556,19 +556,26 @@ public:
         if (!active_ || !device_) {
             return fail(HCS_E_NOT_INITIALIZED, "vulkan.flowSync", "flow is detached");
         }
-        std::vector<VkFence> fences;
-        fences.reserve(pending_.size());
-        for (const auto& item : pending_) {
-            fences.push_back(item.fence);
-        }
-        if (!fences.empty()) {
-            const VkResult vk = g_api.vkWaitForFences(device_, static_cast<uint32_t>(fences.size()),
-                                                     fences.data(), VK_TRUE, timeout_ns);
-            if (vk == VK_TIMEOUT) {
-                return fail(HCS_E_TIMEOUT, "vulkan.flowSync", "fence wait timed out");
+        /* Wait in bounded batches: some drivers return VK_ERROR_UNKNOWN for very large
+         * fence counts even though the specification allows them. */
+        constexpr size_t kBatch = 64;
+        for (size_t base = 0; base < pending_.size(); base += kBatch) {
+            std::vector<VkFence> fences;
+            const size_t end = std::min(pending_.size(), base + kBatch);
+            fences.reserve(end - base);
+            for (size_t i = base; i < end; ++i) {
+                fences.push_back(pending_[i].fence);
             }
-            if (vk != VK_SUCCESS) {
-                return mapVkResult(vk, "vulkan.flowSync");
+            if (!fences.empty()) {
+                const VkResult vk = g_api.vkWaitForFences(
+                    device_, static_cast<uint32_t>(fences.size()), fences.data(), VK_TRUE,
+                    timeout_ns);
+                if (vk == VK_TIMEOUT) {
+                    return fail(HCS_E_TIMEOUT, "vulkan.flowSync", "fence wait timed out");
+                }
+                if (vk != VK_SUCCESS) {
+                    return mapVkResult(vk, "vulkan.flowSync");
+                }
             }
         }
         const uint64_t finished = pending_.size();

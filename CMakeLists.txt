@@ -246,6 +246,7 @@ if(HCS_BUILD_TESTS)
         tests/unit/test_mcp.cpp
         tests/unit/test_rest.cpp
         tests/unit/test_translate.cpp
+        tests/unit/test_stress.cpp
         tests/unit/test_ir.cpp
         tests/unit/test_ir_glsl.cpp
         tests/unit/test_ir_vulkan.cpp

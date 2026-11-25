@@ -1,0 +1,67 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "HCSBridge REST API",
+    "version": "0.1.0",
+    "description": "Local-only HCSUDA runtime API. Binds 127.0.0.1 only; all non-health endpoints require a per-process random bearer token. No arbitrary code execution, shell, DLL load or unrestricted file access is exposed."
+  },
+  "servers": [{ "url": "http://127.0.0.1:8710" }],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": { "type": "http", "scheme": "bearer", "description": "Random 64-hex token printed to stderr at process start." }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "object", "properties": {
+            "status": { "type": "integer" },
+            "code": { "type": "string" },
+            "message": { "type": "string" }
+          } }
+        }
+      }
+    }
+  },
+  "security": [{ "bearerAuth": [] }],
+  "paths": {
+    "/api/v1/health": {
+      "get": {
+        "security": [],
+        "summary": "Liveness and local-only confirmation",
+        "responses": { "200": { "description": "OK", "content": { "application/json": { "example": { "status": "ok", "local_only": true } } } } }
+      }
+    },
+    "/api/v1/version": {
+      "get": {
+        "summary": "Product, version and C ABI version",
+        "responses": { "200": { "description": "OK" }, "401": { "description": "Missing or invalid token", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } } }
+      }
+    },
+    "/api/v1/devices": {
+      "get": {
+        "summary": "Real device inventory (Vulkan + CPU)",
+        "responses": { "200": { "description": "OK" }, "401": { "description": "Unauthorized" } }
+      }
+    },
+    "/api/v1/runtime/status": {
+      "get": {
+        "summary": "Runtime status and device inventory",
+        "responses": { "200": { "description": "OK" }, "401": { "description": "Unauthorized" } }
+      }
+    },
+    "/api/v1/memory/budget": {
+      "get": {
+        "summary": "Driver-reported heap, budget and usage; not a VRAM size",
+        "responses": { "200": { "description": "OK" }, "401": { "description": "Unauthorized" } }
+      }
+    },
+    "/ui/": {
+      "get": {
+        "security": [],
+        "summary": "Self-contained local browser console",
+        "responses": { "200": { "description": "text/html" } }
+      }
+    }
+  }
+}

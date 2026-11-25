@@ -376,3 +376,19 @@ full EXE run -> SETUP_EXIT=0, installed binaries report real devices, uninstall 
 
 Final installer hash: F418108B57CEDD61AE60EAB44CAF3EEC342B3173FB2A73F0BFFB62AFF7985C05
 (unsigned; checksum is the verification mechanism).
+
+## 2026-11-25 — Wave 12/13: stress, fuzz, OpenAPI, SBOM, scope
+
+Added `tests/unit/test_stress.cpp` (STR-01..03). The 500-submission GPU stress test exposed a
+real driver quirk: `vkWaitForFences` with hundreds of fences returned `VK_ERROR_UNKNOWN` on the
+AMD driver. Fixed by waiting in batches of 64 in `VulkanFlow::synchronize`. Validation layers then
+also confirmed no leaked Vulkan objects in the happy path.
+
+```
+ctest --preset windows-tests --output-on-failure -> 76/76
+ctest --preset windows-validation --timeout 180 --output-on-failure -> 76/76, zero validation errors
+```
+
+Added `docs/api/openapi.json`, `docs/release/sbom.json` and `docs/release/v1-scope.md`. The scope
+document explicitly omits GGUF inference, PTX import, Qt/WebView2 shell, Streamable HTTP and
+several advanced compute features from V1 claims rather than leaving them vague.

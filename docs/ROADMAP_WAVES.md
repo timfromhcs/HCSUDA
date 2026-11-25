@@ -17,8 +17,8 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 9 | REST + MCP local-only, authenticated, tested | PARTIAL — MCP (MCP-01..06) and REST (REST-01..05) pass; OpenAPI + remaining endpoints pending |
 | 10 | UI pages, settings persistence, no dead controls | PARTIAL — local browser UI with live data (UI-01..02); settings persistence and full navigation pending |
 | 11 | Single EXE installer, clean-VM install/uninstall | PARTIAL — native EXE works on reference machine (INS-01..02); clean VM + upgrade test pending |
-| 12 | Stress/soak/fuzz/static analysis; no critical issues | RED |
-| 13 | README/matrix match build; release candidate | RED |
+| 12 | Stress/soak/fuzz/static analysis; no critical issues | PARTIAL — STR-01..03 pass; long soak/dependency scan pending |
+| 13 | README/matrix match build; release candidate | PARTIAL — OpenAPI/SBOM/scope docs added; GitHub release + signing pending |
 
 ## Next concrete task (finish Waves 6–7)
 

@@ -4,7 +4,7 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **1/1 CTest target passed; 73/73 HCS tests passed** (2026-11-25).
+Last result: **1/1 CTest target passed; 76/76 HCS tests passed** (2026-11-25).
 
 | ID | Test | Backend | Result | What it proves |
 |---|---|---|---|---|
@@ -51,7 +51,7 @@ Last result: **1/1 CTest target passed; 73/73 HCS tests passed** (2026-11-25).
 | FL-03 | flow_event_timeout_and_validation | Vulkan | PASS | idle-flow event is immediately satisfied; null flow/event misuse rejected |
 | FL-04 | flow_cpu_backend_completes_immediately | CPU | PASS | CPU flow/event complete synchronously with zero timeout |
 | FL-05 | flow_event_wait_timeout_path | mock flow | PASS | a backend flow whose counter never advances yields `HCS_E_TIMEOUT` |
-| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 73/73 tests, no validation errors |
+| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 76/76 tests, no validation errors |
 | GR-01 | graph_runs_on_cpu_backend | CPU | PASS | 2-node linear DAG with dependency, replayed on a flow, both outputs verified |
 | GR-02 | graph_runs_on_vulkan_backend | Vulkan | PASS | same DAG executes on the Radeon 680M and matches the CPU result |
 | GR-03 | graph_rejects_invalid_dependencies | CPU | PASS | empty graph, future dependency, zero group count, >8 dependencies all rejected |
@@ -87,6 +87,9 @@ Last result: **1/1 CTest target passed; 73/73 HCS tests passed** (2026-11-25).
 | UI-02 | live browser UI fetch (manual) | UI + REST | PASS | GET /ui/ -> 200 text/html, 4381 bytes from the running service |
 | INS-01 | tests/installer/test_installer.ps1 | installer | PASS | staged install, file checks, installed hcsdoctor --json, uninstall, Vulkan loader intact |
 | INS-02 | full single-EXE setup run (manual) | installer | PASS | SETUP_EXIT=0, real device report from installed binary, uninstall preserved user data |
+| STR-01 | stress_repeated_cpu_dispatch_reuses_buffers | CPU | PASS | 2000 synchronous dispatches reusing the same buffers |
+| STR-02 | stress_async_flow_many_submissions | Vulkan | PASS | 500 async submissions on one flow, chunked fence wait, verified output |
+| STR-03 | fuzz_bounded_parsers_reject_random_input | parsers/API | PASS | 200 seeded random inputs through HCSIR, scanner, MCP and REST handlers |
 
 ## Not yet covered (explicit gaps)
 
@@ -101,7 +104,7 @@ Last result: **1/1 CTest target passed; 73/73 HCS tests passed** (2026-11-25).
 | MCP stdio protocol conformance | **tested** (MCP-01..06) | 9 |
 | Browser UI served locally | **tested** (UI-01..02); no automated screenshot capture yet | 10 |
 | Installer staged + reference-machine install/uninstall | **tested** (INS-01..02); clean VM and upgrade not tested | 11 |
-| Stress/soak (10k dispatches, 60 min) | untested | 12 |
+| Stress/fuzz (2000 CPU, 500 GPU submissions, 200 fuzz inputs) | **tested** (STR-01..03); 60-min soak not run | 12 |
 | Intel/NVIDIA Vulkan hardware | **not verified** | requires hardware |
 | Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (52/52 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
 
