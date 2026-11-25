@@ -113,6 +113,7 @@ add_library(hcsuda_core STATIC
     src/core/runtime.cpp
     src/ir/hcsir.cpp
     src/ir/lower_glsl.cpp
+    src/translation/cuda_source/scanner.cpp
     src/backends/cpu/cpu_backend.cpp
     src/backends/vulkan/vk_backend.cpp
     ${HCS_SHADER_GENERATED})
@@ -146,6 +147,13 @@ if(HCS_BUILD_TOOLS)
     add_executable(hcsbench tools/hcsbench/main.cpp)
     target_link_libraries(hcsbench PRIVATE hcsuda_core)
 
+    add_executable(hcsport tools/hcsport/main.cpp)
+    target_link_libraries(hcsport PRIVATE hcsuda_core)
+    target_include_directories(hcsport PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+    if(MSVC)
+        target_compile_definitions(hcsport PRIVATE _CRT_SECURE_NO_WARNINGS)
+    endif()
+
     add_executable(hcscc tools/hcscc/main.cpp)
     target_link_libraries(hcscc PRIVATE hcsuda_core)
     target_include_directories(hcscc PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -153,7 +161,7 @@ if(HCS_BUILD_TOOLS)
         target_compile_definitions(hcscc PRIVATE _CRT_SECURE_NO_WARNINGS)
     endif()
 
-    foreach(tool hcsdoctor hcsbench hcscc)
+    foreach(tool hcsdoctor hcsbench hcscc hcsport)
         if(MSVC)
             target_compile_options(${tool} PRIVATE /W4 /permissive- /utf-8)
         endif()
@@ -172,6 +180,7 @@ if(HCS_BUILD_TESTS)
         tests/unit/test_flows.cpp
         tests/unit/test_graph.cpp
         tests/unit/test_kernels_extra.cpp
+        tests/unit/test_hcsport.cpp
         tests/unit/test_ir.cpp
         tests/unit/test_ir_glsl.cpp
         tests/unit/test_ir_vulkan.cpp

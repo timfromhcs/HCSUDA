@@ -30,7 +30,7 @@ migration tooling.
 | Diagnostics CLI (`hcsdoctor`) | **Native / Stable** | this repo |
 | Benchmarks (`hcsbench`) | **Native / Stable** | `benchmarks/baselines/` |
 | HCSIR v1 parser/verifier + CPU interpreter + HCSCC GLSL lowering → Vulkan execution | **Experimental** | `ir_*` tests, IR-18 GPU run, `docs/api/hcsir.md` |
-| CUDA source migration (`hcsport`) | **Planned (Wave 7)** | — |
+| CUDA source compatibility scan (`hcsport --scan`) | **Experimental** | PORT-01..03, `docs/compatibility/cuda-api-matrix.md` |
 | Model vault / GGUF inference | **Planned (Wave 8)** | — |
 | REST API / MCP server | **Planned (Wave 9)** | — |
 | Desktop UI | **Planned (Wave 10)** | — |
@@ -75,6 +75,7 @@ Outputs land in `build/<preset>/RelWithDebInfo/`:
 * `hcsdoctor.exe` — device, capability and memory-budget report (`--json` supported)
 * `hcsbench.exe` — reproducible micro-benchmarks (`--json`, `--device`, `--reps`)
 * `hcscc.exe` — HCSIR v1 → GLSL 450 compute shader (`--input`, `--output`, `--stats`)
+* `hcsport.exe` — CUDA source compatibility scan (`--scan <file.cu> [--json]`); no translation in V1
 * `hcs_tests.exe` — unit/integration suite
 
 ## Quick start: run the tools

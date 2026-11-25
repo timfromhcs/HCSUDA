@@ -4,7 +4,7 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **1/1 CTest target passed; 52/52 HCS tests passed** (2026-11-25).
+Last result: **1/1 CTest target passed; 55/55 HCS tests passed** (2026-11-25).
 
 | ID | Test | Backend | Result | What it proves |
 |---|---|---|---|---|
@@ -51,7 +51,7 @@ Last result: **1/1 CTest target passed; 52/52 HCS tests passed** (2026-11-25).
 | FL-03 | flow_event_timeout_and_validation | Vulkan | PASS | idle-flow event is immediately satisfied; null flow/event misuse rejected |
 | FL-04 | flow_cpu_backend_completes_immediately | CPU | PASS | CPU flow/event complete synchronously with zero timeout |
 | FL-05 | flow_event_wait_timeout_path | mock flow | PASS | a backend flow whose counter never advances yields `HCS_E_TIMEOUT` |
-| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 52/52 tests, no validation errors |
+| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 55/55 tests, no validation errors |
 | GR-01 | graph_runs_on_cpu_backend | CPU | PASS | 2-node linear DAG with dependency, replayed on a flow, both outputs verified |
 | GR-02 | graph_runs_on_vulkan_backend | Vulkan | PASS | same DAG executes on the Radeon 680M and matches the CPU result |
 | GR-03 | graph_rejects_invalid_dependencies | CPU | PASS | empty graph, future dependency, zero group count, >8 dependencies all rejected |
@@ -62,6 +62,9 @@ Last result: **1/1 CTest target passed; 52/52 HCS tests passed** (2026-11-25).
 | KC-04 | transpose_cpu_odd_dimensions | CPU | PASS | 37x29 row-major transpose |
 | KC-05 | transpose_vulkan_odd_dimensions | Vulkan | PASS | same odd dimensions on the GPU |
 | KC-06 | transpose_single_element_and_tile_edge | both | PASS | 1x1 and 17x16 tile boundary |
+| PORT-01 | hcsport_scan_reports_constructs_without_claiming_translation | scanner | PASS | line/column findings, manual vs unsupported, JSON states `translated:0` |
+| PORT-02 | hcsport_rejects_binary_and_oversized_input | scanner | PASS | NUL bytes, >4 MiB, empty and null inputs rejected |
+| PORT-03 | hcsport_plain_host_code_has_no_findings | scanner | PASS | plain C++ produces an empty report |
 
 ## Not yet covered (explicit gaps)
 
@@ -70,7 +73,7 @@ Last result: **1/1 CTest target passed; 52/52 HCS tests passed** (2026-11-25).
 | HCSIR parser/verifier/interpreter | **tested** (IR-01..IR-12) | 4 |
 | Async flows, events and linear HCSGraph DAGs | **tested** (FL-01..05, GR-01..04) | 5 |
 | Scan and transpose | **tested** (KC-01..KC-06) | 6 |
-| CUDA source translation corpus | untested | 7 |
+| CUDA source compatibility scan | **tested** (PORT-01..03); no translator exists yet | 7 |
 | PTX textual importer | not implemented | 7 (experimental) |
 | GGUF model load/inference | untested | 8 |
 | REST auth / MCP protocol conformance | untested | 9 |

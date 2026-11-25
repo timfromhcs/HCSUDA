@@ -1,0 +1,113 @@
+/*
+ * HCSPORT — CUDA source compatibility scanner (V1).
+ *
+ * V1 performs a conservative compatibility scan only. It never emits translated code and
+ * never claims to be a CUDA compiler. `--convert` is explicitly unavailable so that no user
+ * can mistake a stub for a working translator.
+ */
+
+#include "translation/cuda_source/scanner.h"
+
+#include <cstdio>
+#include <cstring>
+#include <string>
+#include <vector>
+
+namespace {
+
+bool readFile(const char* path, std::string* out)
+{
+    std::FILE* file = std::fopen(path, "rb");
+    if (!file) {
+        return false;
+    }
+    char chunk[8192];
+    size_t read = 0;
+    while ((read = std::fread(chunk, 1, sizeof(chunk), file)) > 0) {
+        out->append(chunk, read);
+        if (out->size() > hcs::cudascan::kMaxSourceBytes + 1) {
+            std::fclose(file);
+            return false;
+        }
+    }
+    std::fclose(file);
+    return true;
+}
+
+void printError(const char* operation, hcsResult result)
+{
+    hcsErrorInfo info{};
+    info.struct_size = sizeof(info);
+    hcsGetLastError(&info);
+    std::fprintf(stderr, "%s failed: %s (%s)\n", operation, hcsResultString(result),
+                 info.message);
+}
+
+} // namespace
+
+int main(int argc, char** argv)
+{
+    const char* input = nullptr;
+    bool json = false;
+    bool convert = false;
+
+    for (int i = 1; i < argc; ++i) {
+        if (std::strcmp(argv[i], "--help") == 0) {
+            std::printf("usage: hcsport --scan <file.cu> [--json]\n"
+                        "       hcsport --convert <file.cu>   (not implemented in V1)\n");
+            return 0;
+        } else if (std::strcmp(argv[i], "--scan") == 0 && i + 1 < argc) {
+            input = argv[++i];
+        } else if (std::strcmp(argv[i], "--convert") == 0 && i + 1 < argc) {
+            convert = true;
+            input = argv[++i];
+        } else if (std::strcmp(argv[i], "--json") == 0) {
+            json = true;
+        } else {
+            std::fprintf(stderr, "unknown argument: %s\n", argv[i]);
+            return 2;
+        }
+    }
+
+    if (!input) {
+        std::fprintf(stderr, "no input file; use --scan <file.cu>\n");
+        return 2;
+    }
+    if (convert) {
+        std::fprintf(stderr,
+                     "hcsport --convert is not implemented in V1. Run --scan first; manual "
+                     "review is required for every construct.\n");
+        return 2;
+    }
+
+    std::string source;
+    if (!readFile(input, &source)) {
+        std::fprintf(stderr, "cannot read source (or file exceeds 4 MiB): %s\n", input);
+        return 1;
+    }
+
+    hcs::cudascan::Report report;
+    const hcsResult result = hcs::cudascan::scan(source.data(), source.size(), &report);
+    if (result != HCS_SUCCESS) {
+        printError("hcsport scan", result);
+        return 1;
+    }
+
+    if (json) {
+        std::printf("%s\n", hcs::cudascan::toJson(report).c_str());
+        return 0;
+    }
+
+    std::printf("HCSPORT compatibility scan: %s\n", input);
+    std::printf("  bytes %llu, lines %u\n", static_cast<unsigned long long>(report.bytes),
+                report.lines);
+    std::printf("  manual_port_required %u, unsupported %u, translated 0\n",
+                report.manualCount, report.unsupportedCount);
+    std::printf("  V1 has no automatic translator; no source is rewritten.\n\n");
+    for (const auto& finding : report.findings) {
+        std::printf("  %s:%u:%u [%s] %s — %s\n", input, finding.line, finding.column,
+                    hcs::cudascan::classificationName(finding.classification),
+                    finding.construct.c_str(), finding.detail.c_str());
+    }
+    return 0;
+}

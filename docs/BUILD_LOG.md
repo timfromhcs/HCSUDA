@@ -242,3 +242,20 @@ cmake --build --preset windows-tests --parallel
 ctest --preset windows-tests --output-on-failure -> 52/52
 ctest --preset windows-validation --timeout 180 --output-on-failure -> 52/52, zero validation errors
 ```
+
+## 2026-11-25 — Wave 7 (first slice): hcsport compatibility scanner
+
+Added `src/translation/cuda_source/scanner.{h,cpp}`, `tools/hcsport/main.cpp`, a MIT-licensed
+CUDA fixture (`tests/fixtures/cuda/vecadd.cu`) and three tests (PORT-01..03). The scanner is
+bounded (4 MiB source, 16 KiB lines, 4096 findings), rejects binary input, and classifies each
+detected CUDA construct as `manual_port_required` or `unsupported`. It deliberately has no
+`Translated` category yet, reports `translated: 0`, and `--convert` exits with an explicit
+"not implemented in V1" message.
+
+```
+.\hcsport.exe --scan tests\fixtures\cuda\vecadd.cu
+  bytes 857, lines 29, manual_port_required 14, unsupported 1, translated 0
+ctest --preset windows-tests --output-on-failure -> 55/55
+```
+
+Build fix: `hcsport` needed the private `src` include directory, like `hcscc`.

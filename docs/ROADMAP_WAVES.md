@@ -12,7 +12,7 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 4 | HCSIR v1 parser/verifier/interpreter + GLSL lowering + GPU execution | **GREEN** — 37/37 tests; the same HCSIR vecadd module passes on the CPU interpreter and on the Vulkan GPU |
 | 5 | Async flows/events/graphs; race-free under stress | **GREEN** — 46/46 tests incl. graph replay on both backends; validation profile zero errors |
 | 6 | Reduction/scan/matmul suite + benchmark data | PARTIAL — reduce, matmul, scan, transpose tested; benchmark rows + histogram still pending |
-| 7 | CUDA source subset migration with report | RED |
+| 7 | CUDA source subset migration with report | PARTIAL — scanner tested (PORT-01..03); translator and PTX importer not implemented |
 | 8 | GGUF model through verified adapter | RED |
 | 9 | REST + MCP local-only, authenticated, tested | RED |
 | 10 | UI pages, settings persistence, no dead controls | RED |
@@ -20,12 +20,12 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 12 | Stress/soak/fuzz/static analysis; no critical issues | RED |
 | 13 | README/matrix match build; release candidate | RED |
 
-## Next concrete task (finish Wave 6)
+## Next concrete task (finish Waves 6–7)
 
 1. Extend `hcsbench` with scan/transpose rows and record raw baseline data.
-2. Decide whether histogram/image primitives are in V1 scope; if not, remove them from the
+2. Add a small conformance-tested CUDA source translation subset before any PTX importer.
+3. Decide whether histogram/image primitives are in V1 scope; if not, remove them from the
    feature list rather than leaving dead claims.
-3. Add repeated randomized schedules to the flow stress tests (Wave 12 stress harness).
 
 Deferred from Wave 4: HCSIR serialization/round-trip caching.
 

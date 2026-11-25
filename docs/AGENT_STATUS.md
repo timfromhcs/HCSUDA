@@ -1,6 +1,6 @@
 # Agent status
 
-Updated: 2026-11-25 (Wave 0–5 complete, Wave 6 in progress)
+Updated: 2026-11-25 (Wave 0–5 complete, Waves 6–7 in progress)
 
 ## Environment (measured, not assumed)
 
@@ -24,13 +24,13 @@ Updated: 2026-11-25 (Wave 0–5 complete, Wave 6 in progress)
 | Wave | Scope | Status | Notes |
 |---|---|---|---|
 | 0 | Reconnaissance, project contract, build skeleton | **Done** | MSVC + Vulkan SDK verified; presets build |
-| 1 | Core API + CPU reference backend | **Done** | 52 registered tests, all passing |
+| 1 | Core API + CPU reference backend | **Done** | 55 registered tests, all passing |
 | 2 | Vulkan discovery + diagnostics | **Done** | `hcsdoctor` reports real 680M caps/budget |
 | 3 | Minimal Vulkan compute | **Done** | vecadd/scale/reduce/matmul verified vs CPU |
 | 4 | HCSIR/HCS-PIR verifier + compiler path | **Almost** | parser, verifier, CPU interpreter, GLSL lowering with build-time `glslc` check, 34/34 tests; GPU execution of HCSIR via the C ABI still missing |
 | 5 | HCSFlow/HEvent/HCSGraph async | **Done** | async flows, HEvent, bounded linear HCSGraph; validation profile green; 46/46 tests |
 | 6 | Math kernels + tuning (scan, transpose, histogram) | **Partial** | reduce, matmul, scan and transpose verified; histogram/image primitives and new benchmark rows pending |
-| 7 | CUDA source migration (`hcsport`) | Pending | matrix is conservative |
+| 7 | CUDA source migration (`hcsport`) | **Partial** | bounded compatibility scanner reports manual/unsupported constructs; no translator, no PTX importer |
 | 8 | Model vault + GGUF (llama.cpp Vulkan) | Pending | no model bundled |
 | 9 | REST API + MCP server | Pending | local-only, token auth required |
 | 10 | Desktop UI | Pending | Qt absent; WebView2 strategy drafted |
