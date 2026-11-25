@@ -1,0 +1,21 @@
+# Sample HCSIR v1 module used by the build to prove that generated GLSL compiles.
+# The build runs: hcscc --input vecadd.hcsir --output vecadd.comp
+#                  glslc --target-env=vulkan1.1 -O vecadd.comp -o vecadd.spv
+hcsir 1
+kernel ir_vecadd
+buffer 0 a : f32
+buffer 1 b : f32
+buffer 2 c : f32
+param alpha : f32
+const zero : f32 = 0.0
+local_size 64
+
+entry:
+  idx = invocation
+  va = load a, idx
+  vb = load b, idx
+  positive = gt vb, zero
+  picked = select positive, va, vb
+  sum = fma alpha, vb, picked
+  store c, idx, sum
+  ret

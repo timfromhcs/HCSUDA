@@ -111,3 +111,25 @@ ctest --preset windows-tests --output-on-failure  -> 100% tests passed, 30/30 HC
 
 Not done in this wave (and not claimed): HCSIR → GLSL/SPIR-V lowering, serialization,
 integer/bitwise opcodes, atomics, subgroup or matrix operations.
+
+## 2026-11-25 — Wave 4 (continued): HCSIR → GLSL lowering
+
+New code: `src/ir/lower_glsl.cpp`, `tools/hcscc/main.cpp`, `tests/unit/test_ir_glsl.cpp`,
+`tests/fixtures/ir/vecadd.hcsir`. The lowering emits a GLSL 450 compute shader with a bounded
+state machine over HCSIR blocks, storage buffers, push constants for parameters, and bounds
+checks on every load/store against the runtime array length. Barriers are rejected with
+`HCS_E_UNSUPPORTED_FEATURE` until uniform-control-flow analysis exists.
+
+```
+cmake --build --preset windows-tests --parallel
+  hcscc: lower HCSIR fixture to GLSL
+  kernel=ir_vecadd local_size=64 blocks=1 instructions=8 buffers=3 params=1 constants=1 glsl_bytes=1180
+  glslc: validate generated GLSL from hcscc
+
+ctest --preset windows-tests --output-on-failure
+  100% tests passed; 34/34 HCS tests (4 new lowering tests)
+```
+
+The build fails if either `hcscc` or `glslc` rejects the generated shader. This proves the
+emitted GLSL is syntactically valid for Vulkan 1.1; it does **not** prove GPU execution of
+HCSIR modules, because no runtime SPIR-V program-loading API exists yet.

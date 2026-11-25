@@ -74,6 +74,7 @@ endif()
 add_library(hcsuda_core STATIC
     src/core/runtime.cpp
     src/ir/hcsir.cpp
+    src/ir/lower_glsl.cpp
     src/backends/cpu/cpu_backend.cpp
     src/backends/vulkan/vk_backend.cpp
     ${HCS_SHADER_GENERATED})
@@ -106,11 +107,42 @@ if(HCS_BUILD_TOOLS)
     add_executable(hcsbench tools/hcsbench/main.cpp)
     target_link_libraries(hcsbench PRIVATE hcsuda_core)
 
-    foreach(tool hcsdoctor hcsbench)
+    add_executable(hcscc tools/hcscc/main.cpp)
+    target_link_libraries(hcscc PRIVATE hcsuda_core)
+    target_include_directories(hcscc PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
+    foreach(tool hcsdoctor hcsbench hcscc)
         if(MSVC)
             target_compile_options(${tool} PRIVATE /W4 /permissive- /utf-8)
         endif()
     endforeach()
+endif()
+
+# ---------------------------------------------------------------------------
+# Build-time validation of generated GLSL: hcscc lowers the checked-in HCSIR
+# fixture, glslc must compile the result. A broken lowering fails the build.
+# ---------------------------------------------------------------------------
+if(HCS_ENABLE_VULKAN AND HCS_BUILD_TOOLS)
+    set(HCS_IR_DIR "${CMAKE_CURRENT_BINARY_DIR}/ir")
+    file(MAKE_DIRECTORY "${HCS_IR_DIR}")
+    set(HCS_IR_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/tests/fixtures/ir/vecadd.hcsir")
+    set(HCS_IR_GLSL "${HCS_IR_DIR}/vecadd.comp")
+    set(HCS_IR_SPV "${HCS_IR_DIR}/vecadd.spv")
+    add_custom_command(
+        OUTPUT "${HCS_IR_GLSL}"
+        COMMAND $<TARGET_FILE:hcscc> --input "${HCS_IR_SOURCE}" --output "${HCS_IR_GLSL}"
+                --stats
+        DEPENDS hcscc "${HCS_IR_SOURCE}"
+        COMMENT "hcscc: lower HCSIR fixture to GLSL"
+        VERBATIM)
+    add_custom_command(
+        OUTPUT "${HCS_IR_SPV}"
+        COMMAND "${GLSLC_EXECUTABLE}" --target-env=vulkan1.1 -O "${HCS_IR_GLSL}"
+                -o "${HCS_IR_SPV}"
+        DEPENDS "${HCS_IR_GLSL}"
+        COMMENT "glslc: validate generated GLSL from hcscc"
+        VERBATIM)
+    add_custom_target(hcs_ir_shader_check ALL DEPENDS "${HCS_IR_SPV}")
 endif()
 
 # ---------------------------------------------------------------------------
@@ -123,6 +155,7 @@ if(HCS_BUILD_TESTS)
         tests/unit/test_api.cpp
         tests/unit/test_cpu.cpp
         tests/unit/test_ir.cpp
+        tests/unit/test_ir_glsl.cpp
         tests/unit/test_vulkan.cpp)
     target_link_libraries(hcs_tests PRIVATE hcsuda_core)
     target_include_directories(hcs_tests PRIVATE

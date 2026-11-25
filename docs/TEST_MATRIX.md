@@ -4,7 +4,7 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **1/1 CTest target passed; 30/30 HCS tests passed** (2026-11-25).
+Last result: **1/1 CTest target passed; 34/34 HCS tests passed** (2026-11-25).
 
 | ID | Test | Backend | Result | What it proves |
 |---|---|---|---|---|
@@ -38,12 +38,17 @@ Last result: **1/1 CTest target passed; 30/30 HCS tests passed** (2026-11-25).
 | IR-10 | ir_rejects_out_of_bounds_access | interpreter | PASS | 1024 invocations over 8 elements → `HCS_E_INVALID_ARGUMENT`, no OOB access |
 | IR-11 | ir_rejects_unbound_buffer | interpreter | PASS | missing buffer binding rejected |
 | IR-12 | ir_rejects_zero_and_huge_invocation_counts | interpreter | PASS | 0 is a no-op; 4M+1 → `HCS_E_SECURITY_POLICY` |
+| IR-13 | ir_glsl_lowering_emits_compute_shader | lowering | PASS | emitted GLSL has the right local size, buffers, push constants, bounds checks and intrinsics |
+| IR-14 | ir_glsl_lowering_is_deterministic | lowering | PASS | two lowerings of the same module are byte-identical |
+| IR-15 | ir_glsl_lowering_rejects_barrier | lowering | PASS | barrier → `HCS_E_UNSUPPORTED_FEATURE`, no partial output |
+| IR-16 | ir_glsl_lowering_rejects_uncompiled_module | lowering | PASS | uncompiled module / null output rejected |
+| IR-17 | build-time generated shader compiles | `glslc` | PASS | `hcscc` lowers `tests/fixtures/ir/vecadd.hcsir`; `glslc --target-env=vulkan1.1 -O` produces SPIR-V during `cmake --build` |
 
 ## Not yet covered (explicit gaps)
 
 | Area | Status | Planned wave |
 |---|---|---|
-| HCSIR parser/verifier/interpreter | **tested** (IR-01..IR-12); no serializer, no lowering to GLSL/SPIR-V | 4 |
+| HCSIR parser/verifier/interpreter | **tested** (IR-01..IR-12) | 4 |
 | Async flows, events, graphs, races under validation layers | untested | 5 |
 | Scan, transpose, histogram, image primitives | untested | 6 |
 | CUDA source translation corpus | untested | 7 |

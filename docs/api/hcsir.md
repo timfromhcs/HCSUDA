@@ -5,9 +5,10 @@ ADR-0004 records the design rationale; where the two differ, this file is author
 because it is checked against the test suite (`ir_*` tests).
 
 HCSIR v1 is not exposed through the stable C ABI yet. It is an internal, verifiable
-intermediate representation used by the CPU interpreter. There is **no** HCSIR → SPIR-V or
-HCSIR → GLSL lowering in this build; the Vulkan path still runs the hand-written kernels in
-`shaders/hksl/`.
+intermediate representation used by the CPU interpreter and by the HCSCC GLSL lowering pass.
+The lowering output is compiled by `glslc` at build time and the resulting SPIR-V is checked
+into the build tree, but no API loads it into a Vulkan pipeline yet. The Vulkan path still
+runs the hand-written kernels in `shaders/hksl/`.
 
 ## Example
 
@@ -101,9 +102,21 @@ version, unknown opcode, undefined value, type mismatch, missing terminator, unk
 target, oversized source, out-of-bounds access, unbound buffer, and the invocation-count
 bounds including the zero-invocation no-op.
 
+## HCSCC lowering (implemented)
+
+`hcscc --input module.hcsir --output shader.comp` verifies the module and emits a GLSL 450
+compute shader: one std430 storage buffer per declared buffer, a push-constant block for
+parameters, function-scope locals for all values, and a bounded `while`/`if` state machine
+that preserves the HCSIR block CFG. Every load and store carries a `length()` bounds check.
+`barrier` modules are rejected rather than emitted with divergent barriers.
+
+The build lowers `tests/fixtures/ir/vecadd.hcsir` and compiles the generated shader with
+`glslc --target-env=vulkan1.1 -O`; a lowering regression therefore fails the build.
+
 ## Not implemented (do not claim)
 
-* Lowering HCSIR to GLSL/SPIR-V, so HCSIR modules cannot run on the GPU yet.
+* Loading HCSCC-generated SPIR-V into a Vulkan pipeline through the C ABI, so HCSIR modules
+  cannot run on the GPU yet.
 * Integer arithmetic opcodes, shifts, bitwise operations.
 * Atomics, subgroup operations, matrix/tile operations.
 * Loops as structured opcodes (`jump`/`branch` only).

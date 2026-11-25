@@ -1,6 +1,6 @@
 # Agent status
 
-Updated: 2026-11-25 (Wave 0–3 complete, Wave 4 partially complete)
+Updated: 2026-11-25 (Wave 0–3 complete, Wave 4 code complete except GPU execution)
 
 ## Environment (measured, not assumed)
 
@@ -24,10 +24,10 @@ Updated: 2026-11-25 (Wave 0–3 complete, Wave 4 partially complete)
 | Wave | Scope | Status | Notes |
 |---|---|---|---|
 | 0 | Reconnaissance, project contract, build skeleton | **Done** | MSVC + Vulkan SDK verified; presets build |
-| 1 | Core API + CPU reference backend | **Done** | 30 registered tests, all passing |
+| 1 | Core API + CPU reference backend | **Done** | 34 registered tests, all passing |
 | 2 | Vulkan discovery + diagnostics | **Done** | `hcsdoctor` reports real 680M caps/budget |
 | 3 | Minimal Vulkan compute | **Done** | vecadd/scale/reduce/matmul verified vs CPU |
-| 4 | HCSIR/HCS-PIR verifier + compiler path | **Partial** | parser, verifier, CPU interpreter, 12 tests; no GLSL/SPIR-V lowering |
+| 4 | HCSIR/HCS-PIR verifier + compiler path | **Almost** | parser, verifier, CPU interpreter, GLSL lowering with build-time `glslc` check, 34/34 tests; GPU execution of HCSIR via the C ABI still missing |
 | 5 | HCSFlow/HEvent/HCSGraph async | Pending | V1 dispatch is synchronous today |
 | 6 | Math kernels + tuning (scan, transpose, histogram) | Pending | |
 | 7 | CUDA source migration (`hcsport`) | Pending | matrix is conservative |
@@ -51,13 +51,17 @@ Updated: 2026-11-25 (Wave 0–3 complete, Wave 4 partially complete)
 * HCSIR v1: bounded parser, verifier and CPU interpreter for the elementwise subset
   (`load`/`store`/`add`/`sub`/`mul`/`fma`/`min`/`max`/comparisons/`select`/`branch`/`jump`),
   with `const` declarations and source-line diagnostics. Internal only — not in the C ABI.
-* Tests: 30 tests covering API contract, CPU correctness, Vulkan correctness against CPU
-  reference, memory cap enforcement, device report sanity, and HCSIR accept/reject behaviour.
+* HCSCC: lowers verified HCSIR to GLSL 450 compute shaders (state-machine CFG, bounds
+  checks, push constants); the build compiles the generated shader with `glslc`.
+* Tests: 34 tests covering API contract, CPU correctness, Vulkan correctness against CPU
+  reference, memory cap enforcement, device report sanity, HCSIR accept/reject behaviour,
+  and generated-GLSL properties/determinism.
 
 ## Immediate next actions (finish Wave 4)
 
-1. Implement HCSIR → GLSL lowering for the elementwise subset and compile it in tests with
-   `glslc`; compare GPU output against the interpreter for the same module.
+1. Add an internal (not yet public ABI) path to create a Vulkan compute pipeline from the
+   `glslc`-compiled SPIR-V produced by HCSCC, and compare GPU output against the interpreter
+   for the same HCSIR module. This is the remaining gate before claiming HCSIR executes on GPU.
 2. Keep the hand-written kernels as the conformance baseline until the generated path matches.
 3. Add module serialization + round-trip verification so compiled modules can be cached.
 4. Then Wave 5: real asynchronous HCSFlow/HEvent with validation-layer runs in a dedicated

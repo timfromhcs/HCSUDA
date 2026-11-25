@@ -29,7 +29,7 @@ migration tooling.
 | HCSFlow (synchronous submit/wait in V1) | **Native / Beta** | dispatch tests |
 | Diagnostics CLI (`hcsdoctor`) | **Native / Stable** | this repo |
 | Benchmarks (`hcsbench`) | **Native / Stable** | `benchmarks/baselines/` |
-| HCSIR v1 parser/verifier/interpreter (CPU only, internal) | **Experimental** | `ir_*` tests, `docs/api/hcsir.md` |
+| HCSIR v1 parser/verifier/interpreter + HCSCC GLSL lowering (CPU execution only, internal) | **Experimental** | `ir_*` tests, build-time `glslc` check, `docs/api/hcsir.md` |
 | CUDA source migration (`hcsport`) | **Planned (Wave 7)** | — |
 | Model vault / GGUF inference | **Planned (Wave 8)** | — |
 | REST API / MCP server | **Planned (Wave 9)** | — |
@@ -69,6 +69,7 @@ Outputs land in `build/<preset>/RelWithDebInfo/`:
 
 * `hcsdoctor.exe` — device, capability and memory-budget report (`--json` supported)
 * `hcsbench.exe` — reproducible micro-benchmarks (`--json`, `--device`, `--reps`)
+* `hcscc.exe` — HCSIR v1 → GLSL 450 compute shader (`--input`, `--output`, `--stats`)
 * `hcs_tests.exe` — unit/integration suite
 
 ## Quick start: run the tools

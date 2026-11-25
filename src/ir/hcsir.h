@@ -121,6 +121,11 @@ hcsResult compile(const char* source, size_t size, Module* out);
 /* Executes a verified module for `invocationCount` invocations. */
 hcsResult run(const Module& module, const RunArgs& args, uint32_t invocationCount);
 
+/* Lowers a verified module to a GLSL 450 compute shader (elementwise subset only).
+ * Returns HCS_E_UNSUPPORTED_FEATURE for constructs the lowering cannot express safely,
+ * such as a barrier in divergent control flow. */
+hcsResult lowerGlsl(const Module& module, std::string* out);
+
 const char* opName(Op op);
 const char* typeName(Type type);
 
