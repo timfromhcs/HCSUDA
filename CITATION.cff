@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+title: HCSUDA — HCS Unified Compute Runtime
+message: >-
+  If you use this software, please cite it using the metadata below.
+type: software
+authors:
+  - name: HCSMedia
+  - name: timfromhcs
+version: 0.1.0
+date-released: "2026-11-25"
+license: MIT
+repository-code: "https://github.com/HCSMedia/HCSUDA"
+url: "https://github.com/HCSMedia/HCSUDA"
+abstract: >-
+  A Vulkan-based, cross-vendor compute runtime with a stable C ABI, a CPU reference
+  backend, verified built-in kernels, and an expanding CUDA-source migration path.
+  Independently developed; not affiliated with NVIDIA Corporation.
+keywords:
+  - vulkan
+  - gpu-compute
+  - cross-vendor
+  - cuda-migration

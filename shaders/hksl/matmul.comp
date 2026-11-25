@@ -1,0 +1,46 @@
+#version 450
+// HCSUDA built-in kernel: C = A * B, row major, 16x16 shared-memory tiles.
+layout(local_size_x = 16, local_size_y = 16) in;
+
+layout(binding = 0) buffer A { float a[]; };
+layout(binding = 1) buffer B { float b[]; };
+layout(binding = 2) buffer C { float c[]; };
+
+layout(push_constant) uniform PC {
+    uint m;
+    uint n;
+    uint k;
+    uint pad0;
+} pc;
+
+shared float tileA[16][16];
+shared float tileB[16][16];
+
+void main()
+{
+    uint row = gl_GlobalInvocationID.y;
+    uint col = gl_GlobalInvocationID.x;
+    uint lr = gl_LocalInvocationID.y;
+    uint lc = gl_LocalInvocationID.x;
+
+    float acc = 0.0;
+    for (uint t = 0u; t < pc.k; t += 16u) {
+        uint ar = row;
+        uint ac = t + lc;
+        tileA[lr][lc] = (ar < pc.m && ac < pc.k) ? a[ar * pc.k + ac] : 0.0;
+
+        uint br = t + lr;
+        uint bc = col;
+        tileB[lr][lc] = (br < pc.k && bc < pc.n) ? b[br * pc.n + bc] : 0.0;
+
+        barrier();
+        for (uint i = 0u; i < 16u; ++i) {
+            acc += tileA[lr][i] * tileB[i][lc];
+        }
+        barrier();
+    }
+
+    if (row < pc.m && col < pc.n) {
+        c[row * pc.n + col] = acc;
+    }
+}

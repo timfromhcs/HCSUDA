@@ -1,0 +1,22 @@
+#version 450
+// HCSUDA built-in kernel: c = a + alpha * b
+layout(local_size_x = 64) in;
+
+layout(binding = 0) buffer A { float a[]; };
+layout(binding = 1) buffer B { float b[]; };
+layout(binding = 2) buffer C { float c[]; };
+
+layout(push_constant) uniform PC {
+    uint n;
+    float alpha;
+    uint pad0;
+    uint pad1;
+} pc;
+
+void main()
+{
+    uint i = gl_GlobalInvocationID.x;
+    if (i < pc.n) {
+        c[i] = a[i] + pc.alpha * b[i];
+    }
+}

@@ -1,0 +1,14 @@
+HCSUDA — HCS Unified Compute Runtime
+Copyright (c) 2026 HCSMedia & timfromhcs
+
+This product is an independent, cross-vendor compute runtime built on the
+Khronos Vulkan API. It is not affiliated with, endorsed by, or sponsored by
+NVIDIA Corporation. "CUDA" is a trademark of NVIDIA Corporation and is used
+in this project only in a descriptive sense when discussing migration and
+compatibility with CUDA source code.
+
+HCSUDA does not install, replace, or modify GPU kernel-mode drivers. Hardware
+access is provided exclusively through the Vulkan loader and the vendor driver
+already installed on the system.
+
+"Made with love by HCSMedia & timfromhcs."

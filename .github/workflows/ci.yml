@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    name: Windows x64 (${{ matrix.preset }})
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [windows-tests, windows-cpu-only]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake --preset ${{ matrix.preset }}
+
+      - name: Build
+        run: cmake --build --preset ${{ matrix.preset }} --parallel
+
+      - name: Test
+        run: ctest --preset windows-tests --output-on-failure
+        if: matrix.preset == 'windows-tests'
+
+      - name: Run hcsdoctor (diagnostics)
+        run: |
+          $exe = Get-ChildItem -Recurse -Filter hcsdoctor.exe build | Select-Object -First 1
+          if ($exe) { & $exe.FullName --json } else { Write-Error "hcsdoctor not built" }
+        shell: pwsh
+
+  cpu-only-tests:
+    name: Windows x64 CPU-only tests
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake --preset windows-cpu-only
+      - name: Build
+        run: cmake --build --preset windows-cpu-only --parallel
+      - name: Test
+        run: |
+          $exe = Get-ChildItem -Recurse -Filter hcs_tests.exe build | Select-Object -First 1
+          & $exe.FullName
+        shell: pwsh

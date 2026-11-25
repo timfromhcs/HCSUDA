@@ -1,0 +1,43 @@
+# Build output
+/build/
+/out/
+/artifacts/
+/.vs/
+/.vscode/
+CMakeUserPresets.json
+*.user
+
+# Generated shader binaries / build intermediates
+/shaders/generated_spirv/
+*.spv
+
+# Models and large data are never committed
+/models/
+*.gguf
+*.onnx
+*.safetensors
+*.bin
+*.pt
+*.pth
+
+# Logs, dumps, caches
+*.log
+*.dmp
+/logs/
+/cache/
+
+# Installer output
+/installer/output/
+*.exe
+*.msi
+
+# OS junk
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Secrets
+.env
+*.key
+*.pem
+secrets/

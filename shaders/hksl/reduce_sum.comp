@@ -1,0 +1,44 @@
+#version 450
+// HCSUDA built-in kernel: per-workgroup partial sums.
+// out[g] = sum(x[g*chunk .. min(n, (g+1)*chunk)))
+// The host performs the final reduction across groups.
+layout(local_size_x = 256) in;
+
+layout(binding = 0) buffer X { float x[]; };
+layout(binding = 1) buffer O { float outv[]; };
+
+layout(push_constant) uniform PC {
+    uint n;
+    uint groups;
+    uint pad0;
+    uint pad1;
+} pc;
+
+shared float scratch[256];
+
+void main()
+{
+    uint gid = gl_WorkGroupID.x;
+    uint lid = gl_LocalInvocationID.x;
+    uint chunk = (pc.n + pc.groups - 1u) / pc.groups;
+    uint first = gid * chunk;
+    uint last = min(pc.n, first + chunk);
+
+    float sum = 0.0;
+    for (uint i = first + lid; i < last; i += 256u) {
+        sum += x[i];
+    }
+    scratch[lid] = sum;
+    barrier();
+
+    for (uint stride = 128u; stride > 0u; stride >>= 1) {
+        if (lid < stride) {
+            scratch[lid] += scratch[lid + stride];
+        }
+        barrier();
+    }
+
+    if (lid == 0u) {
+        outv[gid] = scratch[0];
+    }
+}
