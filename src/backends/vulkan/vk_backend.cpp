@@ -33,6 +33,7 @@ namespace {
 #define HCS_VK_GLOBAL_FUNCS(X)                 \
     X(vkEnumerateInstanceVersion)              \
     X(vkEnumerateInstanceExtensionProperties)  \
+    X(vkEnumerateInstanceLayerProperties)      \
     X(vkCreateInstance)
 
 #define HCS_VK_INSTANCE_FUNCS(X)                              \
@@ -234,6 +235,37 @@ bool initVulkanGlobal()
     VkInstanceCreateInfo info{};
     info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     info.pApplicationInfo = &app;
+
+    const char* validationLayer = "VK_LAYER_KHRONOS_validation";
+#if defined(HCS_USE_VALIDATION_LAYERS) && HCS_USE_VALIDATION_LAYERS
+    uint32_t layerCount = 0;
+    if (g_api.vkEnumerateInstanceLayerProperties(&layerCount, nullptr) != VK_SUCCESS) {
+        std::fprintf(stderr, "[hcs] cannot enumerate Vulkan instance layers\n");
+        return false;
+    }
+    std::vector<VkLayerProperties> layers(layerCount);
+    if (layerCount > 0 && g_api.vkEnumerateInstanceLayerProperties(&layerCount, layers.data()) !=
+                              VK_SUCCESS) {
+        return false;
+    }
+    bool found = false;
+    for (const auto& layer : layers) {
+        if (std::strcmp(layer.layerName, validationLayer) == 0) {
+            found = true;
+        }
+    }
+    if (!found) {
+        std::fprintf(stderr,
+                     "[hcs] validation build requested but VK_LAYER_KHRONOS_validation "
+                     "is not installed\n");
+        return false;
+    }
+    info.enabledLayerCount = 1;
+    info.ppEnabledLayerNames = &validationLayer;
+    std::fprintf(stderr, "[hcs] Vulkan validation layer enabled\n");
+#else
+    (void)validationLayer;
+#endif
 
     VkInstance instance = VK_NULL_HANDLE;
     const VkResult result = g_api.vkCreateInstance(&info, nullptr, &instance);
@@ -792,13 +824,24 @@ public:
         buffer->host = nullptr;
     }
 
-    std::unique_ptr<BackendFlow> createFlow(hcs_flow_t*) override
+    std::unique_ptr<BackendFlow> createFlow(hcs_flow_t* flow) override
     {
-        auto flow = std::make_unique<VulkanFlow>(
+        auto impl = std::make_unique<VulkanFlow>(
             device_, [this](const PendingSubmission& item) { releaseSubmission(item); });
         std::lock_guard<std::mutex> lock(mutex_);
-        flows_.push_back(flow.get());
-        return flow;
+        flows_.push_back({flow, impl.get()});
+        return impl;
+    }
+
+    void destroyFlow(hcs_flow_t* flow) override
+    {
+        /* The hcs_flow_t object itself is being destroyed; drop the registration so the
+         * context never touches a dangling pointer at shutdown. Its BackendFlow impl still
+         * drains any in-flight work in its own destructor. */
+        std::lock_guard<std::mutex> lock(mutex_);
+        flows_.erase(std::remove_if(flows_.begin(), flows_.end(),
+                                    [flow](const auto& entry) { return entry.first == flow; }),
+                     flows_.end());
     }
 
     void releaseSubmission(const PendingSubmission& item)
@@ -864,8 +907,8 @@ public:
              * reset it once, and retry. Never disturb a submission that is still reading. */
             g_api.vkDeviceWaitIdle(device_);
             g_api.vkResetDescriptorPool(device_, descriptorPool_, 0);
-            for (VulkanFlow* registered : flows_) {
-                registered->dropPendingAfterPoolReset();
+            for (auto& entry : flows_) {
+                entry.second->dropPendingAfterPoolReset();
             }
             vk = g_api.vkAllocateDescriptorSets(device_, &setInfo, &set);
             if (vk != VK_SUCCESS) {
@@ -968,8 +1011,8 @@ private:
             return;
         }
         g_api.vkDeviceWaitIdle(device_);
-        for (VulkanFlow* registered : flows_) {
-            registered->detach();
+        for (auto& entry : flows_) {
+            entry.second->detach();
         }
         flows_.clear();
         for (auto& entry : pipelines_) {
@@ -1059,6 +1102,8 @@ private:
         poolSize.descriptorCount = 4096;
         VkDescriptorPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+        /* Per-submission descriptor sets are freed individually after their fence completes. */
+        poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
         poolInfo.maxSets = 512;
         poolInfo.poolSizeCount = 1;
         poolInfo.pPoolSizes = &poolSize;
@@ -1157,7 +1202,7 @@ private:
     VkPipelineLayout pipelineLayout_ = VK_NULL_HANDLE;
     VkDescriptorPool descriptorPool_ = VK_NULL_HANDLE;
     std::unordered_map<uint64_t, VkPipeline> pipelines_;
-    std::vector<VulkanFlow*> flows_;
+    std::vector<std::pair<hcs_flow_t*, VulkanFlow*>> flows_;
     std::mutex mutex_;
     uint64_t memoryCap_ = 0;
     uint64_t allocated_ = 0;

@@ -53,6 +53,7 @@ public:
     virtual hcsResult dispatch(hcs_kernel_t* kernel, const hcsDispatchDesc* desc,
                                hcsFlow flow) = 0;
     virtual std::unique_ptr<BackendFlow> createFlow(hcs_flow_t* flow) = 0;
+    virtual void destroyFlow(hcs_flow_t* flow) = 0;
     virtual hcsResult createProgram(hcs_program_t* program, const void* data,
                                     size_t byteSize) = 0;
     virtual hcsResult createProgramKernel(hcs_program_t* program, hcs_kernel_t* kernel) = 0;

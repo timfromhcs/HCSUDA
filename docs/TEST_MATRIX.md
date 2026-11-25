@@ -51,6 +51,7 @@ Last result: **1/1 CTest target passed; 42/42 HCS tests passed** (2026-11-25).
 | FL-03 | flow_event_timeout_and_validation | Vulkan | PASS | idle-flow event is immediately satisfied; null flow/event misuse rejected |
 | FL-04 | flow_cpu_backend_completes_immediately | CPU | PASS | CPU flow/event complete synchronously with zero timeout |
 | FL-05 | flow_event_wait_timeout_path | mock flow | PASS | a backend flow whose counter never advances yields `HCS_E_TIMEOUT` |
+| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 42/42 tests, no validation errors |
 
 ## Not yet covered (explicit gaps)
 
@@ -67,7 +68,7 @@ Last result: **1/1 CTest target passed; 42/42 HCS tests passed** (2026-11-25).
 | Installer clean-VM install/upgrade/uninstall | untested | 11 |
 | Stress/soak (10k dispatches, 60 min) | untested | 12 |
 | Intel/NVIDIA Vulkan hardware | **not verified** | requires hardware |
-| Vulkan validation layers run | pending; generated shaders are validated by `glslc` at build time | 5 |
+| Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (42/42 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
 
 ## Benchmark evidence
 

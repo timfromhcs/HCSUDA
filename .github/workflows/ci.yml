@@ -48,3 +48,15 @@ jobs:
           $exe = Get-ChildItem -Recurse -Filter hcs_tests.exe build | Select-Object -First 1
           & $exe.FullName
         shell: pwsh
+
+  validation:
+    name: Windows x64 Vulkan validation layers
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake --preset windows-validation
+      - name: Build
+        run: cmake --build --preset windows-validation --parallel
+      - name: Test with validation layers
+        run: ctest --preset windows-validation --timeout 180 --output-on-failure

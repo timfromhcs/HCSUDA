@@ -47,7 +47,6 @@ int main(int argc, char** argv)
 
     std::printf("HCSUDA unit tests: %zu registered\n", tests.size());
     int run = 0;
-    int skipped = 0;
     for (const auto& test : tests) {
         if (filter && std::strstr(test.name, filter) == nullptr) {
             continue;
@@ -55,10 +54,12 @@ int main(int argc, char** argv)
         hcstest::g_currentTest = test.name;
         const int before = hcstest::g_failures;
         std::printf("RUN  %s\n", test.name);
+        std::fflush(stdout);
         test.fn();
         ++run;
         if (hcstest::g_failures == before) {
             std::printf("PASS %s\n", test.name);
+            std::fflush(stdout);
         }
     }
     std::printf("\n%d tests run, %d failures\n", run, hcstest::g_failures);

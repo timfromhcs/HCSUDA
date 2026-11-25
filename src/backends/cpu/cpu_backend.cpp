@@ -259,6 +259,8 @@ public:
         return std::make_unique<CpuFlow>(flow);
     }
 
+    void destroyFlow(hcs_flow_t*) override {}
+
     hcsResult dispatch(hcs_kernel_t* kernel, const hcsDispatchDesc* desc, hcsFlow) override
     {
         if (!kernel->def) {

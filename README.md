@@ -60,6 +60,11 @@ cmake --preset windows-tests
 cmake --build --preset windows-tests --parallel
 ctest --preset windows-tests --output-on-failure
 
+# Validation-layer profile (requires VK_LAYER_KHRONOS_validation from the Vulkan SDK)
+cmake --preset windows-validation
+cmake --build --preset windows-validation --parallel
+ctest --preset windows-validation --timeout 180 --output-on-failure
+
 # CPU-only build (no Vulkan SDK required)
 cmake --preset windows-cpu-only
 cmake --build --preset windows-cpu-only --parallel

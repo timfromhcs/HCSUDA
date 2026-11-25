@@ -28,7 +28,7 @@ Updated: 2026-11-25 (Wave 0–4 complete, Wave 5 in progress)
 | 2 | Vulkan discovery + diagnostics | **Done** | `hcsdoctor` reports real 680M caps/budget |
 | 3 | Minimal Vulkan compute | **Done** | vecadd/scale/reduce/matmul verified vs CPU |
 | 4 | HCSIR/HCS-PIR verifier + compiler path | **Almost** | parser, verifier, CPU interpreter, GLSL lowering with build-time `glslc` check, 34/34 tests; GPU execution of HCSIR via the C ABI still missing |
-| 5 | HCSFlow/HEvent/HCSGraph async | **Partial** | real async Vulkan flows + HEvent implemented and tested (FL-01..05); HCSGraph and validation-layer CTest profile pending |
+| 5 | HCSFlow/HEvent/HCSGraph async | **Partial** | async flows + HEvent tested (FL-01..05), validation-layer profile green (VAL-01); HCSGraph pending |
 | 6 | Math kernels + tuning (scan, transpose, histogram) | Pending | |
 | 7 | CUDA source migration (`hcsport`) | Pending | matrix is conservative |
 | 8 | Model vault + GGUF (llama.cpp Vulkan) | Pending | no model bundled |
@@ -64,12 +64,12 @@ Updated: 2026-11-25 (Wave 0–4 complete, Wave 5 in progress)
 
 ## Immediate next actions (finish Wave 5)
 
-1. Wire Vulkan validation layers into a dedicated Debug/CTest profile and run the flow tests
-   under it. Layers are a test dependency, never a runtime prerequisite.
-2. Add a bounded HCSGraph recording/replay subset (DAG validation, cycle rejection, replay on a
+1. Add a bounded HCSGraph recording/replay subset (DAG validation, cycle rejection, replay on a
    flow), marked Experimental until conformance tests exist.
-3. Consider timeline semaphores only where `HCS_CAP_TIMELINE_SEMAPHORE` is actually present;
+2. Consider timeline semaphores only where `HCS_CAP_TIMELINE_SEMAPHORE` is actually present;
    the fence implementation is the tested fallback and remains the default.
+
+Validation layers are now wired into `windows-validation` and pass with zero errors.
 
 Deferred from Wave 4 (not a release blocker): HCSIR serialization/round-trip caching.
 

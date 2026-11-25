@@ -429,7 +429,16 @@ hcsResult hcsFlowSynchronize(hcsFlow flow, uint64_t timeout_ns)
     return result;
 }
 
-void hcsFlowDestroy(hcsFlow flow) { delete flow; }
+void hcsFlowDestroy(hcsFlow flow)
+{
+    if (!flow) {
+        return;
+    }
+    if (flow->context && flow->context->impl) {
+        flow->context->impl->destroyFlow(flow);
+    }
+    delete flow;
+}
 
 hcsResult hcsEventCreate(hcsContext context, hcsEvent* out_event)
 {

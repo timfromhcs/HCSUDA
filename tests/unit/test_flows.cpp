@@ -99,7 +99,6 @@ HCS_TEST(flow_async_dispatches_and_event_wait)
     HCS_REQUIRE_OK(hcsEventWait(event, 10ull * 1000ull * 1000ull * 1000ull));
     HCS_REQUIRE_OK(hcsFlowSynchronize(flow, 10ull * 1000ull * 1000ull * 1000ull));
     CHECK(data.verify(lastAlpha, "flow_async_dispatches_and_event_wait"));
-
     hcsEventDestroy(event);
     hcsFlowDestroy(flow);
     hcsKernelDestroy(kernel);

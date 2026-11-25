@@ -180,3 +180,25 @@ instead of relying on GPU scheduling.
 cmake --build --preset windows-tests --parallel   -> all targets built
 ctest --preset windows-tests --output-on-failure  -> 42/42 HCS tests
 ```
+
+## 2026-11-25 — Validation-layer profile exposed two real bugs
+
+A dedicated `windows-validation` configure/build/test preset now explicitly enables
+`VK_LAYER_KHRONOS_validation` (the build fails if the layer is not installed; it is never a
+runtime dependency). Running the suite under it found:
+
+1. `vkFreeDescriptorSets` requires `VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT`; the
+   pool was created with flags 0 (VUID 00312). Fixed by setting the flag.
+2. `VulkanContext` kept raw pointers to flows after `hcsFlowDestroy`, then called `detach()` on
+   freed objects at shutdown. This hung the flow tests under validation. Fixed by registering
+   `(hcs_flow_t*, VulkanFlow*)` pairs and removing the pair in a new `destroyFlow` backend hook.
+
+Removed a temporary unused `skipped` variable and added `fflush(stdout)` in the test harness so
+a hung CTest can be localized from redirected output.
+
+```
+cmake --preset windows-validation
+cmake --build --preset windows-validation --parallel
+ctest --preset windows-validation --timeout 180 --output-on-failure
+  -> 100% tests passed, 42/42 HCS tests, no validation errors
+```

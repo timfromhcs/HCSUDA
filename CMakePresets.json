@@ -1,6 +1,10 @@
 {
   "version": 6,
-  "cmakeMinimumRequired": { "major": 3, "minor": 28, "patch": 0 },
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
   "configurePresets": [
     {
       "name": "windows-base",
@@ -17,19 +21,25 @@
       "name": "windows-debug",
       "inherits": "windows-base",
       "displayName": "Windows x64 Debug",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
     },
     {
       "name": "windows-release",
       "inherits": "windows-base",
       "displayName": "Windows x64 Release",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
     },
     {
       "name": "windows-relwithdebinfo",
       "inherits": "windows-base",
       "displayName": "Windows x64 RelWithDebInfo",
-      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo" }
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
     },
     {
       "name": "windows-cpu-only",
@@ -50,6 +60,16 @@
       }
     },
     {
+      "name": "windows-validation",
+      "inherits": "windows-base",
+      "displayName": "Windows x64 Vulkan validation tests",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "HCS_ENABLE_VULKAN": "ON",
+        "HCS_VALIDATION_LAYERS": "ON"
+      }
+    },
+    {
       "name": "windows-tests",
       "inherits": "windows-base",
       "displayName": "Windows x64 test build",
@@ -60,25 +80,66 @@
     }
   ],
   "buildPresets": [
-    { "name": "windows-debug", "configurePreset": "windows-debug", "configuration": "Debug" },
-    { "name": "windows-release", "configurePreset": "windows-release", "configuration": "Release" },
-    { "name": "windows-relwithdebinfo", "configurePreset": "windows-relwithdebinfo", "configuration": "RelWithDebInfo" },
-    { "name": "windows-cpu-only", "configurePreset": "windows-cpu-only", "configuration": "Release" },
-    { "name": "windows-vulkan", "configurePreset": "windows-vulkan", "configuration": "RelWithDebInfo" },
-    { "name": "windows-tests", "configurePreset": "windows-tests", "configuration": "RelWithDebInfo" }
+    {
+      "name": "windows-debug",
+      "configurePreset": "windows-debug",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-release",
+      "configurePreset": "windows-release",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-relwithdebinfo",
+      "configurePreset": "windows-relwithdebinfo",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "windows-cpu-only",
+      "configurePreset": "windows-cpu-only",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-vulkan",
+      "configurePreset": "windows-vulkan",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "windows-tests",
+      "configurePreset": "windows-tests",
+      "configuration": "RelWithDebInfo"
+    },
+    {
+      "name": "windows-validation",
+      "configurePreset": "windows-validation",
+      "configuration": "Debug"
+    }
   ],
   "testPresets": [
+    {
+      "name": "windows-validation",
+      "configurePreset": "windows-validation",
+      "configuration": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
     {
       "name": "windows-tests",
       "configurePreset": "windows-tests",
       "configuration": "RelWithDebInfo",
-      "output": { "outputOnFailure": true }
+      "output": {
+        "outputOnFailure": true
+      }
     },
     {
       "name": "windows-debug",
       "configurePreset": "windows-debug",
       "configuration": "Debug",
-      "output": { "outputOnFailure": true }
+      "output": {
+        "outputOnFailure": true
+      }
     }
   ]
 }

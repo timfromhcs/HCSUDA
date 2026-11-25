@@ -16,6 +16,7 @@ option(HCS_ENABLE_VULKAN "Build the Vulkan compute backend" ON)
 option(HCS_BUILD_TESTS "Build the test suite" ON)
 option(HCS_BUILD_TOOLS "Build command line tools" ON)
 option(HCS_WARNINGS_AS_ERRORS "Treat project warnings as errors" OFF)
+option(HCS_VALIDATION_LAYERS "Enable Vulkan validation layers in tests" OFF)
 
 if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Build type" FORCE)
@@ -121,7 +122,8 @@ target_include_directories(hcsuda_core
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
 target_compile_definitions(hcsuda_core PRIVATE
-    HCS_ENABLE_VULKAN=$<BOOL:${HCS_ENABLE_VULKAN}>)
+    HCS_ENABLE_VULKAN=$<BOOL:${HCS_ENABLE_VULKAN}>
+    HCS_USE_VALIDATION_LAYERS=$<BOOL:${HCS_VALIDATION_LAYERS}>)
 
 if(HCS_ENABLE_VULKAN)
     target_include_directories(hcsuda_core PRIVATE "${VULKAN_INCLUDE_DIR}")

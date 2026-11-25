@@ -10,7 +10,7 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 2 | Accurate device report on real hardware; CPU fallback | **GREEN** |
 | 3 | Vulkan vector-add (and more) passes vs CPU reference | **GREEN** |
 | 4 | HCSIR v1 parser/verifier/interpreter + GLSL lowering + GPU execution | **GREEN** — 37/37 tests; the same HCSIR vecadd module passes on the CPU interpreter and on the Vulkan GPU |
-| 5 | Async flows/events/graphs; race-free under stress | **PARTIAL** — async flows + events tested (FL-01..05); graph and validation-layer profile not implemented |
+| 5 | Async flows/events/graphs; race-free under stress | **PARTIAL** — async flows + events (FL-01..05) and validation profile (VAL-01) pass; HCSGraph not implemented |
 | 6 | Reduction/scan/matmul suite + benchmark data | PARTIAL (reduce, matmul done) |
 | 7 | CUDA source subset migration with report | RED |
 | 8 | GGUF model through verified adapter | RED |
@@ -22,11 +22,9 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 
 ## Next concrete task (finish Wave 5)
 
-1. Wire Vulkan validation layers into a dedicated Debug/CTest profile and run the flow tests
-   under it (skip cleanly when the layer is not installed).
-2. Add a bounded HCSGraph DAG subset with cycle rejection and replay on a flow; mark it
+1. Add a bounded HCSGraph DAG subset with cycle rejection and replay on a flow; mark it
    Experimental until conformance tests exist.
-3. Add repeated randomized schedules to the flow stress tests (Wave 12 stress harness).
+2. Add repeated randomized schedules to the flow stress tests (Wave 12 stress harness).
 
 Deferred from Wave 4: HCSIR serialization/round-trip caching.
 
