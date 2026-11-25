@@ -4,7 +4,7 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **1/1 CTest target passed; 65/65 HCS tests passed** (2026-11-25).
+Last result: **1/1 CTest target passed; 69/69 HCS tests passed** (2026-11-25).
 
 | ID | Test | Backend | Result | What it proves |
 |---|---|---|---|---|
@@ -51,7 +51,7 @@ Last result: **1/1 CTest target passed; 65/65 HCS tests passed** (2026-11-25).
 | FL-03 | flow_event_timeout_and_validation | Vulkan | PASS | idle-flow event is immediately satisfied; null flow/event misuse rejected |
 | FL-04 | flow_cpu_backend_completes_immediately | CPU | PASS | CPU flow/event complete synchronously with zero timeout |
 | FL-05 | flow_event_wait_timeout_path | mock flow | PASS | a backend flow whose counter never advances yields `HCS_E_TIMEOUT` |
-| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 65/65 tests, no validation errors |
+| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 69/69 tests, no validation errors |
 | GR-01 | graph_runs_on_cpu_backend | CPU | PASS | 2-node linear DAG with dependency, replayed on a flow, both outputs verified |
 | GR-02 | graph_runs_on_vulkan_backend | Vulkan | PASS | same DAG executes on the Radeon 680M and matches the CPU result |
 | GR-03 | graph_rejects_invalid_dependencies | CPU | PASS | empty graph, future dependency, zero group count, >8 dependencies all rejected |
@@ -75,6 +75,11 @@ Last result: **1/1 CTest target passed; 65/65 HCS tests passed** (2026-11-25).
 | MCP-04 | mcp_tools_call_returns_real_runtime_data | MCP | PASS | status, device list and memory budgets from the live runtime |
 | MCP-05 | mcp_rejects_unknown_methods_and_tools | MCP | PASS | -32601 for unknown method and unknown tool |
 | MCP-06 | mcp_rejects_malformed_and_oversized_messages | MCP | PASS | -32600 for empty, missing method, deep nesting and >1 MiB |
+| REST-01 | rest_health_is_public_and_local_only | REST handler | PASS | public health, nosniff header |
+| REST-02 | rest_requires_random_bearer_token | REST handler | PASS | 64-hex unique token, constant-time compare, 401 on bad/missing token |
+| REST-03 | rest_rejects_cross_origin_oversized_and_traversal | REST handler | PASS | 403 cross-origin, 413 >64 KiB, 400 traversal, 404 unknown routes |
+| REST-04 | rest_returns_real_runtime_data | REST handler | PASS | device list and memory budget from live runtime |
+| REST-05 | live loopback request (manual) | REST server | PASS | health=200, unauthorized=401, devices=200 with Radeon 680M + CPU |
 
 ## Not yet covered (explicit gaps)
 

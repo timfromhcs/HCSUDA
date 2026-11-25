@@ -92,7 +92,8 @@ product.
 ## API surface (updated Wave 9)
 
 * MCP supports stdio only. There is no Streamable HTTP transport and no remote binding.
-* The REST API does not exist yet. When added it must be localhost-only, token-authenticated
-  and must expose no shell/DLL/unrestricted-file tool.
+* The REST API is local-only and token-authenticated with five read-only endpoints. There is
+  no OpenAPI document, no rate limiting beyond bounded bodies, and no model/benchmark/
+  translation endpoint yet.
 * MCP tool arguments do not currently open model files; `hcsuda_list_models` is intentionally
   absent until path scopes are configured in a service layer.

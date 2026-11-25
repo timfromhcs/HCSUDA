@@ -14,7 +14,7 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 6 | Reduction/scan/matmul suite + benchmark data | **GREEN** for the defined set: reduce, matmul, scan, transpose verified on CPU+Vulkan; benchmark rows recorded. Histogram/image primitives are not in V1 scope. |
 | 7 | CUDA source subset migration with report | PARTIAL — scanner tested (PORT-01..03); translator and PTX importer not implemented |
 | 8 | GGUF model through verified adapter | PARTIAL — catalog/checksum/path safety tested (MV-01..04); inference adapter not integrated |
-| 9 | REST + MCP local-only, authenticated, tested | PARTIAL — MCP stdio tested (MCP-01..06); REST with token auth not implemented |
+| 9 | REST + MCP local-only, authenticated, tested | PARTIAL — MCP (MCP-01..06) and REST (REST-01..05) pass; OpenAPI + remaining endpoints pending |
 | 10 | UI pages, settings persistence, no dead controls | RED |
 | 11 | Single EXE installer, clean-VM install/uninstall | RED |
 | 12 | Stress/soak/fuzz/static analysis; no critical issues | RED |

@@ -303,3 +303,21 @@ ctest --preset windows-tests --output-on-failure -> 65/65
 ctest --preset windows-validation --timeout 180 -> 65/65, zero validation errors
 echo initialize | hcsbridge-mcp.exe -> valid initialize response
 ```
+
+## 2026-11-25 — Wave 9 (continued): local REST API
+
+Added `src/api/rest/rest_server.{h,cpp}`, `tools/hcsbridge-rest/main.cpp`, `docs/api/rest.md`
+and four unit tests (REST-01..04), plus a live loopback check (REST-05).
+
+Build fixes followed the same pattern as earlier tools: private `src` include path for the
+executable and a missing `hcsuda.h` include (the tool calls `hcsInit`/`hcsShutdown`).
+
+Live check with a fixed test token on port 18710:
+
+```
+health=200 {"status":"ok","local_only":true}
+unauthorized=401
+devices=200 {"devices":[{"index":0,"name":"AMD Radeon(TM) Graphics",...}]}
+```
+
+The server binds 127.0.0.1 only; no remote binding option exists.
