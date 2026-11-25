@@ -267,3 +267,20 @@ outer one; renamed to `elements`. Real medians (warm-up 5, 25 repetitions, Radeo
 scan 0.088 ms, transpose 0.134 ms; CPU 1.133 ms and 1.061 ms respectively. Raw results were
 appended to `benchmarks/baselines/radeon680m-2026-11-25.json`. These numbers include submit +
 fence wait and are not pure kernel timings.
+
+## 2026-11-25 — Wave 8 (first slice): ModelVault catalog
+
+Added `src/model_store/sha256.{h,cpp}` (FIPS 180-4, no dependency),
+`src/model_store/model_vault.{h,cpp}` (bounded JSON-lines catalog, canonical-path allowlist,
+GGUF/format inspection, atomic writes), `docs/api/model-vault.md` and four tests (MV-01..04).
+
+The generated catalog stores `size_bytes` as a quoted string so the in-tree line parser can use
+one quoted-value routine for every field; it stays valid JSON.
+
+```
+cmake --build --preset windows-tests --parallel
+ctest --preset windows-tests --output-on-failure -> 59/59
+ctest --preset windows-validation --timeout 180 -> 59/59, zero validation errors
+```
+
+No model file is bundled in the repository or build tree; tests create temporary fixtures.

@@ -114,6 +114,8 @@ add_library(hcsuda_core STATIC
     src/ir/hcsir.cpp
     src/ir/lower_glsl.cpp
     src/translation/cuda_source/scanner.cpp
+    src/model_store/sha256.cpp
+    src/model_store/model_vault.cpp
     src/backends/cpu/cpu_backend.cpp
     src/backends/vulkan/vk_backend.cpp
     ${HCS_SHADER_GENERATED})
@@ -181,6 +183,7 @@ if(HCS_BUILD_TESTS)
         tests/unit/test_graph.cpp
         tests/unit/test_kernels_extra.cpp
         tests/unit/test_hcsport.cpp
+        tests/unit/test_model_vault.cpp
         tests/unit/test_ir.cpp
         tests/unit/test_ir_glsl.cpp
         tests/unit/test_ir_vulkan.cpp

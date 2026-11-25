@@ -79,3 +79,12 @@ the current truth of the code in this repository.
 Every unchecked item in `README.md` (models, UI, API/MCP, installer) plus Wave 12 stress and
 security gates. The current build is a correct, tested kernel runtime — not a finished
 product.
+
+## Model store (updated Wave 8)
+
+* The catalog indexes and hashes GGUF/ONNX/Safetensors/PyTorch files but **does not run any of
+  them**. `runnable` is always false until a verified adapter exists.
+* GGUF version is checked (2/3), but tensor metadata is not parsed yet; there is no memory
+  estimate and no layer plan.
+* No resume-capable downloader, no SSD cache tier, and no SSD/HDD performance policy beyond
+  the documented warning that HDD is storage, not execution memory.
