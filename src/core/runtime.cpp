@@ -490,6 +490,125 @@ hcsResult hcsEventWait(hcsEvent event, uint64_t timeout_ns)
 
 void hcsEventDestroy(hcsEvent event) { delete event; }
 
+namespace {
+
+struct GraphNode {
+    hcsKernel kernel = nullptr;
+    hcsDispatchDesc desc{};
+    uint32_t dependencies[8]{};
+    uint32_t dependency_count = 0;
+};
+
+} // namespace
+
+struct hcs_graph_t {
+    hcsContext context = nullptr;
+    std::vector<GraphNode> nodes;
+    bool compiled = false;
+};
+
+hcsResult hcsGraphCreate(hcsContext context, hcsGraph* out_graph)
+{
+    if (!context || !out_graph) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsGraphCreate",
+                         "context and output graph must not be null");
+    }
+    auto graph = std::make_unique<hcs_graph_t>();
+    graph->context = context;
+    *out_graph = graph.release();
+    return HCS_SUCCESS;
+}
+
+hcsResult hcsGraphAddNode(hcsGraph graph, const hcsGraphNodeDesc* node)
+{
+    if (!graph || !node || node->struct_size != sizeof(hcsGraphNodeDesc) || !node->kernel ||
+        !node->dispatch) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsGraphAddNode",
+                         "graph, node, kernel and dispatch description must be valid");
+    }
+    if (node->kernel->context != graph->context) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsGraphAddNode",
+                         "kernel belongs to a different context");
+    }
+    if (node->dependency_count > 8) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsGraphAddNode",
+                         "at most 8 dependencies per node are supported");
+    }
+    /* Dependencies must point backwards. That makes every accepted graph a DAG and keeps the
+     * replay order identical to insertion order. */
+    for (uint32_t i = 0; i < node->dependency_count; ++i) {
+        if (node->dependencies[i] >= graph->nodes.size()) {
+            return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsGraphAddNode",
+                             "dependency index refers to a node that does not exist yet");
+        }
+    }
+    const hcsDispatchDesc& desc = *node->dispatch;
+    if (desc.struct_size != sizeof(hcsDispatchDesc) || desc.buffer_count > hcs::kMaxBuffers ||
+        desc.group_count_x == 0 || desc.group_count_y == 0 || desc.group_count_z == 0 ||
+        desc.push_constants_size > hcs::kMaxPushConstants) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsGraphAddNode",
+                         "dispatch description is invalid");
+    }
+    for (uint32_t i = 0; i < desc.buffer_count; ++i) {
+        if (!desc.buffers[i] || desc.buffers[i]->context != graph->context) {
+            return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsGraphAddNode",
+                             "buffer is null or belongs to a different context");
+        }
+    }
+
+    GraphNode stored;
+    stored.kernel = node->kernel;
+    stored.desc = desc;
+    stored.dependency_count = node->dependency_count;
+    std::memcpy(stored.dependencies, node->dependencies,
+                node->dependency_count * sizeof(uint32_t));
+    graph->nodes.push_back(stored);
+    graph->compiled = false;
+    return HCS_SUCCESS;
+}
+
+hcsResult hcsGraphCompile(hcsGraph graph)
+{
+    if (!graph) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsGraphCompile", "graph must not be null");
+    }
+    if (graph->nodes.empty()) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsGraphCompile", "graph has no nodes");
+    }
+    for (size_t i = 0; i < graph->nodes.size(); ++i) {
+        const GraphNode& node = graph->nodes[i];
+        for (uint32_t d = 0; d < node.dependency_count; ++d) {
+            if (node.dependencies[d] >= i) {
+                return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsGraphCompile",
+                                 "dependency is not strictly earlier in topological order");
+            }
+        }
+    }
+    graph->compiled = true;
+    return HCS_SUCCESS;
+}
+
+hcsResult hcsGraphRun(hcsGraph graph, hcsFlow flow)
+{
+    if (!graph || !graph->compiled) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsGraphRun",
+                         "graph is null or has not been compiled");
+    }
+    if (flow && flow->context != graph->context) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsGraphRun",
+                         "flow belongs to a different context");
+    }
+    for (const GraphNode& node : graph->nodes) {
+        const hcsResult result = hcsDispatch(node.kernel, &node.desc, flow);
+        if (result != HCS_SUCCESS) {
+            return result;
+        }
+    }
+    return HCS_SUCCESS;
+}
+
+void hcsGraphDestroy(hcsGraph graph) { delete graph; }
+
 hcsResult hcsKernelCreate(hcsContext context, const char* name, hcsKernel* out_kernel)
 {
     if (!context || !name || !out_kernel) {

@@ -1,6 +1,6 @@
 # Agent status
 
-Updated: 2026-11-25 (Wave 0–4 complete, Wave 5 in progress)
+Updated: 2026-11-25 (Wave 0–5 complete)
 
 ## Environment (measured, not assumed)
 
@@ -24,12 +24,12 @@ Updated: 2026-11-25 (Wave 0–4 complete, Wave 5 in progress)
 | Wave | Scope | Status | Notes |
 |---|---|---|---|
 | 0 | Reconnaissance, project contract, build skeleton | **Done** | MSVC + Vulkan SDK verified; presets build |
-| 1 | Core API + CPU reference backend | **Done** | 42 registered tests, all passing |
+| 1 | Core API + CPU reference backend | **Done** | 46 registered tests, all passing |
 | 2 | Vulkan discovery + diagnostics | **Done** | `hcsdoctor` reports real 680M caps/budget |
 | 3 | Minimal Vulkan compute | **Done** | vecadd/scale/reduce/matmul verified vs CPU |
 | 4 | HCSIR/HCS-PIR verifier + compiler path | **Almost** | parser, verifier, CPU interpreter, GLSL lowering with build-time `glslc` check, 34/34 tests; GPU execution of HCSIR via the C ABI still missing |
-| 5 | HCSFlow/HEvent/HCSGraph async | **Partial** | async flows + HEvent tested (FL-01..05), validation-layer profile green (VAL-01); HCSGraph pending |
-| 6 | Math kernels + tuning (scan, transpose, histogram) | Pending | |
+| 5 | HCSFlow/HEvent/HCSGraph async | **Done** | async flows, HEvent, bounded linear HCSGraph; validation profile green; 46/46 tests |
+| 6 | Math kernels + tuning (scan, transpose, histogram) | Next | reduce + matmul already done |
 | 7 | CUDA source migration (`hcsport`) | Pending | matrix is conservative |
 | 8 | Model vault + GGUF (llama.cpp Vulkan) | Pending | no model bundled |
 | 9 | REST API + MCP server | Pending | local-only, token auth required |
@@ -58,18 +58,22 @@ Updated: 2026-11-25 (Wave 0–4 complete, Wave 5 in progress)
 * Async HCSFlow: per-submission Vulkan command buffers, descriptor sets and fences; flows
   own in-flight work and support timeout-aware synchronize. HEvent is a flow-order marker
   backed by fence status; the CPU backend provides the same semantics synchronously.
-* Tests: 42 tests covering API contract, CPU correctness, Vulkan correctness against CPU
+* Experimental bounded HCSGraph: nodes added in topological order, dependencies must be
+  earlier nodes, compile validates, run replays sequentially on one flow. No parallel DAG
+  scheduling is claimed.
+* Tests: 46 tests covering API contract, CPU correctness, Vulkan correctness against CPU
   reference, memory cap enforcement, device report sanity, HCSIR accept/reject behaviour,
-  generated-GLSL properties, GPU execution of a generated HCSIR module, and flow/event ordering.
+  generated-GLSL properties, GPU execution of a generated HCSIR module, flow/event ordering,
+  and graph replay on both backends.
 
-## Immediate next actions (finish Wave 5)
+## Immediate next actions (Wave 6)
 
-1. Add a bounded HCSGraph recording/replay subset (DAG validation, cycle rejection, replay on a
-   flow), marked Experimental until conformance tests exist.
-2. Consider timeline semaphores only where `HCS_CAP_TIMELINE_SEMAPHORE` is actually present;
-   the fence implementation is the tested fallback and remains the default.
+1. Add verified scan/prefix-sum and transpose kernels (CPU reference + Vulkan + odd sizes).
+2. Add the benchmark harness entries for the new kernels and save raw measurements.
+3. Only then consider timeline semaphores where `HCS_CAP_TIMELINE_SEMAPHORE` is present; the
+   fence implementation remains the tested default.
 
-Validation layers are now wired into `windows-validation` and pass with zero errors.
+Validation layers are wired into `windows-validation` and pass with zero errors.
 
 Deferred from Wave 4 (not a release blocker): HCSIR serialization/round-trip caching.
 

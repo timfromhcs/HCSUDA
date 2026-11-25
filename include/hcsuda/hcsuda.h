@@ -28,6 +28,7 @@ typedef struct hcs_flow_t hcs_flow_t;
 typedef struct hcs_kernel_t hcs_kernel_t;
 typedef struct hcs_event_t hcs_event_t;
 typedef struct hcs_program_t hcs_program_t;
+typedef struct hcs_graph_t hcs_graph_t;
 
 typedef hcs_device_t* hcsDevice;
 typedef hcs_context_t* hcsContext;
@@ -36,6 +37,7 @@ typedef hcs_flow_t* hcsFlow;
 typedef hcs_kernel_t* hcsKernel;
 typedef hcs_event_t* hcsEvent;
 typedef hcs_program_t* hcsProgram;
+typedef hcs_graph_t* hcsGraph;
 
 /* Lifetime ---------------------------------------------------------------- */
 
@@ -102,6 +104,25 @@ HCS_API hcsResult hcsProgramCreateSpirv(hcsContext context, const void* spirv,
                                         size_t byte_size, hcsProgram* out_program);
 HCS_API void hcsProgramDestroy(hcsProgram program);
 HCS_API hcsResult hcsKernelFromProgram(hcsProgram program, hcsKernel* out_kernel);
+
+/*
+ * EXPERIMENTAL HCSGraph subset: nodes are added in topological order; every dependency
+ * must refer to an earlier node index. Replay dispatches nodes sequentially on one flow.
+ * No parallel DAG scheduling is claimed.
+ */
+typedef struct hcsGraphNodeDesc {
+    uint32_t struct_size;
+    hcsKernel kernel;
+    const hcsDispatchDesc* dispatch;
+    uint32_t dependency_count;
+    uint32_t dependencies[8];
+} hcsGraphNodeDesc;
+
+HCS_API hcsResult hcsGraphCreate(hcsContext context, hcsGraph* out_graph);
+HCS_API hcsResult hcsGraphAddNode(hcsGraph graph, const hcsGraphNodeDesc* node);
+HCS_API hcsResult hcsGraphCompile(hcsGraph graph);
+HCS_API hcsResult hcsGraphRun(hcsGraph graph, hcsFlow flow);
+HCS_API void hcsGraphDestroy(hcsGraph graph);
 
 /* Events: flow-order markers with a fence-equivalent wait ------------------- */
 HCS_API hcsResult hcsEventCreate(hcsContext context, hcsEvent* out_event);

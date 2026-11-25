@@ -10,7 +10,9 @@ the current truth of the code in this repository.
   `hcsFlowSynchronize` (or wait on a recorded `hcsEvent`) before reading host-visible output.
 * **HEvent is a flow-order marker**, not a timeline semaphore. Waiting polls fence status in
   submission order. `HCS_CAP_TIMELINE_SEMAPHORE` is not used yet.
-* **No HCSGraph yet**; execution DAG recording/replay is pending Wave 5.
+* **HCSGraph is a linear-chain subset.** Nodes must be added in topological order with
+  dependencies pointing to earlier nodes; replay is sequential on one flow. No parallel DAG
+  scheduling, no automatic dependency inference, no buffer lifetime tracking.
 * **Buffers are host-visible and coherent.** This is the native path on integrated/UMA GPUs
   (the reference 680M) and a documented slower fallback on discrete GPUs. Device-local
   allocation with staging is planned.

@@ -202,3 +202,21 @@ cmake --build --preset windows-validation --parallel
 ctest --preset windows-validation --timeout 180 --output-on-failure
   -> 100% tests passed, 42/42 HCS tests, no validation errors
 ```
+
+## 2026-11-25 — Wave 5 complete: bounded HCSGraph subset
+
+Added experimental graph API (`hcsGraphCreate`, `hcsGraphAddNode`, `hcsGraphCompile`,
+`hcsGraphRun`, `hcsGraphDestroy`). Nodes are added in topological order and dependencies must
+reference strictly earlier nodes; that makes cycles impossible by construction. Compile
+validates the whole graph, run replays nodes sequentially on one flow and reuses the normal
+dispatch path (including flow submission counting). No parallel DAG scheduling is claimed.
+
+```
+cmake --build --preset windows-tests --parallel
+ctest --preset windows-tests --output-on-failure -> 46/46 tests
+cmake --build --preset windows-validation --parallel
+ctest --preset windows-validation --timeout 180 --output-on-failure -> 46/46, zero validation errors
+```
+
+The first build failed because the graph tests used bare `c`/`a`/`d` instead of `data.c` etc.;
+that was a test typo, not a runtime fault.
