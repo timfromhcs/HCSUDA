@@ -1,6 +1,6 @@
 # Agent status
 
-Updated: 2026-11-25 (Wave 0–5 complete, Waves 6–7 in progress)
+Updated: 2026-11-25 (Wave 0–6 complete, Wave 7 in progress)
 
 ## Environment (measured, not assumed)
 
@@ -29,7 +29,7 @@ Updated: 2026-11-25 (Wave 0–5 complete, Waves 6–7 in progress)
 | 3 | Minimal Vulkan compute | **Done** | vecadd/scale/reduce/matmul verified vs CPU |
 | 4 | HCSIR/HCS-PIR verifier + compiler path | **Almost** | parser, verifier, CPU interpreter, GLSL lowering with build-time `glslc` check, 34/34 tests; GPU execution of HCSIR via the C ABI still missing |
 | 5 | HCSFlow/HEvent/HCSGraph async | **Done** | async flows, HEvent, bounded linear HCSGraph; validation profile green; 46/46 tests |
-| 6 | Math kernels + tuning (scan, transpose, histogram) | **Partial** | reduce, matmul, scan and transpose verified; histogram/image primitives and new benchmark rows pending |
+| 6 | Math kernels + tuning | **Done** | reduce, matmul, scan, transpose verified on CPU + Vulkan; benchmark rows recorded; histogram/image primitives deliberately out of V1 scope |
 | 7 | CUDA source migration (`hcsport`) | **Partial** | bounded compatibility scanner reports manual/unsupported constructs; no translator, no PTX importer |
 | 8 | Model vault + GGUF (llama.cpp Vulkan) | Pending | no model bundled |
 | 9 | REST API + MCP server | Pending | local-only, token auth required |

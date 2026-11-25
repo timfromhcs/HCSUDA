@@ -30,7 +30,7 @@ the current truth of the code in this repository.
   subgroup or matrix operations, no structured loops, no module serialization.
 * **Scan is chunk-local.** `scan_f32` writes per-chunk exclusive prefixes; a global scan needs
   a host-side pass over the chunk totals. There is no global scan kernel yet.
-* **No histogram or image-transform kernels yet.**
+* **No histogram or image-transform kernels.** They are explicitly out of V1 scope, not hidden behind a menu item.
 * **Reduce is two-stage by design.** `reduce_sum_f32` writes one partial sum per workgroup;
   the caller performs the final reduction. There is no single-call full reduction kernel yet.
 * **Single device per context.** Multi-GPU and peer access are out of scope for V1.

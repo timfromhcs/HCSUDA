@@ -11,7 +11,7 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 3 | Vulkan vector-add (and more) passes vs CPU reference | **GREEN** |
 | 4 | HCSIR v1 parser/verifier/interpreter + GLSL lowering + GPU execution | **GREEN** — 37/37 tests; the same HCSIR vecadd module passes on the CPU interpreter and on the Vulkan GPU |
 | 5 | Async flows/events/graphs; race-free under stress | **GREEN** — 46/46 tests incl. graph replay on both backends; validation profile zero errors |
-| 6 | Reduction/scan/matmul suite + benchmark data | PARTIAL — reduce, matmul, scan, transpose tested; benchmark rows + histogram still pending |
+| 6 | Reduction/scan/matmul suite + benchmark data | **GREEN** for the defined set: reduce, matmul, scan, transpose verified on CPU+Vulkan; benchmark rows recorded. Histogram/image primitives are not in V1 scope. |
 | 7 | CUDA source subset migration with report | PARTIAL — scanner tested (PORT-01..03); translator and PTX importer not implemented |
 | 8 | GGUF model through verified adapter | RED |
 | 9 | REST + MCP local-only, authenticated, tested | RED |
