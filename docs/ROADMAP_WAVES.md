@@ -16,7 +16,7 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 8 | GGUF model through verified adapter | PARTIAL — catalog/checksum/path safety tested (MV-01..04); inference adapter not integrated |
 | 9 | REST + MCP local-only, authenticated, tested | PARTIAL — MCP (MCP-01..06) and REST (REST-01..05) pass; OpenAPI + remaining endpoints pending |
 | 10 | UI pages, settings persistence, no dead controls | PARTIAL — local browser UI with live data (UI-01..02); settings persistence and full navigation pending |
-| 11 | Single EXE installer, clean-VM install/uninstall | RED |
+| 11 | Single EXE installer, clean-VM install/uninstall | PARTIAL — native EXE works on reference machine (INS-01..02); clean VM + upgrade test pending |
 | 12 | Stress/soak/fuzz/static analysis; no critical issues | RED |
 | 13 | README/matrix match build; release candidate | RED |
 

@@ -357,3 +357,22 @@ live: GET http://127.0.0.1:18711/ui/ -> 200 text/html, 4381 bytes
 ```
 
 No screenshot was produced by an automated browser, so none is claimed as product evidence.
+
+## 2026-11-25 — Wave 11: single-file installer
+
+IExpress and 7-Zip SFX were tried first: IExpress left a modal dialog and 7z.sfx required
+elevation; 7zCon.sfx accepted the archive but never executed the install script in this
+environment. Replaced both with a native C++ setup executable (`tools/hcsuda_setup/main.cpp`)
+that embeds a bounded generated payload and launches the install script directly.
+
+```
+cmake --build --preset windows-tests --parallel
+  -> artifacts payload embedded, HCSUDA-Setup-x64.exe built
+powershell -File installer\make_installer.ps1
+  -> artifacts/HCSUDA-Setup-x64.exe + SHA-256
+powershell -File tests\installer\test_installer.ps1 -> INSTALLER_TEST_PASS
+full EXE run -> SETUP_EXIT=0, installed binaries report real devices, uninstall OK
+```
+
+Final installer hash: F418108B57CEDD61AE60EAB44CAF3EEC342B3173FB2A73F0BFFB62AFF7985C05
+(unsigned; checksum is the verification mechanism).

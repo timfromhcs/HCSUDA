@@ -108,3 +108,11 @@ product.
   Models, Translate, Benchmarks, Visualizer, API/MCP, Diagnostics and About pages are not
   present; they are not advertised as working features.
 * No automated browser screenshot exists, so the README contains no product screenshot.
+
+## Installer (updated Wave 11)
+
+* The single EXE is **unsigned** (no publisher certificate configured). The published SHA-256 is
+  the verification mechanism.
+* No clean-VM install, upgrade-from-previous-version, or code-signing test has been performed.
+* The UI, REST and MCP tools are installed as binaries but are not started automatically; there
+  is no Windows service and no "start with Windows" default.

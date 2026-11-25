@@ -44,4 +44,4 @@ before public disclosure.
 | Fuzzing for HCSIR/PTX parsers | pending (parsers do not exist yet) |
 | Dependency and secret scanning in CI | workflow drafted, not enforced |
 | SBOM generation | pending |
-| Code signing | pending (no certificate configured) |
+| Code signing | pending (no certificate configured); installer is unsigned with published SHA-256 |

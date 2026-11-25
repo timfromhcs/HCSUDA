@@ -85,6 +85,8 @@ Last result: **1/1 CTest target passed; 73/73 HCS tests passed** (2026-11-25).
 | TR-03 | translate_fails_closed_on_unsupported_constructs | translator | PASS | atomics/no-kernel/null input rejected with no partial output |
 | UI-01 | rest_serves_self_contained_local_ui | UI | PASS | self-contained HTML with live data calls, no remote resources, explicit unavailable state |
 | UI-02 | live browser UI fetch (manual) | UI + REST | PASS | GET /ui/ -> 200 text/html, 4381 bytes from the running service |
+| INS-01 | tests/installer/test_installer.ps1 | installer | PASS | staged install, file checks, installed hcsdoctor --json, uninstall, Vulkan loader intact |
+| INS-02 | full single-EXE setup run (manual) | installer | PASS | SETUP_EXIT=0, real device report from installed binary, uninstall preserved user data |
 
 ## Not yet covered (explicit gaps)
 
@@ -98,7 +100,7 @@ Last result: **1/1 CTest target passed; 73/73 HCS tests passed** (2026-11-25).
 | Model catalog / checksum / path safety | **tested** (MV-01..04); no inference adapter | 8 |
 | MCP stdio protocol conformance | **tested** (MCP-01..06) | 9 |
 | Browser UI served locally | **tested** (UI-01..02); no automated screenshot capture yet | 10 |
-| Installer clean-VM install/upgrade/uninstall | untested | 11 |
+| Installer staged + reference-machine install/uninstall | **tested** (INS-01..02); clean VM and upgrade not tested | 11 |
 | Stress/soak (10k dispatches, 60 min) | untested | 12 |
 | Intel/NVIDIA Vulkan hardware | **not verified** | requires hardware |
 | Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (52/52 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |

@@ -34,7 +34,7 @@ Updated: 2026-11-25 (Wave 0–6 complete, Waves 7–9 in progress)
 | 8 | Model vault + GGUF (llama.cpp Vulkan) | **Partial** | catalog, SHA-256, path safety and format inspection tested; no inference adapter yet |
 | 9 | REST API + MCP server | **Partial** | MCP stdio (MCP-01..06) and local-only REST with token auth (REST-01..05) pass; model/benchmark/translation endpoints and OpenAPI generation pending |
 | 10 | Desktop UI | **Partial** | self-contained local browser UI with real data (UI-01..02); no Qt/WebView2 shell, no automated screenshots |
-| 11 | Installer (one EXE) | Pending | Inno Setup absent |
+| 11 | Installer (one EXE) | **Done on reference machine** | native single EXE, silent per-user install, tested install/uninstall; clean VM + upgrade not verified |
 | 12 | Stress/security/performance hardening | Pending | |
 | 13 | Docs, CI, release candidate | Pending | CI workflow present, not yet run on GitHub |
 

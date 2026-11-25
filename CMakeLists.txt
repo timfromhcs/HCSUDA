@@ -183,6 +183,53 @@ if(HCS_BUILD_TOOLS)
 endif()
 
 # ---------------------------------------------------------------------------
+# Native single-file setup executable (embeds the release payload).
+# ---------------------------------------------------------------------------
+find_package(Python3 COMPONENTS Interpreter QUIET)
+if(HCS_BUILD_TOOLS AND Python3_Interpreter_FOUND)
+    set(HCS_SETUP_STAGE "${CMAKE_CURRENT_BINARY_DIR}/setup_payload")
+    set(HCS_SETUP_HEADER "${CMAKE_CURRENT_BINARY_DIR}/generated/setup_payload.h")
+    file(MAKE_DIRECTORY "${HCS_SETUP_STAGE}" "${CMAKE_CURRENT_BINARY_DIR}/generated")
+    set(HCS_SETUP_COPY_COMMANDS)
+    foreach(tool hcsdoctor hcsbench hcscc hcsport hcsbridge-mcp hcsbridge-rest)
+        list(APPEND HCS_SETUP_COPY_COMMANDS
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+                    $<TARGET_FILE:${tool}> "${HCS_SETUP_STAGE}/${tool}.exe")
+    endforeach()
+    foreach(doc LICENSE NOTICE THIRD_PARTY_NOTICES.md README.md)
+        list(APPEND HCS_SETUP_COPY_COMMANDS
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+                    "${CMAKE_CURRENT_SOURCE_DIR}/${doc}" "${HCS_SETUP_STAGE}/${doc}")
+    endforeach()
+    foreach(script install.ps1 uninstall.ps1)
+        list(APPEND HCS_SETUP_COPY_COMMANDS
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+                    "${CMAKE_CURRENT_SOURCE_DIR}/installer/${script}" "${HCS_SETUP_STAGE}/${script}")
+    endforeach()
+    add_custom_command(
+        OUTPUT "${HCS_SETUP_HEADER}"
+        ${HCS_SETUP_COPY_COMMANDS}
+        COMMAND "${Python3_EXECUTABLE}" "${CMAKE_CURRENT_SOURCE_DIR}/installer/embed_payload.py"
+                --input "${HCS_SETUP_STAGE}" --output "${HCS_SETUP_HEADER}"
+        DEPENDS hcsdoctor hcsbench hcscc hcsport hcsbridge-mcp hcsbridge-rest
+                "${CMAKE_CURRENT_SOURCE_DIR}/installer/install.ps1"
+                "${CMAKE_CURRENT_SOURCE_DIR}/installer/uninstall.ps1"
+                "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE"
+                "${CMAKE_CURRENT_SOURCE_DIR}/NOTICE"
+                "${CMAKE_CURRENT_SOURCE_DIR}/THIRD_PARTY_NOTICES.md"
+                "${CMAKE_CURRENT_SOURCE_DIR}/README.md"
+        COMMENT "Embedding HCSUDA setup payload"
+        VERBATIM)
+    add_executable(HCSUDA-Setup-x64 WIN32
+        tools/hcsuda_setup/main.cpp "${HCS_SETUP_HEADER}")
+    target_include_directories(HCSUDA-Setup-x64 PRIVATE
+        "${CMAKE_CURRENT_BINARY_DIR}/generated")
+    if(MSVC)
+        target_compile_options(HCSUDA-Setup-x64 PRIVATE /W4 /permissive- /utf-8)
+    endif()
+endif()
+
+# ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
 if(HCS_BUILD_TESTS)
