@@ -103,6 +103,12 @@ HCS_API hcsResult hcsProgramCreateSpirv(hcsContext context, const void* spirv,
 HCS_API void hcsProgramDestroy(hcsProgram program);
 HCS_API hcsResult hcsKernelFromProgram(hcsProgram program, hcsKernel* out_kernel);
 
+/* Events: flow-order markers with a fence-equivalent wait ------------------- */
+HCS_API hcsResult hcsEventCreate(hcsContext context, hcsEvent* out_event);
+HCS_API hcsResult hcsEventRecord(hcsEvent event, hcsFlow flow);
+HCS_API hcsResult hcsEventWait(hcsEvent event, uint64_t timeout_ns);
+HCS_API void hcsEventDestroy(hcsEvent event);
+
 /* Diagnostics ------------------------------------------------------------- */
 
 HCS_API const char* hcsBackendName(uint32_t backend_kind);

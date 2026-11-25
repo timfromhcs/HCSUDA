@@ -152,3 +152,31 @@ ctest --preset windows-tests --output-on-failure  -> 37/37 HCS tests
 
 HCSIR vecadd now has two independent execution paths that agree: the CPU interpreter and a
 GPU pipeline compiled from HCSCC-generated GLSL.
+
+## 2026-11-25 — Wave 5 (first slice): async HCSFlow and HEvent
+
+The Vulkan dispatch now allocates a command buffer, descriptor set and fence per submission.
+With a flow, `hcsDispatch` submits and returns without waiting; the flow owns the fences and
+`hcsFlowSynchronize` waits with the caller's timeout. Without a flow, the original synchronous
+behaviour is preserved. Descriptor sets are never reset while in flight; on pool exhaustion
+the runtime waits for device idle, resets the pool once and clears the flows' pending bookkeeping.
+
+HEvent is a flow-order marker: recording captures the flow's submission counter, and waiting
+polls a monotone completion counter derived from `vkGetFenceStatus` in submission order. The CPU
+backend supplies the same semantics through its synchronous flow.
+
+Compile errors fixed during this slice:
+* newly used `vkFreeDescriptorSets`, `vkFreeCommandBuffers` and `vkGetFenceStatus` were absent
+  from the dynamic-loader function table;
+* `vkAllocateCommandBuffers` was declared twice in that table;
+* a loop variable named `flow` shadowed the dispatch parameter;
+* tests took the address of a temporary dispatch descriptor.
+
+One test expectation was corrected after observing real behaviour: an event recorded on an idle
+flow is already satisfied (target 0), so the timeout path is now tested with a mock backend flow
+instead of relying on GPU scheduling.
+
+```
+cmake --build --preset windows-tests --parallel   -> all targets built
+ctest --preset windows-tests --output-on-failure  -> 42/42 HCS tests
+```

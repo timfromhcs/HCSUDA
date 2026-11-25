@@ -1,6 +1,6 @@
 # Agent status
 
-Updated: 2026-11-25 (Wave 0–4 complete)
+Updated: 2026-11-25 (Wave 0–4 complete, Wave 5 in progress)
 
 ## Environment (measured, not assumed)
 
@@ -24,11 +24,11 @@ Updated: 2026-11-25 (Wave 0–4 complete)
 | Wave | Scope | Status | Notes |
 |---|---|---|---|
 | 0 | Reconnaissance, project contract, build skeleton | **Done** | MSVC + Vulkan SDK verified; presets build |
-| 1 | Core API + CPU reference backend | **Done** | 37 registered tests, all passing |
+| 1 | Core API + CPU reference backend | **Done** | 42 registered tests, all passing |
 | 2 | Vulkan discovery + diagnostics | **Done** | `hcsdoctor` reports real 680M caps/budget |
 | 3 | Minimal Vulkan compute | **Done** | vecadd/scale/reduce/matmul verified vs CPU |
 | 4 | HCSIR/HCS-PIR verifier + compiler path | **Almost** | parser, verifier, CPU interpreter, GLSL lowering with build-time `glslc` check, 34/34 tests; GPU execution of HCSIR via the C ABI still missing |
-| 5 | HCSFlow/HEvent/HCSGraph async | Next | V1 dispatch is synchronous today |
+| 5 | HCSFlow/HEvent/HCSGraph async | **Partial** | real async Vulkan flows + HEvent implemented and tested (FL-01..05); HCSGraph and validation-layer CTest profile pending |
 | 6 | Math kernels + tuning (scan, transpose, histogram) | Pending | |
 | 7 | CUDA source migration (`hcsport`) | Pending | matrix is conservative |
 | 8 | Model vault + GGUF (llama.cpp Vulkan) | Pending | no model bundled |
@@ -55,17 +55,21 @@ Updated: 2026-11-25 (Wave 0–4 complete)
   checks, push constants); the build compiles the generated shader with `glslc`.
 * Experimental program API: HCSCC-generated SPIR-V can be loaded into a Vulkan pipeline
   and dispatched. The CPU backend reports this as unsupported rather than decoding SPIR-V.
-* Tests: 37 tests covering API contract, CPU correctness, Vulkan correctness against CPU
+* Async HCSFlow: per-submission Vulkan command buffers, descriptor sets and fences; flows
+  own in-flight work and support timeout-aware synchronize. HEvent is a flow-order marker
+  backed by fence status; the CPU backend provides the same semantics synchronously.
+* Tests: 42 tests covering API contract, CPU correctness, Vulkan correctness against CPU
   reference, memory cap enforcement, device report sanity, HCSIR accept/reject behaviour,
-  generated-GLSL properties, and GPU execution of a generated HCSIR module.
+  generated-GLSL properties, GPU execution of a generated HCSIR module, and flow/event ordering.
 
-## Immediate next actions (Wave 5)
+## Immediate next actions (finish Wave 5)
 
-1. Replace the single synchronous command buffer with reusable per-context command pools and
-   add a real HEvent (fence fallback, timeline semaphore when the capability bit is present).
-2. Wire Vulkan validation layers into a dedicated Debug/CTest profile.
-3. Add race/ordering tests with multiple flows and repeated randomized schedules.
-4. Only then add a bounded HCSGraph recording/replay subset, marked experimental until tested.
+1. Wire Vulkan validation layers into a dedicated Debug/CTest profile and run the flow tests
+   under it. Layers are a test dependency, never a runtime prerequisite.
+2. Add a bounded HCSGraph recording/replay subset (DAG validation, cycle rejection, replay on a
+   flow), marked Experimental until conformance tests exist.
+3. Consider timeline semaphores only where `HCS_CAP_TIMELINE_SEMAPHORE` is actually present;
+   the fence implementation is the tested fallback and remains the default.
 
 Deferred from Wave 4 (not a release blocker): HCSIR serialization/round-trip caching.
 

@@ -35,6 +35,14 @@ const KernelDef* findKernel(const char* name);
 const KernelDef* kernelById(KernelId id);
 const KernelDef* kernelTable(uint32_t* count);
 
+/* Per-flow backend state. V1 uses fences; timeline semaphores are a later tier. */
+class BackendFlow {
+public:
+    virtual ~BackendFlow() = default;
+    virtual hcsResult synchronize(uint64_t timeout_ns) = 0;
+    virtual uint64_t completed() const = 0;
+};
+
 /* Backend context interface. One implementation per backend. */
 class BackendContext {
 public:
@@ -42,7 +50,9 @@ public:
 
     virtual hcsResult createBuffer(hcs_buffer_t* buffer) = 0;
     virtual void destroyBuffer(hcs_buffer_t* buffer) = 0;
-    virtual hcsResult dispatch(hcs_kernel_t* kernel, const hcsDispatchDesc* desc) = 0;
+    virtual hcsResult dispatch(hcs_kernel_t* kernel, const hcsDispatchDesc* desc,
+                               hcsFlow flow) = 0;
+    virtual std::unique_ptr<BackendFlow> createFlow(hcs_flow_t* flow) = 0;
     virtual hcsResult createProgram(hcs_program_t* program, const void* data,
                                     size_t byteSize) = 0;
     virtual hcsResult createProgramKernel(hcs_program_t* program, hcs_kernel_t* kernel) = 0;
@@ -98,11 +108,19 @@ struct hcs_buffer_t {
 struct hcs_flow_t {
     hcs_context_t* context = nullptr;
     std::atomic<uint64_t> submissions{0};
+    std::unique_ptr<hcs::BackendFlow> impl;
 };
 
 struct hcs_program_t {
     hcs_context_t* context = nullptr;
     std::vector<unsigned char> spirv;
+};
+
+struct hcs_event_t {
+    hcs_context_t* context = nullptr;
+    hcsFlow flow = nullptr;
+    uint64_t target = 0;
+    bool recorded = false;
 };
 
 struct hcs_kernel_t {

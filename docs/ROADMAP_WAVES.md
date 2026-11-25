@@ -10,7 +10,7 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 2 | Accurate device report on real hardware; CPU fallback | **GREEN** |
 | 3 | Vulkan vector-add (and more) passes vs CPU reference | **GREEN** |
 | 4 | HCSIR v1 parser/verifier/interpreter + GLSL lowering + GPU execution | **GREEN** — 37/37 tests; the same HCSIR vecadd module passes on the CPU interpreter and on the Vulkan GPU |
-| 5 | Async flows/events/graphs; race-free under stress | RED |
+| 5 | Async flows/events/graphs; race-free under stress | **PARTIAL** — async flows + events tested (FL-01..05); graph and validation-layer profile not implemented |
 | 6 | Reduction/scan/matmul suite + benchmark data | PARTIAL (reduce, matmul done) |
 | 7 | CUDA source subset migration with report | RED |
 | 8 | GGUF model through verified adapter | RED |
@@ -20,13 +20,13 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 12 | Stress/soak/fuzz/static analysis; no critical issues | RED |
 | 13 | README/matrix match build; release candidate | RED |
 
-## Next concrete task (Wave 5)
+## Next concrete task (finish Wave 5)
 
-1. Replace the single synchronous command buffer with reusable per-context command pools and
-   implement HEvent with a fence fallback plus timeline semaphores where the capability exists.
-2. Wire Vulkan validation layers into a dedicated Debug/CTest profile.
-3. Add deterministic ordering tests over multiple flows and repeated randomized schedules.
-4. Add a bounded HCSGraph DAG subset, marked Experimental until conformance tests exist.
+1. Wire Vulkan validation layers into a dedicated Debug/CTest profile and run the flow tests
+   under it (skip cleanly when the layer is not installed).
+2. Add a bounded HCSGraph DAG subset with cycle rejection and replay on a flow; mark it
+   Experimental until conformance tests exist.
+3. Add repeated randomized schedules to the flow stress tests (Wave 12 stress harness).
 
 Deferred from Wave 4: HCSIR serialization/round-trip caching.
 

@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <cstring>
 #include <mutex>
+#include <thread>
 
 namespace {
 
@@ -406,21 +407,79 @@ hcsResult hcsFlowCreate(hcsContext context, const hcsFlowDesc* desc, hcsFlow* ou
     }
     auto flow = std::make_unique<hcs_flow_t>();
     flow->context = context;
+    flow->impl = context->impl->createFlow(flow.get());
+    if (!flow->impl) {
+        return hcs::fail(HCS_E_INTERNAL, "hcsFlowCreate",
+                         "backend did not create a flow implementation");
+    }
     *out_flow = flow.release();
     return HCS_SUCCESS;
 }
 
 hcsResult hcsFlowSynchronize(hcsFlow flow, uint64_t timeout_ns)
 {
-    (void)timeout_ns; /* V1 dispatches are synchronous per submission. */
-    if (!flow) {
+    if (!flow || !flow->impl) {
         return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsFlowSynchronize",
                          "flow must not be null");
     }
-    return flow->context->impl->synchronize();
+    const hcsResult result = flow->impl->synchronize(timeout_ns);
+    if (result == HCS_SUCCESS) {
+        flow->submissions.store(0, std::memory_order_release);
+    }
+    return result;
 }
 
 void hcsFlowDestroy(hcsFlow flow) { delete flow; }
+
+hcsResult hcsEventCreate(hcsContext context, hcsEvent* out_event)
+{
+    if (!context || !out_event) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsEventCreate",
+                         "context and output event must not be null");
+    }
+    auto event = std::make_unique<hcs_event_t>();
+    event->context = context;
+    *out_event = event.release();
+    return HCS_SUCCESS;
+}
+
+hcsResult hcsEventRecord(hcsEvent event, hcsFlow flow)
+{
+    if (!event || !flow || !flow->impl || event->context != flow->context) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsEventRecord",
+                         "event and flow must refer to the same valid context");
+    }
+    event->flow = flow;
+    event->target = flow->submissions.load(std::memory_order_acquire);
+    event->recorded = true;
+    return HCS_SUCCESS;
+}
+
+hcsResult hcsEventWait(hcsEvent event, uint64_t timeout_ns)
+{
+    if (!event || !event->recorded || !event->flow || !event->flow->impl) {
+        return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsEventWait",
+                         "event has not been recorded on a valid flow");
+    }
+    const auto begin = std::chrono::steady_clock::now();
+    for (;;) {
+        const uint64_t completed = event->flow->impl->completed();
+        if (completed >= event->target) {
+            return HCS_SUCCESS;
+        }
+        if (timeout_ns != UINT64_MAX) {
+            const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                std::chrono::steady_clock::now() - begin);
+            if (elapsed.count() >= static_cast<int64_t>(timeout_ns)) {
+                return hcs::fail(HCS_E_TIMEOUT, "hcsEventWait",
+                                 "event wait timed out");
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::microseconds(200));
+    }
+}
+
+void hcsEventDestroy(hcsEvent event) { delete event; }
 
 hcsResult hcsKernelCreate(hcsContext context, const char* name, hcsKernel* out_kernel)
 {
@@ -524,7 +583,7 @@ hcsResult hcsDispatch(hcsKernel kernel, const hcsDispatchDesc* desc, hcsFlow flo
         return hcs::fail(HCS_E_INVALID_ARGUMENT, "hcsDispatch",
                          "flow belongs to a different context");
     }
-    hcsResult result = kernel->context->impl->dispatch(kernel, desc);
+    hcsResult result = kernel->context->impl->dispatch(kernel, desc, flow);
     if (result == HCS_SUCCESS && flow) {
         flow->submissions.fetch_add(1, std::memory_order_relaxed);
     }

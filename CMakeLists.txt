@@ -167,6 +167,7 @@ if(HCS_BUILD_TESTS)
         tests/unit/test_main.cpp
         tests/unit/test_api.cpp
         tests/unit/test_cpu.cpp
+        tests/unit/test_flows.cpp
         tests/unit/test_ir.cpp
         tests/unit/test_ir_glsl.cpp
         tests/unit/test_ir_vulkan.cpp

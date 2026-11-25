@@ -26,7 +26,7 @@ migration tooling.
 | Compute dispatch: vector add, scale, reduce-sum, FP32 matmul | **Native / Stable** | CPU + Vulkan tests |
 | CPU backend (scalar + runtime AVX2/FMA) | **Native / Stable** | `cpu_*` tests |
 | Memory cap and clean OOM error | **Native / Stable** | `vulkan_memory_cap_is_enforced` |
-| HCSFlow (synchronous submit/wait in V1) | **Native / Beta** | dispatch tests |
+| HCSFlow async submit + hcsFlowSynchronize, HEvent flow marker | **Native / Stable** | FL-01..FL-05 |
 | Diagnostics CLI (`hcsdoctor`) | **Native / Stable** | this repo |
 | Benchmarks (`hcsbench`) | **Native / Stable** | `benchmarks/baselines/` |
 | HCSIR v1 parser/verifier + CPU interpreter + HCSCC GLSL lowering → Vulkan execution | **Experimental** | `ir_*` tests, IR-18 GPU run, `docs/api/hcsir.md` |

@@ -180,6 +180,21 @@ float pcF32(const hcsDispatchDesc* desc, uint32_t index)
     return value;
 }
 
+class CpuFlow final : public BackendFlow {
+public:
+    explicit CpuFlow(hcs_flow_t* flow) : flow_(flow) {}
+
+    hcsResult synchronize(uint64_t) override { return HCS_SUCCESS; }
+
+    uint64_t completed() const override
+    {
+        return flow_ ? flow_->submissions.load(std::memory_order_acquire) : 0;
+    }
+
+private:
+    hcs_flow_t* flow_ = nullptr;
+};
+
 class CpuContext final : public BackendContext {
 public:
     CpuContext(hcs_device_t* device, uint64_t memoryCap)
@@ -239,7 +254,12 @@ public:
                     "the CPU backend does not decode SPIR-V");
     }
 
-    hcsResult dispatch(hcs_kernel_t* kernel, const hcsDispatchDesc* desc) override
+    std::unique_ptr<BackendFlow> createFlow(hcs_flow_t* flow) override
+    {
+        return std::make_unique<CpuFlow>(flow);
+    }
+
+    hcsResult dispatch(hcs_kernel_t* kernel, const hcsDispatchDesc* desc, hcsFlow) override
     {
         if (!kernel->def) {
             return fail(HCS_E_UNSUPPORTED_FEATURE, "cpu.dispatch",

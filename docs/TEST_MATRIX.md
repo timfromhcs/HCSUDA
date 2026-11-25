@@ -4,7 +4,7 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **1/1 CTest target passed; 37/37 HCS tests passed** (2026-11-25).
+Last result: **1/1 CTest target passed; 42/42 HCS tests passed** (2026-11-25).
 
 | ID | Test | Backend | Result | What it proves |
 |---|---|---|---|---|
@@ -46,13 +46,18 @@ Last result: **1/1 CTest target passed; 37/37 HCS tests passed** (2026-11-25).
 | IR-18 | hcsir_generated_spirv_runs_on_vulkan | Vulkan | PASS | HCSCC-generated SPIR-V loaded via the experimental program API; 4096 invocations match the HCSIR reference within 2e-5 |
 | IR-19 | hcsir_program_rejects_invalid_spirv | Vulkan | PASS | bad magic → `HCS_E_SPIRV_INVALID`; unaligned/null input → `HCS_E_INVALID_ARGUMENT` |
 | IR-20 | hcsir_program_is_unsupported_on_cpu_backend | CPU | PASS | CPU returns `HCS_E_UNSUPPORTED_FEATURE` instead of pretending to decode SPIR-V |
+| FL-01 | flow_async_dispatches_and_event_wait | Vulkan | PASS | 8 async dispatches on one flow; event wait observes fence status before explicit sync; final output matches |
+| FL-02 | flow_two_flows_are_independent | Vulkan | PASS | two flows with different alphas, synchronized in reverse order, both results correct |
+| FL-03 | flow_event_timeout_and_validation | Vulkan | PASS | idle-flow event is immediately satisfied; null flow/event misuse rejected |
+| FL-04 | flow_cpu_backend_completes_immediately | CPU | PASS | CPU flow/event complete synchronously with zero timeout |
+| FL-05 | flow_event_wait_timeout_path | mock flow | PASS | a backend flow whose counter never advances yields `HCS_E_TIMEOUT` |
 
 ## Not yet covered (explicit gaps)
 
 | Area | Status | Planned wave |
 |---|---|---|
 | HCSIR parser/verifier/interpreter | **tested** (IR-01..IR-12) | 4 |
-| Async flows, events, graphs, races under validation layers | untested | 5 |
+| Async flows and events | **tested** (FL-01..FL-05) | 5 |
 | Scan, transpose, histogram, image primitives | untested | 6 |
 | CUDA source translation corpus | untested | 7 |
 | PTX textual importer | not implemented | 7 (experimental) |
@@ -62,7 +67,7 @@ Last result: **1/1 CTest target passed; 37/37 HCS tests passed** (2026-11-25).
 | Installer clean-VM install/upgrade/uninstall | untested | 11 |
 | Stress/soak (10k dispatches, 60 min) | untested | 12 |
 | Intel/NVIDIA Vulkan hardware | **not verified** | requires hardware |
-| Vulkan validation layers run | not yet wired into CTest | 5 |
+| Vulkan validation layers run | pending; generated shaders are validated by `glslc` at build time | 5 |
 
 ## Benchmark evidence
 

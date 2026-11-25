@@ -5,8 +5,12 @@ the current truth of the code in this repository.
 
 ## Runtime and compute
 
-* **V1 dispatches are synchronous.** `hcsDispatch` submits and waits on a fence. No
-  asynchronous overlap, no multi-queue scheduling, no timeline semaphores yet (Wave 5).
+* **Async dispatch requires a flow.** `hcsDispatch(kernel, desc, NULL)` still submits and
+  waits synchronously. Passing an `hcsFlow` submits without waiting; the caller must call
+  `hcsFlowSynchronize` (or wait on a recorded `hcsEvent`) before reading host-visible output.
+* **HEvent is a flow-order marker**, not a timeline semaphore. Waiting polls fence status in
+  submission order. `HCS_CAP_TIMELINE_SEMAPHORE` is not used yet.
+* **No HCSGraph yet**; execution DAG recording/replay is pending Wave 5.
 * **Buffers are host-visible and coherent.** This is the native path on integrated/UMA GPUs
   (the reference 680M) and a documented slower fallback on discrete GPUs. Device-local
   allocation with staging is planned.

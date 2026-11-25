@@ -19,6 +19,7 @@
 #include <windows.h>
 
 #include <algorithm>
+#include <functional>
 #include <cstdio>
 #include <cstring>
 #include <mutex>
@@ -67,6 +68,7 @@ namespace {
     X(vkCreateDescriptorPool)                                 \
     X(vkDestroyDescriptorPool)                                \
     X(vkAllocateDescriptorSets)                               \
+    X(vkFreeDescriptorSets)                                   \
     X(vkResetDescriptorPool)                                  \
     X(vkUpdateDescriptorSets)                                 \
     X(vkCreateBuffer)                                         \
@@ -79,7 +81,9 @@ namespace {
     X(vkUnmapMemory)                                          \
     X(vkCreateFence)                                          \
     X(vkDestroyFence)                                         \
+    X(vkFreeCommandBuffers)                                   \
     X(vkWaitForFences)                                        \
+    X(vkGetFenceStatus)                                       \
     X(vkResetFences)                                          \
     X(vkQueueSubmit)                                          \
     X(vkCmdBindPipeline)                                      \
@@ -485,6 +489,117 @@ SpvBlob blobFor(KernelId id)
     }
 }
 
+struct PendingSubmission {
+    VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+    VkFence fence = VK_NULL_HANDLE;
+    VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
+};
+
+/* A flow owns the fences of all submissions made through it. Completion is a monotone
+ * counter; HEvent waits against that counter without needing a second Vulkan object. */
+class VulkanFlow final : public BackendFlow {
+public:
+    VulkanFlow(VkDevice device, std::function<void(const PendingSubmission&)> release)
+        : device_(device), release_(std::move(release))
+    {
+    }
+
+    ~VulkanFlow() override { detach(); }
+
+    void attach(PendingSubmission item)
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (active_) {
+            pending_.push_back(item);
+        } else {
+            release_(item);
+        }
+    }
+
+    hcsResult synchronize(uint64_t timeout_ns) override
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!active_ || !device_) {
+            return fail(HCS_E_NOT_INITIALIZED, "vulkan.flowSync", "flow is detached");
+        }
+        std::vector<VkFence> fences;
+        fences.reserve(pending_.size());
+        for (const auto& item : pending_) {
+            fences.push_back(item.fence);
+        }
+        if (!fences.empty()) {
+            const VkResult vk = g_api.vkWaitForFences(device_, static_cast<uint32_t>(fences.size()),
+                                                     fences.data(), VK_TRUE, timeout_ns);
+            if (vk == VK_TIMEOUT) {
+                return fail(HCS_E_TIMEOUT, "vulkan.flowSync", "fence wait timed out");
+            }
+            if (vk != VK_SUCCESS) {
+                return mapVkResult(vk, "vulkan.flowSync");
+            }
+        }
+        const uint64_t finished = pending_.size();
+        for (const auto& item : pending_) {
+            release_(item);
+        }
+        pending_.clear();
+        completed_.fetch_add(finished, std::memory_order_release);
+        return HCS_SUCCESS;
+    }
+
+    uint64_t completed() const override
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        uint64_t ready = completed_.load(std::memory_order_acquire);
+        /* Submissions on one queue complete in submission order, so the count of ready
+         * fences is a prefix. This lets HEvent wait without an explicit flow sync. */
+        for (const auto& item : pending_) {
+            if (g_api.vkGetFenceStatus(device_, item.fence) != VK_SUCCESS) {
+                break;
+            }
+            ++ready;
+        }
+        return ready;
+    }
+
+    /* Called only while the owning context holds its mutex and has waited for device idle. */
+    void dropPendingAfterPoolReset()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        pending_.clear();
+    }
+
+    void detach()
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!active_) {
+            return;
+        }
+        if (device_ && !pending_.empty()) {
+            std::vector<VkFence> fences;
+            fences.reserve(pending_.size());
+            for (const auto& item : pending_) {
+                fences.push_back(item.fence);
+            }
+            g_api.vkWaitForFences(device_, static_cast<uint32_t>(fences.size()), fences.data(),
+                                  VK_TRUE, UINT64_MAX);
+        }
+        for (const auto& item : pending_) {
+            release_(item);
+        }
+        pending_.clear();
+        active_ = false;
+        device_ = VK_NULL_HANDLE;
+    }
+
+private:
+    VkDevice device_ = VK_NULL_HANDLE;
+    std::function<void(const PendingSubmission&)> release_;
+    std::vector<PendingSubmission> pending_;
+    mutable std::mutex mutex_;
+    std::atomic<uint64_t> completed_{0};
+    bool active_ = true;
+};
+
 class VulkanContext final : public BackendContext {
 public:
     VulkanContext(hcs_device_t* device, uint64_t memoryCap)
@@ -677,7 +792,33 @@ public:
         buffer->host = nullptr;
     }
 
-    hcsResult dispatch(hcs_kernel_t* kernel, const hcsDispatchDesc* desc) override
+    std::unique_ptr<BackendFlow> createFlow(hcs_flow_t*) override
+    {
+        auto flow = std::make_unique<VulkanFlow>(
+            device_, [this](const PendingSubmission& item) { releaseSubmission(item); });
+        std::lock_guard<std::mutex> lock(mutex_);
+        flows_.push_back(flow.get());
+        return flow;
+    }
+
+    void releaseSubmission(const PendingSubmission& item)
+    {
+        if (!device_) {
+            return;
+        }
+        if (item.fence) {
+            g_api.vkDestroyFence(device_, item.fence, nullptr);
+        }
+        if (item.descriptorSet) {
+            g_api.vkFreeDescriptorSets(device_, descriptorPool_, 1, &item.descriptorSet);
+        }
+        if (item.commandBuffer) {
+            g_api.vkFreeCommandBuffers(device_, commandPool_, 1, &item.commandBuffer);
+        }
+    }
+
+    hcsResult dispatch(hcs_kernel_t* kernel, const hcsDispatchDesc* desc,
+                       hcsFlow flow) override
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (!device_) {
@@ -700,16 +841,37 @@ public:
             return result;
         }
 
-        g_api.vkResetDescriptorPool(device_, descriptorPool_, 0);
+        VkCommandBufferAllocateInfo commandAlloc{};
+        commandAlloc.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        commandAlloc.commandPool = commandPool_;
+        commandAlloc.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        commandAlloc.commandBufferCount = 1;
+        VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+        VkResult vk = g_api.vkAllocateCommandBuffers(device_, &commandAlloc, &commandBuffer);
+        if (vk != VK_SUCCESS) {
+            return mapVkResult(vk, "vulkan.allocateCommandBuffer");
+        }
+
         VkDescriptorSetAllocateInfo setInfo{};
         setInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         setInfo.descriptorPool = descriptorPool_;
         setInfo.descriptorSetCount = 1;
         setInfo.pSetLayouts = &descriptorLayout_;
         VkDescriptorSet set = VK_NULL_HANDLE;
-        VkResult vk = g_api.vkAllocateDescriptorSets(device_, &setInfo, &set);
+        vk = g_api.vkAllocateDescriptorSets(device_, &setInfo, &set);
         if (vk != VK_SUCCESS) {
-            return mapVkResult(vk, "vulkan.allocateDescriptorSet");
+            /* No in-flight set is ever reset; if the pool fills up, wait for the device,
+             * reset it once, and retry. Never disturb a submission that is still reading. */
+            g_api.vkDeviceWaitIdle(device_);
+            g_api.vkResetDescriptorPool(device_, descriptorPool_, 0);
+            for (VulkanFlow* registered : flows_) {
+                registered->dropPendingAfterPoolReset();
+            }
+            vk = g_api.vkAllocateDescriptorSets(device_, &setInfo, &set);
+            if (vk != VK_SUCCESS) {
+                g_api.vkFreeCommandBuffers(device_, commandPool_, 1, &commandBuffer);
+                return mapVkResult(vk, "vulkan.allocateDescriptorSet");
+            }
         }
 
         VkDescriptorBufferInfo bufferInfos[8]{};
@@ -732,42 +894,61 @@ public:
         VkCommandBufferBeginInfo begin{};
         begin.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         begin.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-        vk = g_api.vkBeginCommandBuffer(commandBuffer_, &begin);
+        vk = g_api.vkBeginCommandBuffer(commandBuffer, &begin);
         if (vk != VK_SUCCESS) {
             return mapVkResult(vk, "vulkan.beginCommandBuffer");
         }
-        g_api.vkCmdBindPipeline(commandBuffer_, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
+        g_api.vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
         if (desc->buffer_count > 0) {
-            g_api.vkCmdBindDescriptorSets(commandBuffer_, VK_PIPELINE_BIND_POINT_COMPUTE,
+            g_api.vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE,
                                           pipelineLayout_, 0, 1, &set, 0, nullptr);
         }
         if (desc->push_constants_size > 0) {
-            g_api.vkCmdPushConstants(commandBuffer_, pipelineLayout_,
+            g_api.vkCmdPushConstants(commandBuffer, pipelineLayout_,
                                      VK_SHADER_STAGE_COMPUTE_BIT, 0,
                                      desc->push_constants_size, desc->push_constants);
         }
-        g_api.vkCmdDispatch(commandBuffer_, desc->group_count_x, desc->group_count_y,
+        g_api.vkCmdDispatch(commandBuffer, desc->group_count_x, desc->group_count_y,
                             desc->group_count_z);
-        vk = g_api.vkEndCommandBuffer(commandBuffer_);
+        vk = g_api.vkEndCommandBuffer(commandBuffer);
         if (vk != VK_SUCCESS) {
             return mapVkResult(vk, "vulkan.endCommandBuffer");
+        }
+
+        VkFenceCreateInfo fenceInfo{};
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        VkFence fence = VK_NULL_HANDLE;
+        vk = g_api.vkCreateFence(device_, &fenceInfo, nullptr, &fence);
+        if (vk != VK_SUCCESS) {
+            return mapVkResult(vk, "vulkan.createFence");
         }
 
         VkSubmitInfo submit{};
         submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submit.commandBufferCount = 1;
-        submit.pCommandBuffers = &commandBuffer_;
-        vk = g_api.vkQueueSubmit(queue_, 1, &submit, fence_);
+        submit.pCommandBuffers = &commandBuffer;
+        vk = g_api.vkQueueSubmit(queue_, 1, &submit, fence);
         if (vk != VK_SUCCESS) {
+            g_api.vkDestroyFence(device_, fence, nullptr);
+            g_api.vkFreeDescriptorSets(device_, descriptorPool_, 1, &set);
+            g_api.vkFreeCommandBuffers(device_, commandPool_, 1, &commandBuffer);
             return mapVkResult(vk, "vulkan.queueSubmit");
         }
-        vk = g_api.vkWaitForFences(device_, 1, &fence_, VK_TRUE, UINT64_MAX);
+
+        PendingSubmission item{commandBuffer, fence, set};
+        VulkanFlow* targetFlow = flow && flow->impl
+                                     ? dynamic_cast<VulkanFlow*>(flow->impl.get())
+                                     : nullptr;
+        if (targetFlow) {
+            targetFlow->attach(item);
+            return HCS_SUCCESS; /* asynchronous: completion is observed via the flow */
+        }
+        /* No flow supplied: preserve the original synchronous semantics. */
+        vk = g_api.vkWaitForFences(device_, 1, &fence, VK_TRUE, UINT64_MAX);
         if (vk != VK_SUCCESS) {
             return mapVkResult(vk, "vulkan.waitForFence");
         }
-        g_api.vkResetFences(device_, 1, &fence_);
-
-        /* Host-coherent memory: results are visible to the CPU after the fence. */
+        releaseSubmission(item);
         return HCS_SUCCESS;
     }
 
@@ -787,6 +968,10 @@ private:
             return;
         }
         g_api.vkDeviceWaitIdle(device_);
+        for (VulkanFlow* registered : flows_) {
+            registered->detach();
+        }
+        flows_.clear();
         for (auto& entry : pipelines_) {
             g_api.vkDestroyPipeline(device_, entry.second, nullptr);
         }
@@ -871,10 +1056,10 @@ private:
 
         VkDescriptorPoolSize poolSize{};
         poolSize.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        poolSize.descriptorCount = 64;
+        poolSize.descriptorCount = 4096;
         VkDescriptorPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        poolInfo.maxSets = 8;
+        poolInfo.maxSets = 512;
         poolInfo.poolSizeCount = 1;
         poolInfo.pPoolSizes = &poolSize;
         if (g_api.vkCreateDescriptorPool(device_, &poolInfo, nullptr, &descriptorPool_) !=
@@ -972,6 +1157,7 @@ private:
     VkPipelineLayout pipelineLayout_ = VK_NULL_HANDLE;
     VkDescriptorPool descriptorPool_ = VK_NULL_HANDLE;
     std::unordered_map<uint64_t, VkPipeline> pipelines_;
+    std::vector<VulkanFlow*> flows_;
     std::mutex mutex_;
     uint64_t memoryCap_ = 0;
     uint64_t allocated_ = 0;
