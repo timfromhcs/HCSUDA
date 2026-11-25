@@ -87,6 +87,8 @@ Last result: **1/1 CTest target passed; 76/76 HCS tests passed** (2026-11-25).
 | UI-02 | live browser UI fetch (manual) | UI + REST | PASS | GET /ui/ -> 200 text/html, 4381 bytes from the running service |
 | INS-01 | tests/installer/test_installer.ps1 | installer | PASS | staged install, file checks, installed hcsdoctor --json, uninstall, Vulkan loader intact |
 | INS-02 | full single-EXE setup run (manual) | installer | PASS | SETUP_EXIT=0, real device report from installed binary, uninstall preserved user data |
+| INS-03 | tests/installer/test_upgrade.ps1 | installer | PASS | in-place reinstall keeps user files, binaries still run, uninstall removes only HCSUDA files |
+| SEC-01 | scripts/check-secrets.ps1 | repository | PASS | 104 tracked files scanned, no credential patterns in code (dummy tokens only in docs/tests) |
 | STR-01 | stress_repeated_cpu_dispatch_reuses_buffers | CPU | PASS | 2000 synchronous dispatches reusing the same buffers |
 | STR-02 | stress_async_flow_many_submissions | Vulkan | PASS | 500 async submissions on one flow, chunked fence wait, verified output |
 | STR-03 | fuzz_bounded_parsers_reject_random_input | parsers/API | PASS | 200 seeded random inputs through HCSIR, scanner, MCP and REST handlers |
@@ -103,8 +105,8 @@ Last result: **1/1 CTest target passed; 76/76 HCS tests passed** (2026-11-25).
 | Model catalog / checksum / path safety | **tested** (MV-01..04); no inference adapter | 8 |
 | MCP stdio protocol conformance | **tested** (MCP-01..06) | 9 |
 | Browser UI served locally | **tested** (UI-01..02); no automated screenshot capture yet | 10 |
-| Installer staged + reference-machine install/uninstall | **tested** (INS-01..02); clean VM and upgrade not tested | 11 |
-| Stress/fuzz (2000 CPU, 500 GPU submissions, 200 fuzz inputs) | **tested** (STR-01..03); 60-min soak not run | 12 |
+| Installer staged + reference-machine install/uninstall + in-place upgrade | **tested** (INS-01..03); clean VM not tested | 11 |
+| Stress/fuzz (2000 CPU, 500 GPU submissions, 200 fuzz inputs) | **tested** (STR-01..03); 60-min soak started, not yet reported | 12 |
 | Intel/NVIDIA Vulkan hardware | **not verified** | requires hardware |
 | Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (52/52 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
 

@@ -392,3 +392,16 @@ ctest --preset windows-validation --timeout 180 --output-on-failure -> 76/76, ze
 Added `docs/api/openapi.json`, `docs/release/sbom.json` and `docs/release/v1-scope.md`. The scope
 document explicitly omits GGUF inference, PTX import, Qt/WebView2 shell, Streamable HTTP and
 several advanced compute features from V1 claims rather than leaving them vague.
+
+## 2026-11-25 — remaining gate work
+
+* `tests/installer/test_upgrade.ps1`: in-place reinstall keeps user files, the reinstalled
+  binary reports real devices, and uninstall leaves the Vulkan loader intact — `UPGRADE_TEST_PASS`.
+  This is a same-version reinstall test, not a cross-version upgrade test.
+* `scripts/check-secrets.ps1`: scanned 104 tracked files — `SECRET_SCAN_PASS`. Dummy tokens in
+  docs/tests are excluded by path; no credential patterns remain in shipped code.
+* CI expanded with installer/upgrade/secret-scan jobs. The validation job is
+  `continue-on-error` because hosted runners may lack the Vulkan SDK; real hardware QA is a
+  separate self-hosted concern and is never silently marked passed.
+* A bounded 60-minute soak (`tests/stress/soak.ps1`) was started in the background and writes
+  real medians to `artifacts/soak.log`. No result is claimed until it finishes.
