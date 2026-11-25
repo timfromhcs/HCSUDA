@@ -276,6 +276,10 @@ public:
             return dispatchReduce(desc);
         case KernelId::MatMulF32:
             return dispatchMatMul(desc);
+        case KernelId::ScanF32:
+            return dispatchScan(desc);
+        case KernelId::TransposeF32:
+            return dispatchTranspose(desc);
         default:
             return fail(HCS_E_UNSUPPORTED_FEATURE, "cpu.dispatch",
                         "kernel is not implemented on the CPU backend");
@@ -415,6 +419,59 @@ private:
                     for (uint32_t col = 0; col < n; ++col) {
                         crow[col] += aval * brow[col];
                     }
+                }
+            }
+        });
+        return HCS_SUCCESS;
+    }
+
+    hcsResult dispatchScan(const hcsDispatchDesc* desc)
+    {
+        if (!validBuffers(desc, 2)) {
+            return HCS_E_INVALID_ARGUMENT;
+        }
+        const uint32_t n = pcU32(desc, 0);
+        const uint32_t groups = std::max(1u, pcU32(desc, 1));
+        const auto* input = static_cast<const float*>(desc->buffers[0]->host);
+        auto* output = static_cast<float*>(desc->buffers[1]->host);
+        const uint64_t elements = std::min<uint64_t>(n, desc->buffers[0]->size / sizeof(float));
+        if (desc->buffers[1]->size / sizeof(float) < elements) {
+            return fail(HCS_E_INVALID_ARGUMENT, "cpu.dispatch.scan",
+                        "output buffer is too small");
+        }
+        const uint64_t chunk = (elements + groups - 1) / groups;
+        parallelFor(groups, 1, [&](uint64_t begin, uint64_t end) {
+            for (uint64_t g = begin; g < end; ++g) {
+                const uint64_t first = g * chunk;
+                const uint64_t last = std::min<uint64_t>(elements, first + chunk);
+                float prefix = 0.0f;
+                for (uint64_t i = first; i < last; ++i) {
+                    output[i] = prefix;
+                    prefix += input[i];
+                }
+            }
+        });
+        return HCS_SUCCESS;
+    }
+
+    hcsResult dispatchTranspose(const hcsDispatchDesc* desc)
+    {
+        if (!validBuffers(desc, 2)) {
+            return HCS_E_INVALID_ARGUMENT;
+        }
+        const uint64_t rows = pcU32(desc, 0);
+        const uint64_t cols = pcU32(desc, 1);
+        const auto* input = static_cast<const float*>(desc->buffers[0]->host);
+        auto* output = static_cast<float*>(desc->buffers[1]->host);
+        if (desc->buffers[0]->size < rows * cols * sizeof(float) ||
+            desc->buffers[1]->size < cols * rows * sizeof(float)) {
+            return fail(HCS_E_INVALID_ARGUMENT, "cpu.dispatch.transpose",
+                        "buffer is too small for the requested matrix dimensions");
+        }
+        parallelFor(rows, 1, [&](uint64_t rowBegin, uint64_t rowEnd) {
+            for (uint64_t row = rowBegin; row < rowEnd; ++row) {
+                for (uint64_t col = 0; col < cols; ++col) {
+                    output[col * rows + row] = input[row * cols + col];
                 }
             }
         });

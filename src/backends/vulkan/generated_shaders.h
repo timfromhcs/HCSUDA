@@ -12,3 +12,7 @@ extern const unsigned int hcs_spv_reduce_sum_len;
 
 extern const unsigned char hcs_spv_matmul[];
 extern const unsigned int hcs_spv_matmul_len;
+extern const unsigned char hcs_spv_scan[];
+extern const unsigned int hcs_spv_scan_len;
+extern const unsigned char hcs_spv_transpose[];
+extern const unsigned int hcs_spv_transpose_len;

@@ -46,7 +46,7 @@ set(HCS_SHADER_GENERATED)
 if(HCS_ENABLE_VULKAN)
     set(HCS_SPV_DIR "${CMAKE_CURRENT_BINARY_DIR}/shaders")
     file(MAKE_DIRECTORY "${HCS_SPV_DIR}")
-    set(HCS_SHADERS vecadd scale reduce_sum matmul)
+    set(HCS_SHADERS vecadd scale reduce_sum matmul scan transpose)
     foreach(shader IN LISTS HCS_SHADERS)
         set(src "${CMAKE_CURRENT_SOURCE_DIR}/shaders/hksl/${shader}.comp")
         set(spv "${HCS_SPV_DIR}/${shader}.spv")
@@ -171,6 +171,7 @@ if(HCS_BUILD_TESTS)
         tests/unit/test_cpu.cpp
         tests/unit/test_flows.cpp
         tests/unit/test_graph.cpp
+        tests/unit/test_kernels_extra.cpp
         tests/unit/test_ir.cpp
         tests/unit/test_ir_glsl.cpp
         tests/unit/test_ir_vulkan.cpp

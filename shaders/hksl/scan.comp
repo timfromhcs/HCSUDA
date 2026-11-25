@@ -1,0 +1,44 @@
+#version 450
+
+/* Exclusive prefix sum within one contiguous chunk. The caller adds the chunk totals. */
+layout(local_size_x = 256) in;
+
+layout(std430, binding = 0) buffer HcsInput {
+    float src_data[];
+};
+
+layout(std430, binding = 1) buffer HcsOutput {
+    float dst_data[];
+};
+
+layout(push_constant) uniform Params {
+    uint n;
+    uint groups;
+    uint pad0;
+    uint pad1;
+};
+
+shared float scratch[256];
+
+void main()
+{
+    const uint lid = gl_LocalInvocationID.x;
+    const uint chunk = (n + groups - 1u) / groups;
+    const uint start = gl_WorkGroupID.x * chunk;
+    const uint index = start + lid;
+    const bool inChunk = lid < chunk && index < n;
+    const float value = inChunk ? src_data[index] : 0.0f;
+
+    scratch[lid] = value;
+    barrier();
+    for (uint offset = 1u; offset < 256u; offset <<= 1u) {
+        const float mine = scratch[lid];
+        const float other = lid >= offset ? scratch[lid - offset] : 0.0f;
+        barrier();
+        scratch[lid] = mine + other;
+        barrier();
+    }
+    if (inChunk) {
+        dst_data[index] = scratch[lid] - value;
+    }
+}

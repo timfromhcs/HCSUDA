@@ -220,3 +220,25 @@ ctest --preset windows-validation --timeout 180 --output-on-failure -> 46/46, ze
 
 The first build failed because the graph tests used bare `c`/`a`/`d` instead of `data.c` etc.;
 that was a test typo, not a runtime fault.
+
+## 2026-11-25 — Wave 6 (first slice): scan and transpose
+
+Added `shaders/hksl/scan.comp` and `transpose.comp`, CPU reference implementations, kernel
+registry entries and six tests (KC-01..KC-06).
+
+Three real build/test failures were fixed:
+
+1. GLSL reserves `input` and `active`; the buffer was renamed `src_data`/`dst_data` and the
+   lane predicate `inChunk`.
+2. The new kernel names were added to the registry with an edit whose whitespace did not match
+   the source, so `hcsKernelCreate("scan_f32")` returned `HCS_E_KERNEL_NOT_FOUND`. Fixed with an
+   exact edit and verified by the tests.
+3. The Vulkan scan read all 256 lanes even when the chunk was only 157 elements, so later
+   workgroups scanned across chunk boundaries. Fixed by masking lanes with `lid < chunk`. The
+   pre-fix numbers were discarded, not reported.
+
+```
+cmake --build --preset windows-tests --parallel
+ctest --preset windows-tests --output-on-failure -> 52/52
+ctest --preset windows-validation --timeout 180 --output-on-failure -> 52/52, zero validation errors
+```

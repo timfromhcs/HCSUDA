@@ -517,6 +517,8 @@ SpvBlob blobFor(KernelId id)
     case KernelId::ScaleF32: return {hcs_spv_scale, hcs_spv_scale_len};
     case KernelId::ReduceSumF32: return {hcs_spv_reduce_sum, hcs_spv_reduce_sum_len};
     case KernelId::MatMulF32: return {hcs_spv_matmul, hcs_spv_matmul_len};
+    case KernelId::ScanF32: return {hcs_spv_scan, hcs_spv_scan_len};
+    case KernelId::TransposeF32: return {hcs_spv_transpose, hcs_spv_transpose_len};
     default: return {nullptr, 0};
     }
 }

@@ -31,6 +31,10 @@ const hcs::KernelDef kKernels[] = {
      "out[group] = sum of a contiguous chunk of x"},
     {"matmul_f32", hcs::KernelId::MatMulF32, 16,
      "c[m,n] = a[m,k] * b[k,n], row major, 16x16 tiles"},
+    {"scan_f32", hcs::KernelId::ScanF32, 256,
+     "exclusive prefix sum within contiguous chunks; caller adds chunk totals"},
+    {"transpose_f32", hcs::KernelId::TransposeF32, 16,
+     "b[col,row] = a[row,col], row major, 16x16 tiles"},
 };
 
 constexpr uint32_t kKernelCount = sizeof(kKernels) / sizeof(kKernels[0]);

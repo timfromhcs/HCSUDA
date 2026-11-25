@@ -1,0 +1,33 @@
+#version 450
+
+/* Tiled FP32 transpose: B is cols x rows, row-major, B[col,row] = A[row,col]. */
+layout(local_size_x = 16, local_size_y = 16) in;
+
+layout(std430, binding = 0) buffer HcsInput {
+    float src_data[];
+};
+
+layout(std430, binding = 1) buffer HcsOutput {
+    float dst_data[];
+};
+
+layout(push_constant) uniform Params {
+    uint rows;
+    uint cols;
+    uint pad0;
+    uint pad1;
+};
+
+shared float tile[16][16];
+
+void main()
+{
+    const uint row = gl_WorkGroupID.y * 16u + gl_LocalInvocationID.y;
+    const uint col = gl_WorkGroupID.x * 16u + gl_LocalInvocationID.x;
+    tile[gl_LocalInvocationID.x][gl_LocalInvocationID.y] =
+        (row < rows && col < cols) ? src_data[row * cols + col] : 0.0f;
+    barrier();
+    if (col < cols && row < rows) {
+        dst_data[col * rows + row] = tile[gl_LocalInvocationID.x][gl_LocalInvocationID.y];
+    }
+}

@@ -1,6 +1,6 @@
 # Agent status
 
-Updated: 2026-11-25 (Wave 0–5 complete)
+Updated: 2026-11-25 (Wave 0–5 complete, Wave 6 in progress)
 
 ## Environment (measured, not assumed)
 
@@ -24,12 +24,12 @@ Updated: 2026-11-25 (Wave 0–5 complete)
 | Wave | Scope | Status | Notes |
 |---|---|---|---|
 | 0 | Reconnaissance, project contract, build skeleton | **Done** | MSVC + Vulkan SDK verified; presets build |
-| 1 | Core API + CPU reference backend | **Done** | 46 registered tests, all passing |
+| 1 | Core API + CPU reference backend | **Done** | 52 registered tests, all passing |
 | 2 | Vulkan discovery + diagnostics | **Done** | `hcsdoctor` reports real 680M caps/budget |
 | 3 | Minimal Vulkan compute | **Done** | vecadd/scale/reduce/matmul verified vs CPU |
 | 4 | HCSIR/HCS-PIR verifier + compiler path | **Almost** | parser, verifier, CPU interpreter, GLSL lowering with build-time `glslc` check, 34/34 tests; GPU execution of HCSIR via the C ABI still missing |
 | 5 | HCSFlow/HEvent/HCSGraph async | **Done** | async flows, HEvent, bounded linear HCSGraph; validation profile green; 46/46 tests |
-| 6 | Math kernels + tuning (scan, transpose, histogram) | Next | reduce + matmul already done |
+| 6 | Math kernels + tuning (scan, transpose, histogram) | **Partial** | reduce, matmul, scan and transpose verified; histogram/image primitives and new benchmark rows pending |
 | 7 | CUDA source migration (`hcsport`) | Pending | matrix is conservative |
 | 8 | Model vault + GGUF (llama.cpp Vulkan) | Pending | no model bundled |
 | 9 | REST API + MCP server | Pending | local-only, token auth required |
@@ -61,7 +61,9 @@ Updated: 2026-11-25 (Wave 0–5 complete)
 * Experimental bounded HCSGraph: nodes added in topological order, dependencies must be
   earlier nodes, compile validates, run replays sequentially on one flow. No parallel DAG
   scheduling is claimed.
-* Tests: 46 tests covering API contract, CPU correctness, Vulkan correctness against CPU
+* Math kernels: exclusive chunked scan (256-lane workgroup scan with lane masking) and
+  16x16 tiled transpose, each with a CPU reference and odd-size/boundary tests.
+* Tests: 52 tests covering API contract, CPU correctness, Vulkan correctness against CPU
   reference, memory cap enforcement, device report sanity, HCSIR accept/reject behaviour,
   generated-GLSL properties, GPU execution of a generated HCSIR module, flow/event ordering,
   and graph replay on both backends.

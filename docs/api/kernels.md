@@ -72,6 +72,34 @@ result is deterministic and testable, and the final reduction is a cheap host st
 
 Push constants: offset 0 `u32 m`, 4 `u32 n`, 8 `u32 k`, 12 padding.
 
+## scan_f32
+
+Exclusive prefix sum inside each contiguous chunk. `chunk = ceil(n / groups)`; chunk `g`
+covers `[g*chunk, min(n, (g+1)*chunk))`. The caller must add the chunk totals for a global scan.
+Lanes with `local_id >= chunk` are masked to zero, so workgroups never read across chunk
+boundaries.
+
+| Item | Value |
+|---|---|
+| Buffers | 0: input `x` (read), 1: output `y` (write) |
+| Local size | 256 |
+| Groups | `group_count_x = groups` |
+
+Push constants: offset 0 `u32 n`, offset 4 `u32 groups`, 8/12 padding.
+
+## transpose_f32
+
+Row-major transpose: `B[col,row] = A[row,col]`, with `A` sized `rows x cols` and `B` sized
+`cols x rows`. Uses a 16x16 shared-memory tile.
+
+| Item | Value |
+|---|---|
+| Buffers | 0: `A` (read), 1: `B` (write) |
+| Local size | 16 x 16 |
+| Groups | `x = ceil(cols/16)`, `y = ceil(rows/16)`, `z = 1` |
+
+Push constants: offset 0 `u32 rows`, offset 4 `u32 cols`, 8/12 padding.
+
 ## Numerical expectations
 
 * FP32 accumulation; comparisons against the CPU backend use relative tolerance 1e-4 to
