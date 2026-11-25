@@ -116,6 +116,7 @@ add_library(hcsuda_core STATIC
     src/translation/cuda_source/scanner.cpp
     src/model_store/sha256.cpp
     src/model_store/model_vault.cpp
+    src/api/mcp/mcp_server.cpp
     src/backends/cpu/cpu_backend.cpp
     src/backends/vulkan/vk_backend.cpp
     ${HCS_SHADER_GENERATED})
@@ -149,6 +150,10 @@ if(HCS_BUILD_TOOLS)
     add_executable(hcsbench tools/hcsbench/main.cpp)
     target_link_libraries(hcsbench PRIVATE hcsuda_core)
 
+    add_executable(hcsbridge-mcp tools/hcsbridge-mcp/main.cpp)
+    target_link_libraries(hcsbridge-mcp PRIVATE hcsuda_core)
+    target_include_directories(hcsbridge-mcp PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
     add_executable(hcsport tools/hcsport/main.cpp)
     target_link_libraries(hcsport PRIVATE hcsuda_core)
     target_include_directories(hcsport PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
@@ -163,7 +168,7 @@ if(HCS_BUILD_TOOLS)
         target_compile_definitions(hcscc PRIVATE _CRT_SECURE_NO_WARNINGS)
     endif()
 
-    foreach(tool hcsdoctor hcsbench hcscc hcsport)
+    foreach(tool hcsdoctor hcsbench hcscc hcsport hcsbridge-mcp)
         if(MSVC)
             target_compile_options(${tool} PRIVATE /W4 /permissive- /utf-8)
         endif()
@@ -184,6 +189,7 @@ if(HCS_BUILD_TESTS)
         tests/unit/test_kernels_extra.cpp
         tests/unit/test_hcsport.cpp
         tests/unit/test_model_vault.cpp
+        tests/unit/test_mcp.cpp
         tests/unit/test_ir.cpp
         tests/unit/test_ir_glsl.cpp
         tests/unit/test_ir_vulkan.cpp

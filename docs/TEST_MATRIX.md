@@ -4,7 +4,7 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **1/1 CTest target passed; 59/59 HCS tests passed** (2026-11-25).
+Last result: **1/1 CTest target passed; 65/65 HCS tests passed** (2026-11-25).
 
 | ID | Test | Backend | Result | What it proves |
 |---|---|---|---|---|
@@ -51,7 +51,7 @@ Last result: **1/1 CTest target passed; 59/59 HCS tests passed** (2026-11-25).
 | FL-03 | flow_event_timeout_and_validation | Vulkan | PASS | idle-flow event is immediately satisfied; null flow/event misuse rejected |
 | FL-04 | flow_cpu_backend_completes_immediately | CPU | PASS | CPU flow/event complete synchronously with zero timeout |
 | FL-05 | flow_event_wait_timeout_path | mock flow | PASS | a backend flow whose counter never advances yields `HCS_E_TIMEOUT` |
-| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 59/59 tests, no validation errors |
+| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 65/65 tests, no validation errors |
 | GR-01 | graph_runs_on_cpu_backend | CPU | PASS | 2-node linear DAG with dependency, replayed on a flow, both outputs verified |
 | GR-02 | graph_runs_on_vulkan_backend | Vulkan | PASS | same DAG executes on the Radeon 680M and matches the CPU result |
 | GR-03 | graph_rejects_invalid_dependencies | CPU | PASS | empty graph, future dependency, zero group count, >8 dependencies all rejected |
@@ -69,6 +69,12 @@ Last result: **1/1 CTest target passed; 59/59 HCS tests passed** (2026-11-25).
 | MV-02 | model_vault_imports_and_persists_gguf | model store | PASS | GGUF v3 import, q4_k_m hint, SHA-256, persistence, removal |
 | MV-03 | model_vault_rejects_unsafe_and_corrupt_inputs | model store | PASS | outside-root path, missing file, corrupt GGUF version, unknown format |
 | MV-04 | model_vault_scan_detects_changes | model store | PASS | checksum and note updated after the file changes |
+| MCP-01 | mcp_initialize_negotiates_protocol | MCP | PASS | protocol 2025-11-25, tools capability, server info |
+| MCP-02 | mcp_notification_has_no_reply | MCP | PASS | notifications/initialized produces no stdout message |
+| MCP-03 | mcp_tools_list_exposes_only_safe_read_only_tools | MCP | PASS | four read-only tools; no shell/file/download tool |
+| MCP-04 | mcp_tools_call_returns_real_runtime_data | MCP | PASS | status, device list and memory budgets from the live runtime |
+| MCP-05 | mcp_rejects_unknown_methods_and_tools | MCP | PASS | -32601 for unknown method and unknown tool |
+| MCP-06 | mcp_rejects_malformed_and_oversized_messages | MCP | PASS | -32600 for empty, missing method, deep nesting and >1 MiB |
 
 ## Not yet covered (explicit gaps)
 
@@ -80,7 +86,7 @@ Last result: **1/1 CTest target passed; 59/59 HCS tests passed** (2026-11-25).
 | CUDA source compatibility scan | **tested** (PORT-01..03); no translator exists yet | 7 |
 | PTX textual importer | not implemented | 7 (experimental) |
 | Model catalog / checksum / path safety | **tested** (MV-01..04); no inference adapter | 8 |
-| REST auth / MCP protocol conformance | untested | 9 |
+| MCP stdio protocol conformance | **tested** (MCP-01..06) | 9 |
 | UI automation + screenshots | untested | 10 |
 | Installer clean-VM install/upgrade/uninstall | untested | 11 |
 | Stress/soak (10k dispatches, 60 min) | untested | 12 |

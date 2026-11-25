@@ -88,3 +88,11 @@ product.
   estimate and no layer plan.
 * No resume-capable downloader, no SSD cache tier, and no SSD/HDD performance policy beyond
   the documented warning that HDD is storage, not execution memory.
+
+## API surface (updated Wave 9)
+
+* MCP supports stdio only. There is no Streamable HTTP transport and no remote binding.
+* The REST API does not exist yet. When added it must be localhost-only, token-authenticated
+  and must expose no shell/DLL/unrestricted-file tool.
+* MCP tool arguments do not currently open model files; `hcsuda_list_models` is intentionally
+  absent until path scopes are configured in a service layer.

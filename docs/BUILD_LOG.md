@@ -284,3 +284,22 @@ ctest --preset windows-validation --timeout 180 -> 59/59, zero validation errors
 ```
 
 No model file is bundled in the repository or build tree; tests create temporary fixtures.
+
+## 2026-11-25 — Wave 9 (first slice): MCP stdio server
+
+Added `src/api/mcp/mcp_server.{h,cpp}`, `tools/hcsbridge-mcp/main.cpp`, `docs/api/mcp.md` and
+six protocol tests (MCP-01..06). The server negotiates MCP protocol 2025-11-25, exposes only
+four read-only tools, and rejects malformed/oversized/deep messages with JSON-RPC -32600.
+
+Two build/test corrections were needed:
+* the executable initially lacked the private `src` include path (C1083 on `api/mcp/mcp_server.h`);
+* two C++ string-literal concatenations were invalid (`const char* + const char*`);
+* tests must search for escaped substrings because the JSON result is itself embedded as a
+  text field (the wire output is correct).
+
+```
+cmake --build --preset windows-tests --parallel
+ctest --preset windows-tests --output-on-failure -> 65/65
+ctest --preset windows-validation --timeout 180 -> 65/65, zero validation errors
+echo initialize | hcsbridge-mcp.exe -> valid initialize response
+```

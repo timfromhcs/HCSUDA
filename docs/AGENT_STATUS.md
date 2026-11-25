@@ -1,6 +1,6 @@
 # Agent status
 
-Updated: 2026-11-25 (Wave 0–6 complete, Waves 7–8 in progress)
+Updated: 2026-11-25 (Wave 0–6 complete, Waves 7–9 in progress)
 
 ## Environment (measured, not assumed)
 
@@ -24,7 +24,7 @@ Updated: 2026-11-25 (Wave 0–6 complete, Waves 7–8 in progress)
 | Wave | Scope | Status | Notes |
 |---|---|---|---|
 | 0 | Reconnaissance, project contract, build skeleton | **Done** | MSVC + Vulkan SDK verified; presets build |
-| 1 | Core API + CPU reference backend | **Done** | 59 registered tests, all passing |
+| 1 | Core API + CPU reference backend | **Done** | 65 registered tests, all passing |
 | 2 | Vulkan discovery + diagnostics | **Done** | `hcsdoctor` reports real 680M caps/budget |
 | 3 | Minimal Vulkan compute | **Done** | vecadd/scale/reduce/matmul verified vs CPU |
 | 4 | HCSIR/HCS-PIR verifier + compiler path | **Almost** | parser, verifier, CPU interpreter, GLSL lowering with build-time `glslc` check, 34/34 tests; GPU execution of HCSIR via the C ABI still missing |
@@ -32,7 +32,7 @@ Updated: 2026-11-25 (Wave 0–6 complete, Waves 7–8 in progress)
 | 6 | Math kernels + tuning | **Done** | reduce, matmul, scan, transpose verified on CPU + Vulkan; benchmark rows recorded; histogram/image primitives deliberately out of V1 scope |
 | 7 | CUDA source migration (`hcsport`) | **Partial** | bounded compatibility scanner reports manual/unsupported constructs; no translator, no PTX importer |
 | 8 | Model vault + GGUF (llama.cpp Vulkan) | **Partial** | catalog, SHA-256, path safety and format inspection tested; no inference adapter yet |
-| 9 | REST API + MCP server | Pending | local-only, token auth required |
+| 9 | REST API + MCP server | **Partial** | MCP stdio tested (MCP-01..06); REST API and optional authenticated HTTP transport pending |
 | 10 | Desktop UI | Pending | Qt absent; WebView2 strategy drafted |
 | 11 | Installer (one EXE) | Pending | Inno Setup absent |
 | 12 | Stress/security/performance hardening | Pending | |
