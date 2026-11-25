@@ -10,7 +10,6 @@ __global__ void vec_add_f32(const float* a, const float* b, float* c, int n)
     if (i < n) {
         c[i] = a[i] + b[i];
     }
-    __syncthreads();
 }
 
 int launch(float* a, float* b, float* c, int n)

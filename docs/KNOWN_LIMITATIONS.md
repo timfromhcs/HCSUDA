@@ -47,7 +47,9 @@ the current truth of the code in this repository.
 
 ## Translation
 
-* No CUDA source translator and no PTX importer are shipped. `hcsport` is Wave 7.
+* `hcsport` translates exactly one documented vecadd kernel shape and fails closed
+  otherwise. It is not a CUDA compiler; PTX text, CUBIN/SASS, multi-kernel files and CUDA
+  library APIs remain unsupported.
 * CUBIN/SASS execution on AMD hardware is explicitly unsupported and will remain so.
 * `docs/compatibility/cuda-api-matrix.md` therefore marks nearly everything as unsupported.
 

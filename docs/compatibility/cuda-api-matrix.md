@@ -13,7 +13,7 @@ for V1.
 | Memory allocation/free | **Native (HCS API)** | `hcsBufferCreate`/`Destroy`; no `cudaMalloc` symbol compatibility |
 | Host/device copies | **Native (HCS API)** | `hcsBufferUpload`/`Download`; host-visible buffers in v1 |
 | Kernel launch (`<<<>>>`) | **Unsupported** | No source compiler yet; Wave 7 adds a subset translator |
-| CUDA C++ source (`.cu`) | **Scan only** | `hcsport --scan` reports manual/unsupported constructs with line and column; no translation, no emitted code |
+| CUDA C++ source (`.cu`) | **Translated / Supported subset** | one documented vecadd shape; conformance test TR-01; all other constructs fail closed |
 | Textual PTX | **Unsupported** | Textual subset importer planned as experimental |
 | CUBIN / SASS | **Unsupported, permanent** | NVIDIA GPU machine code cannot execute on AMD hardware |
 | CUDA fatbin | **Unsupported** | No extractor implemented |

@@ -30,7 +30,7 @@ migration tooling.
 | Diagnostics CLI (`hcsdoctor`) | **Native / Stable** | this repo |
 | Benchmarks (`hcsbench`) | **Native / Stable** | `benchmarks/baselines/` |
 | HCSIR v1 parser/verifier + CPU interpreter + HCSCC GLSL lowering → Vulkan execution | **Experimental** | `ir_*` tests, IR-18 GPU run, `docs/api/hcsir.md` |
-| CUDA source compatibility scan (`hcsport --scan`) | **Experimental** | PORT-01..03, `docs/compatibility/cuda-api-matrix.md` |
+| CUDA source scan + narrow vecadd translation (`hcsport`) | **Experimental** | PORT-01..03, TR-01..03, `docs/api/hcsport.md` |
 | Model vault / GGUF inference | **Planned (Wave 8)** | — |
 | REST API / MCP server | **Planned (Wave 9)** | — |
 | Desktop UI | **Planned (Wave 10)** | — |

@@ -321,3 +321,24 @@ devices=200 {"devices":[{"index":0,"name":"AMD Radeon(TM) Graphics",...}]}
 ```
 
 The server binds 127.0.0.1 only; no remote binding option exists.
+
+## 2026-11-25 — Wave 7 (continued): narrow CUDA source translation
+
+Added `src/translation/cuda_source/translator.{h,cpp}`, `docs/api/hcsport.md` and three tests
+(TR-01..03). `hcsport --convert` now emits HCSIR v1 for exactly one documented vecadd kernel
+shape and fails closed otherwise.
+
+Four parsing defects were found by the tests and fixed:
+1. the signature slice stopped at `(` so no parameters were seen;
+2. the trailing `)` was part of the last parameter name;
+3. scalar identifiers retained the type prefix (`floatalpha` instead of `alpha`);
+4. the checked-in fixture has no scalar factor, so the translator now synthesises a constant
+   `1.0` and emits `add` instead of requiring `alpha`.
+
+CLI check produced a valid module and a report with `translated:1`, `host_manual:13`,
+`host_unsupported:1`.
+
+```
+ctest --preset windows-tests --output-on-failure -> 72/72
+ctest --preset windows-validation --timeout 180 -> 72/72, zero validation errors
+```

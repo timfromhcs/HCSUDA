@@ -7,6 +7,7 @@
  */
 
 #include "translation/cuda_source/scanner.h"
+#include "translation/cuda_source/translator.h"
 
 #include <cstdio>
 #include <cstring>
@@ -50,17 +51,24 @@ int main(int argc, char** argv)
     const char* input = nullptr;
     bool json = false;
     bool convert = false;
+    const char* output = nullptr;
+    const char* report = nullptr;
 
     for (int i = 1; i < argc; ++i) {
         if (std::strcmp(argv[i], "--help") == 0) {
             std::printf("usage: hcsport --scan <file.cu> [--json]\n"
-                        "       hcsport --convert <file.cu>   (not implemented in V1)\n");
+                        "       hcsport --convert <file.cu> [--output out.hcsir] "
+                        "[--report report.json]\n");
             return 0;
         } else if (std::strcmp(argv[i], "--scan") == 0 && i + 1 < argc) {
             input = argv[++i];
         } else if (std::strcmp(argv[i], "--convert") == 0 && i + 1 < argc) {
             convert = true;
             input = argv[++i];
+        } else if (std::strcmp(argv[i], "--output") == 0 && i + 1 < argc) {
+            output = argv[++i];
+        } else if (std::strcmp(argv[i], "--report") == 0 && i + 1 < argc) {
+            report = argv[++i];
         } else if (std::strcmp(argv[i], "--json") == 0) {
             json = true;
         } else {
@@ -73,12 +81,7 @@ int main(int argc, char** argv)
         std::fprintf(stderr, "no input file; use --scan <file.cu>\n");
         return 2;
     }
-    if (convert) {
-        std::fprintf(stderr,
-                     "hcsport --convert is not implemented in V1. Run --scan first; manual "
-                     "review is required for every construct.\n");
-        return 2;
-    }
+    const bool doConvert = convert;
 
     std::string source;
     if (!readFile(input, &source)) {
@@ -86,25 +89,60 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    hcs::cudascan::Report report;
-    const hcsResult result = hcs::cudascan::scan(source.data(), source.size(), &report);
+    if (doConvert) {
+        std::string hcsir;
+        std::string reportJson;
+        const hcsResult conversion =
+            hcs::cudatranslate::translate(source.data(), source.size(), &hcsir, &reportJson);
+        if (conversion != HCS_SUCCESS) {
+            printError("hcsport convert", conversion);
+            return 1;
+        }
+        if (output) {
+            std::FILE* file = std::fopen(output, "wb");
+            if (!file) {
+                std::fprintf(stderr, "cannot write output: %s\n", output);
+                return 1;
+            }
+            std::fwrite(hcsir.data(), 1, hcsir.size(), file);
+            std::fclose(file);
+        } else {
+            std::fwrite(hcsir.data(), 1, hcsir.size(), stdout);
+        }
+        if (report) {
+            std::FILE* file = std::fopen(report, "wb");
+            if (!file) {
+                std::fprintf(stderr, "cannot write report: %s\n", report);
+                return 1;
+            }
+            std::fwrite(reportJson.data(), 1, reportJson.size(), file);
+            std::fclose(file);
+        }
+        std::fprintf(stderr,
+                     "hcsport: translated the supported vecadd subset; host code still "
+                     "requires manual review.\n");
+        return 0;
+    }
+
+    hcs::cudascan::Report scanReport;
+    const hcsResult result = hcs::cudascan::scan(source.data(), source.size(), &scanReport);
     if (result != HCS_SUCCESS) {
         printError("hcsport scan", result);
         return 1;
     }
 
     if (json) {
-        std::printf("%s\n", hcs::cudascan::toJson(report).c_str());
+        std::printf("%s\n", hcs::cudascan::toJson(scanReport).c_str());
         return 0;
     }
 
     std::printf("HCSPORT compatibility scan: %s\n", input);
-    std::printf("  bytes %llu, lines %u\n", static_cast<unsigned long long>(report.bytes),
-                report.lines);
+    std::printf("  bytes %llu, lines %u\n", static_cast<unsigned long long>(scanReport.bytes),
+                scanReport.lines);
     std::printf("  manual_port_required %u, unsupported %u, translated 0\n",
-                report.manualCount, report.unsupportedCount);
+                scanReport.manualCount, scanReport.unsupportedCount);
     std::printf("  V1 has no automatic translator; no source is rewritten.\n\n");
-    for (const auto& finding : report.findings) {
+    for (const auto& finding : scanReport.findings) {
         std::printf("  %s:%u:%u [%s] %s — %s\n", input, finding.line, finding.column,
                     hcs::cudascan::classificationName(finding.classification),
                     finding.construct.c_str(), finding.detail.c_str());
