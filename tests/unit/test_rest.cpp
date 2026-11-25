@@ -3,6 +3,7 @@
 
 #include "api/rest/rest_server.h"
 
+#include <filesystem>
 #include <string>
 
 namespace {
@@ -118,4 +119,32 @@ HCS_TEST(rest_serves_self_contained_local_ui)
     CHECK_MSG(page.find("http://") == std::string::npos, "no remote resources");
     CHECK_MSG(page.find("Not exposed by this driver/API") != std::string::npos,
               "unavailable metrics must be marked explicitly");
+}
+
+HCS_TEST(rest_settings_roundtrip_and_validation)
+{
+    hcs::rest::RestConfig config;
+    config.token = "token";
+    config.settingsDir = (std::filesystem::temp_directory_path() / "hcsuda-rest-settings-test").string();
+    std::filesystem::remove_all(config.settingsDir);
+    const std::string headers = authHeader("token") + "Content-Type: application/json\r\n";
+
+    const std::string initial = hcs::rest::handleRequest("GET", "/api/v1/settings", headers, "", config);
+    CHECK(statusIs(initial, 200));
+    CHECK_MSG(initial.find("\"api_port\":8710") != std::string::npos, initial);
+
+    const std::string update = hcs::rest::handleRequest(
+        "POST", "/api/v1/settings", headers, "{\"theme\":\"light\",\"cpu_threads\":6}", config);
+    CHECK(statusIs(update, 200));
+    CHECK_MSG(update.find("\"theme\":\"light\"") != std::string::npos, update);
+    CHECK_MSG(update.find("\"cpu_threads\":6") != std::string::npos, update);
+
+    const std::string bad = hcs::rest::handleRequest(
+        "POST", "/api/v1/settings", headers, "{\"api_port\":80}", config);
+    CHECK(statusIs(bad, 400));
+
+    const std::string reset = hcs::rest::handleRequest(
+        "POST", "/api/v1/settings/reset", headers, "", config);
+    CHECK(statusIs(reset, 200));
+    CHECK_MSG(reset.find("\"theme\":\"dark\"") != std::string::npos, reset);
 }

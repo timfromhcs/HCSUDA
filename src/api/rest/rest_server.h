@@ -11,6 +11,7 @@ struct RestConfig {
     uint16_t port = 8710;
     std::string token;
     std::string bindAddress = "127.0.0.1";
+    std::string settingsDir; /* empty = %LOCALAPPDATA%\HCSUDA */
 };
 
 /* Cryptographically random per-process token (hex, 64 chars). Never a hardcoded default. */

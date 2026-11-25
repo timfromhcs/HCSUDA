@@ -405,3 +405,19 @@ several advanced compute features from V1 claims rather than leaving them vague.
   separate self-hosted concern and is never silently marked passed.
 * A bounded 60-minute soak (`tests/stress/soak.ps1`) was started in the background and writes
   real medians to `artifacts/soak.log`. No result is claimed until it finishes.
+
+## 2026-11-25 — Settings persistence and soak restart
+
+Added `src/service/settings.{h,cpp}` with bounded JSON persistence, validation, defaults and
+reset, plus REST GET/POST/reset endpoints and working Save/Reset controls in the local UI.
+Five settings tests and one REST round-trip test were added.
+
+A first 60-minute soak attempt failed because a concurrent rebuild replaced `hcsbench.exe`
+while it was running; no soak result was claimed. The script now copies its binary to a private
+temp path before starting, and the soak was restarted after all builds finished.
+
+```
+ctest --preset windows-tests --output-on-failure -> 81/81
+ctest --preset windows-validation --timeout 180 -> 81/81, zero validation errors
+installer SHA-256: 29831820EAD55E5FD1C6C26D06AC04ADB3713723EC4C338693720EC74A4F3395
+```

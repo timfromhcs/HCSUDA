@@ -3,9 +3,11 @@
 #include "api/mcp/mcp_server.h"
 #include "core/internal.h"
 #include "api/rest/ui_page.h"
+#include "service/settings.h"
 #include "model_store/sha256.h"
 
 #include <cctype>
+#include <filesystem>
 #include <random>
 #include <vector>
 
@@ -186,6 +188,25 @@ std::string handleRequest(const std::string& method, const std::string& target,
         }
     }
 
+    if (method == "GET" && path == "/api/v1/settings") {
+        hcs::service::SettingsStore store(config.settingsDir.empty()
+                                              ? std::filesystem::path()
+                                              : std::filesystem::path(config.settingsDir));
+        (void)store.load();
+        return response(200, store.toJson());
+    }
+    if (method == "POST" && (path == "/api/v1/settings" || path == "/api/v1/settings/reset")) {
+        hcs::service::SettingsStore store(config.settingsDir.empty()
+                                              ? std::filesystem::path()
+                                              : std::filesystem::path(config.settingsDir));
+        (void)store.load();
+        const hcsResult result = path.ends_with("/reset") ? store.reset()
+                                                          : store.updateFromJson(body);
+        if (result != HCS_SUCCESS) {
+            return response(400, errorBody(400, "invalid_settings", hcsResultString(result)));
+        }
+        return response(200, store.toJson());
+    }
     if (method != "GET") {
         return response(404, errorBody(404, "not_found",
                                        "no such endpoint; arbitrary code execution is not exposed"));

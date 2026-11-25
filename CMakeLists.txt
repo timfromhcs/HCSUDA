@@ -120,6 +120,7 @@ add_library(hcsuda_core STATIC
     src/api/mcp/mcp_server.cpp
     src/api/rest/rest_server.cpp
     src/api/rest/ui_page.cpp
+    src/service/settings.cpp
     src/backends/cpu/cpu_backend.cpp
     src/backends/vulkan/vk_backend.cpp
     ${HCS_SHADER_GENERATED})
@@ -247,6 +248,7 @@ if(HCS_BUILD_TESTS)
         tests/unit/test_rest.cpp
         tests/unit/test_translate.cpp
         tests/unit/test_stress.cpp
+        tests/unit/test_settings.cpp
         tests/unit/test_ir.cpp
         tests/unit/test_ir_glsl.cpp
         tests/unit/test_ir_vulkan.cpp

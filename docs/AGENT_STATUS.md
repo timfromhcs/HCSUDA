@@ -24,7 +24,7 @@ Updated: 2026-11-25 (release candidate; Waves 0–13 implemented, remaining item
 | Wave | Scope | Status | Notes |
 |---|---|---|---|
 | 0 | Reconnaissance, project contract, build skeleton | **Done** | MSVC + Vulkan SDK verified; presets build |
-| 1 | Core API + CPU reference backend | **Done** | 76 registered tests, all passing |
+| 1 | Core API + CPU reference backend | **Done** | 81 registered tests, all passing |
 | 2 | Vulkan discovery + diagnostics | **Done** | `hcsdoctor` reports real 680M caps/budget |
 | 3 | Minimal Vulkan compute | **Done** | vecadd/scale/reduce/matmul verified vs CPU |
 | 4 | HCSIR/HCS-PIR verifier + compiler path | **Almost** | parser, verifier, CPU interpreter, GLSL lowering with build-time `glslc` check, 34/34 tests; GPU execution of HCSIR via the C ABI still missing |
@@ -33,7 +33,7 @@ Updated: 2026-11-25 (release candidate; Waves 0–13 implemented, remaining item
 | 7 | CUDA source migration (`hcsport`) | **Partial** | scanner + one conformance-tested vecadd translation subset; PTX importer still not implemented |
 | 8 | Model vault + GGUF (llama.cpp Vulkan) | **Scope reduced** | catalog/checksum/path safety tested; GGUF inference explicitly omitted from V1 (`docs/release/v1-scope.md`) |
 | 9 | REST API + MCP server | **Partial** | MCP stdio (MCP-01..06) and local-only REST with token auth (REST-01..05) pass; model/benchmark/translation endpoints and OpenAPI generation pending |
-| 10 | Desktop UI | **Partial** | self-contained local browser UI with real data (UI-01..02); no Qt/WebView2 shell, no automated screenshots |
+| 10 | Desktop UI | **Partial** | local browser UI with live data + persisted settings (UI-01..03); no Qt/WebView2 shell, no automated screenshots |
 | 11 | Installer (one EXE) | **Done on reference machine** | native single EXE, silent per-user install, tested install/uninstall; clean VM + upgrade not verified |
 | 12 | Stress/security/performance hardening | **Partial** | bounded stress + fuzz and validation layers pass; 60-min soak and dependency scan pending |
 | 13 | Docs, CI, release candidate | **Partial** | OpenAPI, SBOM, scope doc and CI workflows present; GitHub publication and signing pending |

@@ -57,6 +57,12 @@ std::string uiPage(const std::string& token)
  </section>
  <section><h2>Devices</h2><div id="devices">Loading…</div></section>
  <section><h2>Memory budget</h2><div id="budget">Loading…</div></section>
+ <section><h2>Settings (persisted locally)</h2>
+  <div id="settings">Loading…</div>
+  <p><button id="saveSettings">Save settings</button> <button id="resetSettings">Reset to defaults</button></p>
+  <p class="note">Every setting has a default, is validated by the service and can be reset.
+  The API token is intentionally not persisted.</p>
+ </section>
  <section><h2>Compatibility notice</h2>
   <p>HCSUDA is an independent Vulkan compute runtime with CUDA-source migration tooling. It is
   not affiliated with NVIDIA, does not replace any GPU driver, and cannot execute CUBIN/SASS
@@ -103,8 +109,50 @@ async function refresh() {
     document.getElementById('error').textContent = 'Request failed: ' + e.message;
   }
 }
-document.getElementById('refresh').addEventListener('click', refresh);
+async function loadSettings() {
+  try {
+    const s = await get('/api/v1/settings');
+    document.getElementById('settings').innerHTML =
+      '<label>Backend policy <select id="pol"><option value="0">Auto</option>' +
+      '<option value="1">Vulkan</option><option value="2">CPU</option></select></label> ' +
+      'Memory cap (MiB) <input id="cap" type="number" min="0" max="65536" value="' + s.memory_cap_mib + '"> ' +
+      'CPU threads <input id="threads" type="number" min="0" max="256" value="' + s.cpu_threads + '"> ' +
+      'Theme <select id="theme"><option value="dark">Dark</option>' +
+      '<option value="light">Light</option></select> ' +
+      'Prefetch <select id="pref"><option value="off">Off</option>' +
+      '<option value="conservative">Conservative</option><option value="adaptive">Adaptive</option></select> ' +
+      '<p class="note">Model dir: ' + (s.model_dir || 'not set') + ' · API port: ' + s.api_port +
+      ' · Start with Windows: ' + s.start_with_windows + ' · Update check: ' + s.update_check + '</p>';
+    document.getElementById('pol').value = String(s.backend_policy);
+    document.getElementById('theme').value = s.theme;
+    document.getElementById('pref').value = s.prefetch_policy;
+  } catch (e) { document.getElementById('settings').textContent = 'Request failed: ' + e.message; }
+}
+async function postSettings(path, body) {
+  try {
+    const r = await fetch(path, { method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+      body: body });
+    const text = await r.text();
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + text);
+    await loadSettings();
+  } catch (e) { document.getElementById('settings').textContent = 'Save failed: ' + e.message; }
+}
+document.getElementById('saveSettings').addEventListener('click', () => {
+  const body = JSON.stringify({
+    backend_policy: Number(document.getElementById('pol').value),
+    memory_cap_mib: Number(document.getElementById('cap').value),
+    cpu_threads: Number(document.getElementById('threads').value),
+    theme: document.getElementById('theme').value,
+    prefetch_policy: document.getElementById('pref').value
+  });
+  postSettings('/api/v1/settings', body);
+});
+document.getElementById('resetSettings').addEventListener('click', () =>
+  postSettings('/api/v1/settings/reset', ''));
+document.getElementById('refresh').addEventListener('click', () => { refresh(); loadSettings(); });
 refresh();
+loadSettings();
 </script>
 </body>
 </html>

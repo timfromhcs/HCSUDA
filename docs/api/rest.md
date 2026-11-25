@@ -13,6 +13,9 @@ prints it to stderr. No token is hardcoded or stored in the repository.
 | GET | `/api/v1/devices` | bearer | index, name, backend, kind per real device |
 | GET | `/api/v1/runtime/status` | bearer | same device inventory |
 | GET | `/api/v1/memory/budget` | bearer | driver-reported heap/budget/usage |
+| GET | `/api/v1/settings` | bearer | validated settings with safe defaults |
+| POST | `/api/v1/settings` | bearer | validate, persist and return settings (64 KiB body limit) |
+| POST | `/api/v1/settings/reset` | bearer | restore defaults and persist |
 | anything else | — | — | 404 JSON |
 
 There is **no** endpoint for arbitrary code execution, shell commands, DLL loading, model

@@ -15,7 +15,7 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 7 | CUDA source subset migration with report | PARTIAL — scanner + one tested vecadd translation (TR-01..03); broader corpus and PTX importer pending |
 | 8 | GGUF model through verified adapter | PARTIAL — catalog/checksum/path safety tested (MV-01..04); inference adapter not integrated |
 | 9 | REST + MCP local-only, authenticated, tested | PARTIAL — MCP (MCP-01..06) and REST (REST-01..05) pass; OpenAPI + remaining endpoints pending |
-| 10 | UI pages, settings persistence, no dead controls | PARTIAL — local browser UI with live data (UI-01..02); settings persistence and full navigation pending |
+| 10 | UI pages, settings persistence, no dead controls | PARTIAL — live data UI + persisted settings (UI-01..03); full navigation still out of V1 scope |
 | 11 | Single EXE installer, clean-VM install/uninstall | PARTIAL — native EXE + in-place upgrade pass (INS-01..03); clean-VM and cross-version upgrade still unverified |
 | 12 | Stress/soak/fuzz/static analysis; no critical issues | PARTIAL — STR-01..03 pass; long soak/dependency scan pending |
 | 13 | README/matrix match build; release candidate | PARTIAL — OpenAPI/SBOM/scope docs added; GitHub release + signing pending |

@@ -33,7 +33,7 @@ migration tooling.
 | CUDA source scan + narrow vecadd translation (`hcsport`) | **Experimental** | PORT-01..03, TR-01..03, `docs/api/hcsport.md` |
 | Model vault / GGUF inference | **Planned (Wave 8)** | — |
 | REST API / MCP server | **Planned (Wave 9)** | — |
-| Local browser UI (Dashboard, Devices, Memory, Compatibility) | **Experimental** | UI-01..02, served at `http://127.0.0.1:<port>/ui/` |
+| Local browser UI (Dashboard, Devices, Memory, Settings, Compatibility) | **Experimental** | UI-01..03, SET-01..05, served at `http://127.0.0.1:<port>/ui/` |
 | One-file native EXE installer (unsigned, SHA-256 published) | **Experimental** | INS-01..02, `docs/release/installer.md` |
 
 ## What HCSUDA is not
