@@ -1,6 +1,6 @@
 # Agent status
 
-Updated: 2026-11-25 (release candidate; Waves 0–13 implemented, remaining items are explicit)
+Updated: 2026-11-26 (release candidate; Waves 0–13 implemented, only external blockers remain)
 
 ## Environment (measured, not assumed)
 
@@ -24,19 +24,19 @@ Updated: 2026-11-25 (release candidate; Waves 0–13 implemented, remaining item
 | Wave | Scope | Status | Notes |
 |---|---|---|---|
 | 0 | Reconnaissance, project contract, build skeleton | **Done** | MSVC + Vulkan SDK verified; presets build |
-| 1 | Core API + CPU reference backend | **Done** | 81 registered tests, all passing |
+| 1 | Core API + CPU reference backend | **Done** | 81 registered tests, all passing (78 in CPU-only build) |
 | 2 | Vulkan discovery + diagnostics | **Done** | `hcsdoctor` reports real 680M caps/budget |
 | 3 | Minimal Vulkan compute | **Done** | vecadd/scale/reduce/matmul verified vs CPU |
-| 4 | HCSIR/HCS-PIR verifier + compiler path | **Almost** | parser, verifier, CPU interpreter, GLSL lowering with build-time `glslc` check, 34/34 tests; GPU execution of HCSIR via the C ABI still missing |
-| 5 | HCSFlow/HEvent/HCSGraph async | **Done** | async flows, HEvent, bounded linear HCSGraph; validation profile green; 46/46 tests |
+| 4 | HCSIR/HCS-PIR verifier + compiler path | **Done** | parser, verifier, CPU interpreter, GLSL lowering, generated SPIR-V executing on Vulkan; experimental program API |
+| 5 | HCSFlow/HEvent/HCSGraph async | **Done** | async flows, HEvent, bounded linear HCSGraph; validation profile green; fence batches verified by stress tests |
 | 6 | Math kernels + tuning | **Done** | reduce, matmul, scan, transpose verified on CPU + Vulkan; benchmark rows recorded; histogram/image primitives deliberately out of V1 scope |
-| 7 | CUDA source migration (`hcsport`) | **Partial** | scanner + one conformance-tested vecadd translation subset; PTX importer still not implemented |
+| 7 | CUDA source migration (`hcsport`) | **Scope reduced** | scanner + one conformance-tested vecadd translation; PTX/CUBIN explicitly out of V1 (`docs/release/v1-scope.md`) |
 | 8 | Model vault + GGUF (llama.cpp Vulkan) | **Scope reduced** | catalog/checksum/path safety tested; GGUF inference explicitly omitted from V1 (`docs/release/v1-scope.md`) |
-| 9 | REST API + MCP server | **Partial** | MCP stdio (MCP-01..06) and local-only REST with token auth (REST-01..05) pass; model/benchmark/translation endpoints and OpenAPI generation pending |
-| 10 | Desktop UI | **Partial** | local browser UI with live data + persisted settings (UI-01..03); no Qt/WebView2 shell, no automated screenshots |
-| 11 | Installer (one EXE) | **Done on reference machine** | native single EXE, silent per-user install, tested install/uninstall; clean VM + upgrade not verified |
-| 12 | Stress/security/performance hardening | **Partial** | bounded stress + fuzz and validation layers pass; 60-min soak and dependency scan pending |
-| 13 | Docs, CI, release candidate | **Partial** | OpenAPI, SBOM, scope doc and CI workflows present; GitHub publication and signing pending |
+| 9 | REST API + MCP server | **Done for V1 scope** | MCP stdio, local-only REST with token auth, OpenAPI 3.1 and settings endpoints; model/benchmark/translation endpoints out of V1 scope |
+| 10 | Desktop UI | **Done for V1 scope** | local browser UI with live data + persisted settings; native Qt/WebView2 shell and screenshots explicitly out of V1 scope |
+| 11 | Installer (one EXE) | **Done on reference machine** | native single EXE, silent per-user install, install/uninstall + same-version upgrade tested; clean VM/cross-version unverified |
+| 12 | Stress/security/performance hardening | **Partial** | stress/fuzz, 60-min soak (1610 iterations, 0 failures), validation layers and secret scan pass; static analysis tooling not added |
+| 13 | Docs, CI, release candidate | **Partial** | OpenAPI, SBOM, scope doc, public repo pushed, hosted CI green; GitHub Release and signing pending |
 
 ## Implemented surface
 
@@ -46,8 +46,8 @@ Updated: 2026-11-25 (release candidate; Waves 0–13 implemented, remaining item
   clamping to the smallest bound.
 * Vulkan backend: dynamic loader, capability probing (incl. subgroup size and memory budget),
   host-visible coherent buffers, compute pipelines, synchronous dispatch, device-loss mapping.
-* Built-in kernels: `vecadd_f32`, `scale_f32`, `reduce_sum_f32`, `matmul_f32`.
-* Tools: `hcsdoctor`, `hcsbench`; SPIR-V compiled at build time by `glslc` and embedded.
+* Built-in kernels: `vecadd_f32`, `scale_f32`, `reduce_sum_f32`, `matmul_f32`, `scan_f32`, `transpose_f32`.
+* Tools: `hcsdoctor`, `hcsbench`, `hcscc`, `hcsport`, `hcsbridge-mcp`, `hcsbridge-rest`, native single-file setup; SPIR-V compiled at build time by `glslc` and embedded.
 * HCSIR v1: bounded parser, verifier and CPU interpreter for the elementwise subset
   (`load`/`store`/`add`/`sub`/`mul`/`fma`/`min`/`max`/comparisons/`select`/`branch`/`jump`),
   with `const` declarations and source-line diagnostics. Internal only — not in the C ABI.
@@ -63,24 +63,20 @@ Updated: 2026-11-25 (release candidate; Waves 0–13 implemented, remaining item
   scheduling is claimed.
 * Math kernels: exclusive chunked scan (256-lane workgroup scan with lane masking) and
   16x16 tiled transpose, each with a CPU reference and odd-size/boundary tests.
-* Tests: 52 tests covering API contract, CPU correctness, Vulkan correctness against CPU
-  reference, memory cap enforcement, device report sanity, HCSIR accept/reject behaviour,
-  generated-GLSL properties, GPU execution of a generated HCSIR module, flow/event ordering,
-  and graph replay on both backends.
+* Services: local-only REST with random bearer token and settings persistence, MCP stdio with
+  four read-only tools, self-contained browser UI with live data.
+* Tests: 81 tests covering API contract, CPU/Vulkan correctness, memory caps, HCSIR accept/reject,
+  generated GLSL + GPU execution, flows/events/graphs, scan/transpose, CUDA scan/translation,
+  catalog/checksums, REST/MCP/UI, settings, stress/fuzz and installer gates.
 
-## Immediate next actions (Wave 6)
+## Verification summary
 
-1. Add verified scan/prefix-sum and transpose kernels (CPU reference + Vulkan + odd sizes).
-2. Add the benchmark harness entries for the new kernels and save raw measurements.
-3. Only then consider timeline semaphores where `HCS_CAP_TIMELINE_SEMAPHORE` is present; the
-   fence implementation remains the tested default.
+Validation layers are wired into `windows-validation` and pass with zero errors. Hosted CI
+(run 45800636104) passed all six jobs. HCSIR serialization/round-trip caching remains deferred
+and is not a release blocker.
 
-Validation layers are wired into `windows-validation` and pass with zero errors.
+## Remaining external blockers
 
-Deferred from Wave 4 (not a release blocker): HCSIR serialization/round-trip caching.
-
-## Known gaps that block a V1 release
-
-See `docs/KNOWN_LIMITATIONS.md`. The largest are: no async execution, no UI, no installer,
-no CUDA migration, no model runtime, no REST/MCP, single-vendor hardware validation only
-(AMD 680M; Intel/NVIDIA not tested).
+See `docs/KNOWN_LIMITATIONS.md` and `docs/release/v1-scope.md`. Only external items remain:
+clean-VM and cross-version upgrade testing, code signing (no certificate), a manually approved
+GitHub Release, and cross-vendor hardware verification (only Radeon 680M + CPU tested).

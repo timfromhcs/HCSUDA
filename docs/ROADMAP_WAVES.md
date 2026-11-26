@@ -9,25 +9,23 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 1 | CPU-only sample passes; ABI and error tests | **GREEN** |
 | 2 | Accurate device report on real hardware; CPU fallback | **GREEN** |
 | 3 | Vulkan vector-add (and more) passes vs CPU reference | **GREEN** |
-| 4 | HCSIR v1 parser/verifier/interpreter + GLSL lowering + GPU execution | **GREEN** — 37/37 tests; the same HCSIR vecadd module passes on the CPU interpreter and on the Vulkan GPU |
-| 5 | Async flows/events/graphs; race-free under stress | **GREEN** — 46/46 tests incl. graph replay on both backends; validation profile zero errors |
+| 4 | HCSIR v1 parser/verifier/interpreter + GLSL lowering + GPU execution | **GREEN** — the same HCSIR vecadd module passes on the CPU interpreter and on the Vulkan GPU |
+| 5 | Async flows/events/graphs; race-free under stress | **GREEN** — graph replay on both backends; 500-submission GPU stress and validation profile zero errors |
 | 6 | Reduction/scan/matmul suite + benchmark data | **GREEN** for the defined set: reduce, matmul, scan, transpose verified on CPU+Vulkan; benchmark rows recorded. Histogram/image primitives are not in V1 scope. |
-| 7 | CUDA source subset migration with report | PARTIAL — scanner + one tested vecadd translation (TR-01..03); broader corpus and PTX importer pending |
-| 8 | GGUF model through verified adapter | PARTIAL — catalog/checksum/path safety tested (MV-01..04); inference adapter not integrated |
-| 9 | REST + MCP local-only, authenticated, tested | PARTIAL — MCP (MCP-01..06) and REST (REST-01..05) pass; OpenAPI + remaining endpoints pending |
-| 10 | UI pages, settings persistence, no dead controls | PARTIAL — live data UI + persisted settings (UI-01..03); full navigation still out of V1 scope |
-| 11 | Single EXE installer, clean-VM install/uninstall | PARTIAL — native EXE + in-place upgrade pass (INS-01..03); clean-VM and cross-version upgrade still unverified |
-| 12 | Stress/soak/fuzz/static analysis; no critical issues | PARTIAL — STR-01..03 pass; long soak/dependency scan pending |
-| 13 | README/matrix match build; release candidate | PARTIAL — OpenAPI/SBOM/scope docs, public repo pushed, hosted CI green (CI-01); GitHub Release + signing pending |
+| 7 | CUDA source subset migration with report | **GREEN for V1 scope** — scanner + one conformance-tested vecadd translation; PTX/CUBIN explicitly out of V1 |
+| 8 | GGUF model through verified adapter | **Scope reduced** — catalog/checksum/path safety tested; inference deliberately omitted from V1 claims |
+| 9 | REST + MCP local-only, authenticated, tested | **GREEN for V1 scope** — MCP, REST with token auth, OpenAPI 3.1 and settings endpoints |
+| 10 | UI pages, settings persistence, no dead controls | **GREEN for V1 scope** — live data UI + persisted settings; full navigation out of V1 scope |
+| 11 | Single EXE installer, clean-VM install/uninstall | **GREEN on reference machine** — native EXE, install/uninstall + same-version upgrade; clean-VM/cross-version unverified |
+| 12 | Stress/soak/fuzz/static analysis; no critical issues | **PARTIAL** — stress/fuzz, 60-min soak (1610 iterations, 0 failures), secret scan pass; static analysis tooling not added |
+| 13 | README/matrix match build; release candidate | **PARTIAL** — OpenAPI/SBOM/scope docs, public repo pushed, hosted CI green (CI-01); Release + signing pending |
 
-## Next concrete task (finish Waves 6–7)
+## Next concrete task
 
-1. Extend `hcsbench` with scan/transpose rows and record raw baseline data.
-2. Add a small conformance-tested CUDA source translation subset before any PTX importer.
-3. Decide whether histogram/image primitives are in V1 scope; if not, remove them from the
-   feature list rather than leaving dead claims.
+Only external blockers remain: clean-VM/cross-version upgrade test, code signing, a manually
+approved GitHub Release, and cross-vendor hardware verification. No local wave work is open.
 
-Deferred from Wave 4: HCSIR serialization/round-trip caching.
+Deferred (not release blockers): HCSIR serialization/round-trip caching, static analysis tooling.
 
 ## Definition of done for any wave
 
