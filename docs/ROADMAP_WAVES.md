@@ -26,7 +26,7 @@ Only external blockers remain: clean-VM test, code signing, a manually approved 
 Release, and cross-vendor hardware verification. Cross-version upgrade is verified on the
 reference machine (INS-04). No local wave work is open.
 
-Deferred (not release blockers): HCSIR serialization/round-trip caching, static analysis tooling.
+Deferred (not a release blocker): a persistent on-disk shader/module cache built on the new HCSIR serialization.
 
 ## Definition of done for any wave
 

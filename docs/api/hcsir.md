@@ -119,7 +119,7 @@ The build lowers `tests/fixtures/ir/vecadd.hcsir` and compiles the generated sha
 
 * Entry-point reflection: the program API assumes a shader entry point named `main`.
 * Arbitrary user-supplied SPIR-V: only build-time HCSCC output is tested.
-* HCSIR serialization / binary module format and caching.
+* A persistent on-disk module/shader cache (the versioned binary format itself exists).
 * Integer arithmetic opcodes, shifts, bitwise operations.
 * Atomics, subgroup operations, matrix/tile operations.
 * Loops as structured opcodes (`jump`/`branch` only).

@@ -126,6 +126,11 @@ hcsResult run(const Module& module, const RunArgs& args, uint32_t invocationCoun
  * such as a barrier in divergent control flow. */
 hcsResult lowerGlsl(const Module& module, std::string* out);
 
+/* Versioned binary serialization with bounded input and canonical round-trip.
+ * deserialize() validates every length/count/enum and all branch targets before returning. */
+hcsResult serialize(const Module& module, std::string* out);
+hcsResult deserialize(const std::string& bytes, Module* out);
+
 const char* opName(Op op);
 const char* typeName(Type type);
 

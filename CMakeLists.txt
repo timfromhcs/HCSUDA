@@ -256,6 +256,7 @@ if(HCS_BUILD_TESTS)
         tests/unit/test_settings.cpp
         tests/unit/test_ir.cpp
         tests/unit/test_ir_glsl.cpp
+        tests/unit/test_ir_serialization.cpp
         tests/unit/test_vulkan.cpp)
     if(HCS_ENABLE_VULKAN)
         # Needs the generated HCSCC SPIR-V library, which only exists in Vulkan builds.

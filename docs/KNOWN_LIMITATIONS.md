@@ -25,8 +25,8 @@ the current truth of the code in this repository.
   both in the CPU interpreter and as HCSCC-generated Vulkan SPIR-V (test IR-18). The program
   API is an explicitly experimental extension, loads only modules produced by the build-time
   HCSCC path, does not reflect entry points, and returns `HCS_E_UNSUPPORTED_FEATURE` on CPU.
-* **No HCSIR serialization/caching.** Modules are recompiled by `hcscc` at build time; there
-  is no stable binary module format yet.
+* **No persistent on-disk module cache yet.** HCSIR binary serialization exists and is
+  fuzz-tested, but compiled modules are still rebuilt by `hcscc` at build time.
 * **HCSIR covers an elementwise subset only.** No integer/bitwise opcodes, no atomics, no
   subgroup or matrix operations, no structured loops, no module serialization.
 * **Scan is chunk-local.** `scan_f32` writes per-chunk exclusive prefixes; a global scan needs

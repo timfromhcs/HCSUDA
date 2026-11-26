@@ -472,3 +472,20 @@ cmake --preset windows-analyze
 cmake --build --preset windows-analyze --parallel  -> zero warnings
 ctest --preset windows-tests --output-on-failure -> 81/81
 ```
+
+## 2026-11-26 — HCSIR binary serialization (deferred Wave 4 item)
+
+Added `serialize`/`deserialize` to `src/ir/hcsir.cpp` with a versioned 8-byte magic header,
+explicit little-endian fields, strict count/name/index validation, canonical round-trip and
+branch-target checks. Three tests were added (IR-21..23).
+
+Two defects were found by the tests and fixed: `Module` has no `clear()` (now assigned a fresh
+value), and deserialization initially rejected empty branch-target strings used by
+non-control instructions (now read with an optional-text helper).
+
+```
+cmake --build --preset windows-tests --parallel
+ctest --preset windows-tests --output-on-failure -> 84/84
+ctest --preset windows-validation --timeout 180 -> 84/84, zero validation errors
+cmake --build --preset windows-analyze --parallel -> zero warnings
+```

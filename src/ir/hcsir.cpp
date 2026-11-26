@@ -1049,4 +1049,379 @@ hcsResult run(const Module& module, const RunArgs& args, uint32_t invocationCoun
     return HCS_SUCCESS;
 }
 
+
+namespace {
+
+constexpr unsigned char kBinaryMagic[8] = {'H', 'C', 'S', 'I', 'R', 'B', '0', '1'};
+constexpr size_t kMaxSerializedBytes = 4u << 20;
+
+class BinaryWriter {
+public:
+    void u32(uint32_t value)
+    {
+        for (int i = 0; i < 4; ++i) {
+            out_.push_back(static_cast<char>((value >> (i * 8)) & 0xFF));
+        }
+    }
+    void i32(int32_t value) { u32(static_cast<uint32_t>(value)); }
+    void u16(uint16_t value)
+    {
+        out_.push_back(static_cast<char>(value & 0xFF));
+        out_.push_back(static_cast<char>((value >> 8) & 0xFF));
+    }
+    void f64(double value)
+    {
+        uint64_t bits = 0;
+        std::memcpy(&bits, &value, sizeof(bits));
+        for (int i = 0; i < 8; ++i) {
+            out_.push_back(static_cast<char>((bits >> (i * 8)) & 0xFF));
+        }
+    }
+    void text(const std::string& value)
+    {
+        u16(static_cast<uint16_t>(value.size()));
+        out_.append(value);
+    }
+    void raw(const void* data, size_t size)
+    {
+        out_.append(static_cast<const char*>(data), size);
+    }
+    const std::string& str() const { return out_; }
+
+private:
+    std::string out_;
+};
+
+class BinaryReader {
+public:
+    explicit BinaryReader(const std::string& data) : data_(data) {}
+
+    bool u32(uint32_t* out)
+    {
+        if (pos_ + 4 > data_.size()) return false;
+        uint32_t value = 0;
+        for (int i = 0; i < 4; ++i) {
+            value |= static_cast<uint32_t>(static_cast<unsigned char>(data_[pos_ + i])) << (i * 8);
+        }
+        pos_ += 4;
+        *out = value;
+        return true;
+    }
+    bool i32(int32_t* out)
+    {
+        uint32_t value = 0;
+        if (!u32(&value)) return false;
+        *out = static_cast<int32_t>(value);
+        return true;
+    }
+    bool u16(uint16_t* out)
+    {
+        if (pos_ + 2 > data_.size()) return false;
+        *out = static_cast<uint16_t>(static_cast<unsigned char>(data_[pos_])) |
+               (static_cast<uint16_t>(static_cast<unsigned char>(data_[pos_ + 1])) << 8);
+        pos_ += 2;
+        return true;
+    }
+    bool f64(double* out)
+    {
+        if (pos_ + 8 > data_.size()) return false;
+        uint64_t bits = 0;
+        for (int i = 0; i < 8; ++i) {
+            bits |= static_cast<uint64_t>(static_cast<unsigned char>(data_[pos_ + i])) << (i * 8);
+        }
+        pos_ += 8;
+        std::memcpy(out, &bits, sizeof(bits));
+        return true;
+    }
+    bool text(std::string* out)
+    {
+        uint16_t length = 0;
+        if (!u16(&length) || pos_ + length > data_.size()) return false;
+        *out = data_.substr(pos_, length);
+        pos_ += length;
+        return isIdentifier(*out);
+    }
+    /* Branch targets may be empty for non-control instructions. */
+    bool textOptional(std::string* out)
+    {
+        uint16_t length = 0;
+        if (!u16(&length) || pos_ + length > data_.size()) return false;
+        *out = data_.substr(pos_, length);
+        pos_ += length;
+        return out->empty() || isIdentifier(*out);
+    }
+    bool finished() const { return pos_ == data_.size(); }
+    size_t position() const { return pos_; }
+
+private:
+    const std::string& data_;
+    size_t pos_ = 0;
+};
+
+void writeOperand(BinaryWriter& writer, const Operand& operand)
+{
+    writer.u32(static_cast<uint32_t>(operand.kind));
+    writer.u32(operand.id);
+    writer.f64(operand.number);
+}
+
+bool readOperand(BinaryReader& reader, Operand* operand)
+{
+    uint32_t kind = 0;
+    if (!reader.u32(&kind) || kind > static_cast<uint32_t>(Operand::Kind::IntLit)) return false;
+    operand->kind = static_cast<Operand::Kind>(kind);
+    if (!reader.u32(&operand->id) || !reader.f64(&operand->number)) return false;
+    if (operand->kind == Operand::Kind::Value && operand->id > kMaxValues) return false;
+    return true;
+}
+
+bool validType(uint32_t value)
+{
+    return value <= static_cast<uint32_t>(Type::Bool);
+}
+
+} // namespace
+
+hcsResult serialize(const Module& module, std::string* out)
+{
+    if (!out) {
+        return fail(HCS_E_INVALID_ARGUMENT, "hcsir.serialize", "output must not be null");
+    }
+    out->clear();
+    if (module.kernel.empty() || module.localSize == 0 || module.blocks.empty()) {
+        return fail(HCS_E_INVALID_ARGUMENT, "hcsir.serialize", "module is not compiled");
+    }
+    if (module.blocks.size() > kMaxBlocks || module.instructionCount > kMaxInstructions ||
+        module.valueTypes.size() > kMaxValues || module.buffers.size() > kMaxBuffers ||
+        module.params.size() > kMaxParams) {
+        return fail(HCS_E_SECURITY_POLICY, "hcsir.serialize", "module exceeds HCSIR v1 limits");
+    }
+
+    BinaryWriter writer;
+    writer.raw(kBinaryMagic, sizeof(kBinaryMagic));
+    writer.u32(kVersion);
+    writer.u32(module.localSize);
+    writer.u32(module.instructionCount);
+    writer.text(module.kernel);
+
+    writer.u16(static_cast<uint16_t>(module.buffers.size()));
+    for (const auto& buffer : module.buffers) {
+        writer.u32(buffer.index);
+        writer.text(buffer.name);
+        writer.u32(static_cast<uint32_t>(buffer.elemType));
+    }
+    writer.u16(static_cast<uint16_t>(module.params.size()));
+    for (const auto& param : module.params) {
+        writer.text(param.name);
+        writer.u32(static_cast<uint32_t>(param.type));
+        writer.u32(param.valueId);
+    }
+    writer.u16(static_cast<uint16_t>(module.constants.size()));
+    for (const auto& constant : module.constants) {
+        writer.text(constant.name);
+        writer.u32(static_cast<uint32_t>(constant.type));
+        writer.u32(constant.valueId);
+        writer.f64(constant.value);
+    }
+    writer.u32(static_cast<uint32_t>(module.valueTypes.size()));
+    for (Type type : module.valueTypes) {
+        writer.u32(static_cast<uint32_t>(type));
+    }
+
+    writer.u16(static_cast<uint16_t>(module.blocks.size()));
+    for (const auto& block : module.blocks) {
+        writer.text(block.name);
+        writer.u32(block.line);
+        writer.u16(static_cast<uint16_t>(block.code.size()));
+        for (const auto& instruction : block.code) {
+            writer.u32(static_cast<uint32_t>(instruction.op));
+            writer.i32(instruction.dst);
+            writer.u32(instruction.line);
+            writer.i32(instruction.buffer);
+            writeOperand(writer, instruction.a);
+            writeOperand(writer, instruction.b);
+            writeOperand(writer, instruction.c);
+            writer.text(instruction.targetTrue);
+            writer.text(instruction.targetFalse);
+        }
+    }
+    if (writer.str().size() > kMaxSerializedBytes) {
+        return fail(HCS_E_SECURITY_POLICY, "hcsir.serialize", "serialized module is too large");
+    }
+    *out = writer.str();
+    return HCS_SUCCESS;
+}
+
+hcsResult deserialize(const std::string& bytes, Module* out)
+{
+    if (!out) {
+        return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "output must not be null");
+    }
+    *out = Module{};
+    if (bytes.size() < 16 || bytes.size() > kMaxSerializedBytes) {
+        return fail(HCS_E_SECURITY_POLICY, "hcsir.deserialize", "invalid serialized size");
+    }
+    if (std::memcmp(bytes.data(), kBinaryMagic, sizeof(kBinaryMagic)) != 0) {
+        return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "bad module magic");
+    }
+    BinaryReader reader(bytes);
+    reader.position(); /* consume magic via u32 pairs below */
+    uint32_t magicPart = 0;
+    for (int i = 0; i < 2; ++i) {
+        if (!reader.u32(&magicPart)) {
+            return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "truncated magic");
+        }
+    }
+    uint32_t version = 0;
+    if (!reader.u32(&version)) {
+        return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "truncated version");
+    }
+    if (version != kVersion) {
+        return fail(HCS_E_UNSUPPORTED_API_VERSION, "hcsir.deserialize",
+                    "unsupported serialized IR version");
+    }
+
+    Module module;
+    uint32_t instructionCount = 0;
+    if (!reader.u32(&module.localSize) || !reader.u32(&instructionCount) ||
+        !reader.text(&module.kernel)) {
+        return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "truncated header");
+    }
+    if (module.localSize == 0 || module.localSize > 1024 ||
+        instructionCount > kMaxInstructions) {
+        return fail(HCS_E_SECURITY_POLICY, "hcsir.deserialize", "header value out of range");
+    }
+    module.instructionCount = instructionCount;
+
+    uint16_t count16 = 0;
+    uint32_t count32 = 0;
+    if (!reader.u16(&count16) || count16 > kMaxBuffers) {
+        return fail(HCS_E_SECURITY_POLICY, "hcsir.deserialize", "invalid buffer count");
+    }
+    for (uint16_t i = 0; i < count16; ++i) {
+        BufferDecl buffer;
+        uint32_t type = 0;
+        if (!reader.u32(&buffer.index) || buffer.index >= kMaxBuffers ||
+            !reader.text(&buffer.name) || !reader.u32(&type) || !validType(type)) {
+            return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "invalid buffer record");
+        }
+        buffer.elemType = static_cast<Type>(type);
+        module.buffers.push_back(buffer);
+    }
+
+    if (!reader.u16(&count16) || count16 > kMaxParams) {
+        return fail(HCS_E_SECURITY_POLICY, "hcsir.deserialize", "invalid parameter count");
+    }
+    for (uint16_t i = 0; i < count16; ++i) {
+        ParamDecl param;
+        uint32_t type = 0;
+        if (!reader.text(&param.name) || !reader.u32(&type) || !validType(type) ||
+            !reader.u32(&param.valueId) || param.valueId > kMaxValues) {
+            return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "invalid parameter record");
+        }
+        param.type = static_cast<Type>(type);
+        module.params.push_back(param);
+    }
+
+    if (!reader.u16(&count16) || count16 > kMaxValues) {
+        return fail(HCS_E_SECURITY_POLICY, "hcsir.deserialize", "invalid constant count");
+    }
+    for (uint16_t i = 0; i < count16; ++i) {
+        ConstantDecl constant;
+        uint32_t type = 0;
+        if (!reader.text(&constant.name) || !reader.u32(&type) || !validType(type) ||
+            !reader.u32(&constant.valueId) || constant.valueId > kMaxValues ||
+            !reader.f64(&constant.value)) {
+            return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "invalid constant record");
+        }
+        constant.type = static_cast<Type>(type);
+        module.constants.push_back(constant);
+    }
+
+    if (!reader.u32(&count32) || count32 == 0 || count32 > kMaxValues) {
+        return fail(HCS_E_SECURITY_POLICY, "hcsir.deserialize", "invalid value-type count");
+    }
+    for (uint32_t i = 0; i < count32; ++i) {
+        uint32_t type = 0;
+        if (!reader.u32(&type) || !validType(type)) {
+            return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "invalid value type");
+        }
+        module.valueTypes.push_back(static_cast<Type>(type));
+    }
+
+    if (!reader.u16(&count16) || count16 == 0 || count16 > kMaxBlocks) {
+        return fail(HCS_E_SECURITY_POLICY, "hcsir.deserialize", "invalid block count");
+    }
+    uint32_t totalInstructions = 0;
+    for (uint16_t b = 0; b < count16; ++b) {
+        Block block;
+        uint16_t codeCount = 0;
+        if (!reader.text(&block.name) || !reader.u32(&block.line) || !reader.u16(&codeCount)) {
+            return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "invalid block header");
+        }
+        totalInstructions += codeCount;
+        if (totalInstructions > kMaxInstructions) {
+            return fail(HCS_E_SECURITY_POLICY, "hcsir.deserialize", "instruction limit exceeded");
+        }
+        for (uint16_t j = 0; j < codeCount; ++j) {
+            Instruction instruction;
+            uint32_t op = 0;
+            if (!reader.u32(&op) || op > static_cast<uint32_t>(Op::Ret) ||
+                !reader.i32(&instruction.dst) || !reader.u32(&instruction.line) ||
+                !reader.i32(&instruction.buffer) || !readOperand(reader, &instruction.a) ||
+                !readOperand(reader, &instruction.b) || !readOperand(reader, &instruction.c) ||
+                !reader.textOptional(&instruction.targetTrue) ||
+                !reader.textOptional(&instruction.targetFalse)) {
+                return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "invalid instruction");
+            }
+            instruction.op = static_cast<Op>(op);
+            if (instruction.dst < -1 ||
+                (instruction.dst >= 0 &&
+                 static_cast<size_t>(instruction.dst) >= module.valueTypes.size()) ||
+                instruction.buffer < -1 || instruction.buffer >= static_cast<int>(kMaxBuffers)) {
+                return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "instruction index out of range");
+            }
+            block.code.push_back(instruction);
+        }
+        module.blocks.push_back(std::move(block));
+    }
+    if (!reader.finished()) {
+        return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "trailing bytes in module");
+    }
+    if (totalInstructions != module.instructionCount) {
+        return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "instruction count mismatch");
+    }
+
+    std::unordered_set<std::string> labels;
+    for (const auto& block : module.blocks) {
+        if (!labels.insert(block.name).second || block.code.empty()) {
+            return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "duplicate or empty block");
+        }
+        const Op last = block.code.back().op;
+        if (last != Op::Ret && last != Op::Jump && last != Op::Branch) {
+            return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "block has no terminator");
+        }
+        for (size_t i = 0; i + 1 < block.code.size(); ++i) {
+            const Op op = block.code[i].op;
+            if (op == Op::Ret || op == Op::Jump || op == Op::Branch) {
+                return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "instruction after terminator");
+            }
+        }
+    }
+    for (const auto& block : module.blocks) {
+        for (const auto& instruction : block.code) {
+            if ((instruction.op == Op::Jump || instruction.op == Op::Branch) &&
+                labels.count(instruction.targetTrue) == 0) {
+                return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "unknown branch target");
+            }
+            if (instruction.op == Op::Branch && labels.count(instruction.targetFalse) == 0) {
+                return fail(HCS_E_INVALID_ARGUMENT, "hcsir.deserialize", "unknown branch target");
+            }
+        }
+    }
+
+    *out = std::move(module);
+    return HCS_SUCCESS;
+}
+
 } // namespace hcs::ir

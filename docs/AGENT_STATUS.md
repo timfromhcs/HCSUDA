@@ -24,7 +24,7 @@ Updated: 2026-11-26 (release candidate; Waves 0–13 implemented, only external 
 | Wave | Scope | Status | Notes |
 |---|---|---|---|
 | 0 | Reconnaissance, project contract, build skeleton | **Done** | MSVC + Vulkan SDK verified; presets build |
-| 1 | Core API + CPU reference backend | **Done** | 81 registered tests, all passing (78 in CPU-only build) |
+| 1 | Core API + CPU reference backend | **Done** | 84 registered tests, all passing (81 in CPU-only build) |
 | 2 | Vulkan discovery + diagnostics | **Done** | `hcsdoctor` reports real 680M caps/budget |
 | 3 | Minimal Vulkan compute | **Done** | vecadd/scale/reduce/matmul verified vs CPU |
 | 4 | HCSIR/HCS-PIR verifier + compiler path | **Done** | parser, verifier, CPU interpreter, GLSL lowering, generated SPIR-V executing on Vulkan; experimental program API |
@@ -48,7 +48,8 @@ Updated: 2026-11-26 (release candidate; Waves 0–13 implemented, only external 
   host-visible coherent buffers, compute pipelines, synchronous dispatch, device-loss mapping.
 * Built-in kernels: `vecadd_f32`, `scale_f32`, `reduce_sum_f32`, `matmul_f32`, `scan_f32`, `transpose_f32`.
 * Tools: `hcsdoctor`, `hcsbench`, `hcscc`, `hcsport`, `hcsbridge-mcp`, `hcsbridge-rest`, native single-file setup; SPIR-V compiled at build time by `glslc` and embedded.
-* HCSIR v1: bounded parser, verifier and CPU interpreter for the elementwise subset
+* HCSIR v1: bounded parser, verifier, CPU interpreter and versioned binary serialization
+  with canonical round-trip and fuzz-tested deserialization for the elementwise subset
   (`load`/`store`/`add`/`sub`/`mul`/`fma`/`min`/`max`/comparisons/`select`/`branch`/`jump`),
   with `const` declarations and source-line diagnostics. Internal only — not in the C ABI.
 * HCSCC: lowers verified HCSIR to GLSL 450 compute shaders (state-machine CFG, bounds
@@ -65,15 +66,15 @@ Updated: 2026-11-26 (release candidate; Waves 0–13 implemented, only external 
   16x16 tiled transpose, each with a CPU reference and odd-size/boundary tests.
 * Services: local-only REST with random bearer token and settings persistence, MCP stdio with
   four read-only tools, self-contained browser UI with live data.
-* Tests: 81 tests covering API contract, CPU/Vulkan correctness, memory caps, HCSIR accept/reject,
+* Tests: 84 tests covering API contract, CPU/Vulkan correctness, memory caps, HCSIR accept/reject/serialize,
   generated GLSL + GPU execution, flows/events/graphs, scan/transpose, CUDA scan/translation,
   catalog/checksums, REST/MCP/UI, settings, stress/fuzz and installer gates.
 
 ## Verification summary
 
-Validation layers are wired into `windows-validation` and pass with zero errors. Hosted CI
-(run 45800636104) passed all six jobs. HCSIR serialization/round-trip caching remains deferred
-and is not a release blocker.
+Validation layers are wired into `windows-validation` and pass with zero errors. Hosted CI passed
+all seven jobs on commit c5f3d4c. HCSIR binary serialization is implemented and fuzz-tested;
+a persistent shader/module cache on top of it is still deferred and not a release blocker.
 
 ## Remaining external blockers
 

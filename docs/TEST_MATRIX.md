@@ -4,7 +4,7 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **1/1 CTest target passed; 81/81 HCS tests passed** (2026-11-25).
+Last result: **1/1 CTest target passed; 84/84 HCS tests passed** (2026-11-25).
 
 | ID | Test | Backend | Result | What it proves |
 |---|---|---|---|---|
@@ -46,12 +46,15 @@ Last result: **1/1 CTest target passed; 81/81 HCS tests passed** (2026-11-25).
 | IR-18 | hcsir_generated_spirv_runs_on_vulkan | Vulkan | PASS | HCSCC-generated SPIR-V loaded via the experimental program API; 4096 invocations match the HCSIR reference within 2e-5 |
 | IR-19 | hcsir_program_rejects_invalid_spirv | Vulkan | PASS | bad magic → `HCS_E_SPIRV_INVALID`; unaligned/null input → `HCS_E_INVALID_ARGUMENT` |
 | IR-20 | hcsir_program_is_unsupported_on_cpu_backend | CPU | PASS | CPU returns `HCS_E_UNSUPPORTED_FEATURE` instead of pretending to decode SPIR-V |
+| IR-21 | ir_serialization_roundtrip_preserves_semantics | IR | PASS | binary serialize → deserialize → serialize is byte-identical; both modules execute identically |
+| IR-22 | ir_serialization_rejects_corrupt_modules | IR | PASS | bad magic, truncation, trailing bytes, version bump and null output rejected with correct codes |
+| IR-23 | ir_deserialize_fuzz_is_bounded | IR | PASS | 200 seeded random byte strings accepted/rejected safely |
 | FL-01 | flow_async_dispatches_and_event_wait | Vulkan | PASS | 8 async dispatches on one flow; event wait observes fence status before explicit sync; final output matches |
 | FL-02 | flow_two_flows_are_independent | Vulkan | PASS | two flows with different alphas, synchronized in reverse order, both results correct |
 | FL-03 | flow_event_timeout_and_validation | Vulkan | PASS | idle-flow event is immediately satisfied; null flow/event misuse rejected |
 | FL-04 | flow_cpu_backend_completes_immediately | CPU | PASS | CPU flow/event complete synchronously with zero timeout |
 | FL-05 | flow_event_wait_timeout_path | mock flow | PASS | a backend flow whose counter never advances yields `HCS_E_TIMEOUT` |
-| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 81/81 tests, no validation errors |
+| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 84/84 tests, no validation errors |
 | GR-01 | graph_runs_on_cpu_backend | CPU | PASS | 2-node linear DAG with dependency, replayed on a flow, both outputs verified |
 | GR-02 | graph_runs_on_vulkan_backend | Vulkan | PASS | same DAG executes on the Radeon 680M and matches the CPU result |
 | GR-03 | graph_rejects_invalid_dependencies | CPU | PASS | empty graph, future dependency, zero group count, >8 dependencies all rejected |
