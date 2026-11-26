@@ -489,3 +489,12 @@ ctest --preset windows-tests --output-on-failure -> 84/84
 ctest --preset windows-validation --timeout 180 -> 84/84, zero validation errors
 cmake --build --preset windows-analyze --parallel -> zero warnings
 ```
+
+## 2026-11-26 — CI found a flaky token test
+
+Hosted CI failed `rest_requires_random_bearer_token` because the mutation `"0" + token.substr(1)`
+is identical to the original token whenever the random hex token starts with `0`. Fixed by always
+flipping the first character to the opposite hex value. Local and hosted runs now pass.
+
+Note: hosted runners have no Vulkan SDK, so their `windows-tests` binary contains 81 tests (the
+three HCSIR-generated-SPIR-V tests are correctly excluded); the reference machine runs 84.
