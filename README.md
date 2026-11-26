@@ -1,5 +1,10 @@
 # HCSUDA
 
+[![CI](https://github.com/timfromhcs/HCSUDA/actions/workflows/ci.yml/badge.svg)](https://github.com/timfromhcs/HCSUDA/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+**Repository:** <https://github.com/timfromhcs/HCSUDA>
+
 **HCS Unified Compute Runtime** — a Vulkan-based, cross-vendor GPU compute runtime with a
 portable C ABI, a CPU reference backend, and an expanding CUDA-source migration path.
 

@@ -18,7 +18,7 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 10 | UI pages, settings persistence, no dead controls | PARTIAL — live data UI + persisted settings (UI-01..03); full navigation still out of V1 scope |
 | 11 | Single EXE installer, clean-VM install/uninstall | PARTIAL — native EXE + in-place upgrade pass (INS-01..03); clean-VM and cross-version upgrade still unverified |
 | 12 | Stress/soak/fuzz/static analysis; no critical issues | PARTIAL — STR-01..03 pass; long soak/dependency scan pending |
-| 13 | README/matrix match build; release candidate | PARTIAL — OpenAPI/SBOM/scope docs added; GitHub release + signing pending |
+| 13 | README/matrix match build; release candidate | PARTIAL — OpenAPI/SBOM/scope docs, public repo pushed; GitHub Release + signing pending |
 
 ## Next concrete task (finish Waves 6–7)
 
