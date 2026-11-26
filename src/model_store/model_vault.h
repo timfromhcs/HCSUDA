@@ -47,6 +47,7 @@ private:
     hcsResult save() const;
 
     std::filesystem::path root_;
+    std::filesystem::path canonicalRoot_;
     std::filesystem::path catalogPath_;
     std::vector<ModelEntry> entries_;
 };

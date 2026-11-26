@@ -165,6 +165,12 @@ hcsResult ModelVault::initialize()
         return fail(HCS_E_IO, "models.initialize", "cannot create model directory: " +
                                                         error.message());
     }
+    /* CI temp directories may be junctions. Compare canonical paths on both sides or a
+     * legitimate model inside the configured directory is falsely rejected. */
+    canonicalRoot_ = std::filesystem::weakly_canonical(root_, error);
+    if (error) {
+        return fail(HCS_E_IO, "models.initialize", "cannot resolve model directory");
+    }
     return load();
 }
 
@@ -238,7 +244,8 @@ hcsResult ModelVault::add(const std::string& userPath, ModelEntry* out)
     if (error) {
         return fail(HCS_E_IO, "models.add", "cannot resolve path: " + error.message());
     }
-    if (!insideRoot(canonical, root_)) {
+    const std::filesystem::path& comparisonRoot = canonicalRoot_.empty() ? root_ : canonicalRoot_;
+    if (!insideRoot(canonical, comparisonRoot)) {
         return fail(HCS_E_SECURITY_POLICY, "models.add",
                     "model path is outside the configured model directory");
     }
