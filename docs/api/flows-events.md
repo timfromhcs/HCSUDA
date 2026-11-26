@@ -50,7 +50,7 @@ Not guaranteed:
 
 * parallel execution across multiple queues (there is one compute queue per context);
 * timeline-semaphore semantics, device-wide event sharing, or host event signaling;
-* HCSGraph recording/replay (not implemented yet);
+* Parallel HCSGraph DAG scheduling (V1 supports sequential replay only);
 * overlap between a flow and a synchronous (`flow == NULL`) dispatch issued concurrently on the
   same context.
 

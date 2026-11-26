@@ -18,8 +18,9 @@ the current truth of the code in this repository.
   allocation with staging is planned.
 * **One descriptor set layout with 8 storage-buffer bindings.** No images, samplers,
   specialization constants, or push-descriptor support yet.
-* **No shader compilation at runtime.** Only the four built-in SPDC/SPIR-V kernels compiled
-  from `shaders/hksl/` at build time are available. `hcsProgramCreateSpirv` is not exposed.
+* **No arbitrary shader compilation at runtime.** The built-in kernels are compiled from
+  `shaders/hksl/` at build time. The experimental `hcsProgramCreateSpirv` API only accepts
+  SPIR-V produced by the build-time HCSCC path, with no entry-point reflection.
 * **Only a narrow HCSIR subset executes on the GPU.** The verified vecadd-style module runs
   both in the CPU interpreter and as HCSCC-generated Vulkan SPIR-V (test IR-18). The program
   API is an explicitly experimental extension, loads only modules produced by the build-time
@@ -51,36 +52,37 @@ the current truth of the code in this repository.
   otherwise. It is not a CUDA compiler; PTX text, CUBIN/SASS, multi-kernel files and CUDA
   library APIs remain unsupported.
 * CUBIN/SASS execution on AMD hardware is explicitly unsupported and will remain so.
-* `docs/compatibility/cuda-api-matrix.md` therefore marks nearly everything as unsupported.
+* `docs/compatibility/cuda-api-matrix.md` marks everything except the tested vecadd subset as unsupported.
 
 ## Platform and validation
 
 * **Only AMD Radeon 680M has been tested.** Intel Arc/Iris and NVIDIA Vulkan devices are
   unverified. Cross-vendor support is capability-driven but not yet evidenced.
-* No Vulkan validation-layer run is wired into CTest yet.
+* Vulkan validation layers run in the dedicated `windows-validation` preset with zero errors;
+  hosted runners usually lack the SDK, so real GPU validation remains a self-hosted concern.
 * No Intel/NVIDIA-specific ICD probing or software-adapter filtering policy beyond
   compute-queue presence and scoring.
 * Windows-only. No Linux or macOS backend in this build.
 
 ## Product surface
 
-* No desktop UI (Qt absent; WebView2 strategy drafted in ADR-0003).
-* No REST API, no MCP server, no model vault, no inference adapter, no installer.
-* No code signing, SBOM generation, or release artifacts yet.
+* The UI is a self-contained local browser page served by REST; there is no Qt/WebView2 shell
+  and no automated screenshot evidence.
+* REST, MCP, model catalog and a single-file installer exist but cover only the V1 scope listed
+  in `docs/release/v1-scope.md`; there is no inference adapter.
+* A CycloneDX SBOM exists; the installer is unsigned because no certificate is configured.
 * No telemetry, and none is planned by default.
 
 ## Security posture
 
-* API/MCP are not implemented yet; when they are, they must be localhost-only, token
-  authenticated, request-size limited, and must never expose arbitrary command execution.
-* Parsers for HCSIR/PTX/CUDA source do not exist yet; their threat model is pre-written in
-  ADR-0004 and SECURITY.md so implementation cannot silently skip it.
+* REST binds only to 127.0.0.1 with a random bearer token, bounded bodies and Origin checks;
+  MCP stdio exposes four read-only tools and no shell/file/download capability.
+* HCSIR and CUDA-source parsers are bounded and fuzz-tested. A PTX parser does not exist in V1.
 
-## What would block a V1 release today
+## What would block a final V1 release today
 
-Every unchecked item in `README.md` (models, UI, API/MCP, installer) plus Wave 12 stress and
-security gates. The current build is a correct, tested kernel runtime — not a finished
-product.
+Only external items: clean-VM and cross-version upgrade testing, code signing, a manually
+approved GitHub Release, and cross-vendor hardware verification. See `docs/AGENT_STATUS.md`.
 
 ## Model store (updated Wave 8)
 

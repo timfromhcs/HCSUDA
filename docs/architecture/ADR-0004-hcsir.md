@@ -1,6 +1,6 @@
 # ADR-0004: HCSIR v1 text format, verification and threat model
 
-* Status: accepted (design), implementation pending Wave 4
+* Status: accepted; parser, verifier, interpreter and GLSL lowering implemented in Wave 4
 * Date: 2026-11-25
 
 ## Context

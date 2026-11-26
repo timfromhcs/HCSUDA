@@ -109,14 +109,14 @@ Last result: **1/1 CTest target passed; 81/81 HCS tests passed** (2026-11-25).
 | Async flows, events and linear HCSGraph DAGs | **tested** (FL-01..05, GR-01..04) | 5 |
 | Scan and transpose | **tested** (KC-01..KC-06) | 6 |
 | CUDA source scan + narrow vecadd translation | **tested** (PORT-01..03, TR-01..03) | 7 |
-| PTX textual importer | not implemented | 7 (experimental) |
+| PTX textual importer | out of V1 scope (not implemented) | — |
 | Model catalog / checksum / path safety | **tested** (MV-01..04); no inference adapter | 8 |
 | MCP stdio protocol conformance | **tested** (MCP-01..06) | 9 |
 | Browser UI served locally | **tested** (UI-01..02); no automated screenshot capture yet | 10 |
 | Installer staged + reference-machine install/uninstall + in-place upgrade | **tested** (INS-01..03); clean VM not tested | 11 |
 | Stress/fuzz (2000 CPU, 500 GPU submissions, 200 fuzz inputs) + 60-min soak | **tested** (STR-01..03, SOAK-01) | 12 |
 | Intel/NVIDIA Vulkan hardware | **not verified** | requires hardware |
-| Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (52/52 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
+| Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (81/81 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
 
 ## Benchmark evidence
 
