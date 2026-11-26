@@ -448,3 +448,14 @@ each fixed and verified with a new run:
 
 Final run: `45800355572`, conclusion `success`, all six jobs green. Node.js 20 deprecation
 warnings from `actions/checkout@v4` are upstream annotations, not failures.
+
+## 2026-11-26 — cross-version upgrade on the reference machine
+
+Created a temporary git worktree at commit `b81457e` (the commit that introduced the native
+setup), built its single-file EXE, installed it, then installed the current EXE over it using
+`tests/installer/test_cross_version_upgrade.ps1`. Result: `CROSS_VERSION_UPGRADE_PASS` — a user
+sentinel file survived, the upgraded `hcsdoctor --json` reported the real Radeon 680M and CPU
+devices, and uninstall removed only HCSUDA files. The temporary worktree was removed afterwards.
+
+This closes the cross-version upgrade item on the reference machine; a clean-VM test is still
+not performed.

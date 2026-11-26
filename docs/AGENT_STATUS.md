@@ -34,7 +34,7 @@ Updated: 2026-11-26 (release candidate; Waves 0–13 implemented, only external 
 | 8 | Model vault + GGUF (llama.cpp Vulkan) | **Scope reduced** | catalog/checksum/path safety tested; GGUF inference explicitly omitted from V1 (`docs/release/v1-scope.md`) |
 | 9 | REST API + MCP server | **Done for V1 scope** | MCP stdio, local-only REST with token auth, OpenAPI 3.1 and settings endpoints; model/benchmark/translation endpoints out of V1 scope |
 | 10 | Desktop UI | **Done for V1 scope** | local browser UI with live data + persisted settings; native Qt/WebView2 shell and screenshots explicitly out of V1 scope |
-| 11 | Installer (one EXE) | **Done on reference machine** | native single EXE, silent per-user install, install/uninstall + same-version upgrade tested; clean VM/cross-version unverified |
+| 11 | Installer (one EXE) | **Done on reference machine** | native single EXE, silent per-user install, install/uninstall + same-version AND cross-version upgrade tested (INS-01..04); clean VM unverified |
 | 12 | Stress/security/performance hardening | **Partial** | stress/fuzz, 60-min soak (1610 iterations, 0 failures), validation layers and secret scan pass; static analysis tooling not added |
 | 13 | Docs, CI, release candidate | **Partial** | OpenAPI, SBOM, scope doc, public repo pushed, hosted CI green; GitHub Release and signing pending |
 
@@ -78,5 +78,6 @@ and is not a release blocker.
 ## Remaining external blockers
 
 See `docs/KNOWN_LIMITATIONS.md` and `docs/release/v1-scope.md`. Only external items remain:
-clean-VM and cross-version upgrade testing, code signing (no certificate), a manually approved
-GitHub Release, and cross-vendor hardware verification (only Radeon 680M + CPU tested).
+clean-VM testing, code signing (no certificate), a manually approved GitHub Release, and
+cross-vendor hardware verification (only Radeon 680M + CPU tested). Cross-version upgrade is
+now verified on the reference machine (INS-04).

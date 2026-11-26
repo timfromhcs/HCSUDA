@@ -88,6 +88,7 @@ Last result: **1/1 CTest target passed; 81/81 HCS tests passed** (2026-11-25).
 | INS-01 | tests/installer/test_installer.ps1 | installer | PASS | staged install, file checks, installed hcsdoctor --json, uninstall, Vulkan loader intact |
 | INS-02 | full single-EXE setup run (manual) | installer | PASS | SETUP_EXIT=0, real device report from installed binary, uninstall preserved user data |
 | INS-03 | tests/installer/test_upgrade.ps1 | installer | PASS | in-place reinstall keeps user files, binaries still run, uninstall removes only HCSUDA files |
+| INS-04 | cross-version upgrade (manual, real EXEs) | installer | PASS | setup built from commit b81457e installed first, current setup upgraded it; user sentinel preserved, upgraded hcsdoctor reports real devices, uninstall clean |
 | SEC-01 | scripts/check-secrets.ps1 | repository | PASS | 104 tracked files scanned, no credential patterns in code (dummy tokens only in docs/tests) |
 | SOAK-01 | 60-minute bounded soak | Vulkan | PASS (stability) | 1610 iterations, 0 failures; all vecadd samples verified. Median vecadd drifted 0.12 ms -> 0.37 ms with outliers to 15.5 ms; cause not diagnosed (thermal/system load), so no performance claim is made |
 | CI-01 | hosted GitHub Actions run 45800355572 | CI | PASS | all six jobs success: windows-tests, cpu-only build, cpu-only tests, validation, installer, secret scan |
@@ -113,7 +114,7 @@ Last result: **1/1 CTest target passed; 81/81 HCS tests passed** (2026-11-25).
 | Model catalog / checksum / path safety | **tested** (MV-01..04); no inference adapter | 8 |
 | MCP stdio protocol conformance | **tested** (MCP-01..06) | 9 |
 | Browser UI served locally | **tested** (UI-01..02); no automated screenshot capture yet | 10 |
-| Installer staged + reference-machine install/uninstall + in-place upgrade | **tested** (INS-01..03); clean VM not tested | 11 |
+| Installer staged + reference-machine install/uninstall + in-place and cross-version upgrade | **tested** (INS-01..04); clean VM still not tested | 11 |
 | Stress/fuzz (2000 CPU, 500 GPU submissions, 200 fuzz inputs) + 60-min soak | **tested** (STR-01..03, SOAK-01) | 12 |
 | Intel/NVIDIA Vulkan hardware | **not verified** | requires hardware |
 | Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (81/81 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |

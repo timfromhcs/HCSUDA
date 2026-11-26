@@ -16,14 +16,15 @@ with a build, a test run, and an updated TEST_MATRIX entry.
 | 8 | GGUF model through verified adapter | **Scope reduced** — catalog/checksum/path safety tested; inference deliberately omitted from V1 claims |
 | 9 | REST + MCP local-only, authenticated, tested | **GREEN for V1 scope** — MCP, REST with token auth, OpenAPI 3.1 and settings endpoints |
 | 10 | UI pages, settings persistence, no dead controls | **GREEN for V1 scope** — live data UI + persisted settings; full navigation out of V1 scope |
-| 11 | Single EXE installer, clean-VM install/uninstall | **GREEN on reference machine** — native EXE, install/uninstall + same-version upgrade; clean-VM/cross-version unverified |
+| 11 | Single EXE installer, clean-VM install/uninstall | **GREEN on reference machine** — native EXE, install/uninstall + same-version and cross-version upgrade (INS-01..04); clean-VM still unverified |
 | 12 | Stress/soak/fuzz/static analysis; no critical issues | **PARTIAL** — stress/fuzz, 60-min soak (1610 iterations, 0 failures), secret scan pass; static analysis tooling not added |
 | 13 | README/matrix match build; release candidate | **PARTIAL** — OpenAPI/SBOM/scope docs, public repo pushed, hosted CI green (CI-01); Release + signing pending |
 
 ## Next concrete task
 
-Only external blockers remain: clean-VM/cross-version upgrade test, code signing, a manually
-approved GitHub Release, and cross-vendor hardware verification. No local wave work is open.
+Only external blockers remain: clean-VM test, code signing, a manually approved GitHub
+Release, and cross-vendor hardware verification. Cross-version upgrade is verified on the
+reference machine (INS-04). No local wave work is open.
 
 Deferred (not release blockers): HCSIR serialization/round-trip caching, static analysis tooling.
 
