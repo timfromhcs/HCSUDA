@@ -4,7 +4,7 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **1/1 CTest target passed; 84/84 HCS tests passed** (2026-11-25).
+Last result: **1/1 CTest target passed; 84/84 HCS tests passed** (2026-11-26).
 
 | ID | Test | Backend | Result | What it proves |
 |---|---|---|---|---|
@@ -121,7 +121,7 @@ Last result: **1/1 CTest target passed; 84/84 HCS tests passed** (2026-11-25).
 | Installer staged + reference-machine install/uninstall + in-place and cross-version upgrade | **tested** (INS-01..04); clean VM still not tested | 11 |
 | Stress/fuzz (2000 CPU, 500 GPU submissions, 200 fuzz inputs) + 60-min soak | **tested** (STR-01..03, SOAK-01) | 12 |
 | Intel/NVIDIA Vulkan hardware | **not verified** | requires hardware |
-| Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (81/81 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
+| Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (84/84 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
 
 ## Benchmark evidence
 
