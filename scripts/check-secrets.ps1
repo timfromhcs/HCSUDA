@@ -1,6 +1,6 @@
 # Lightweight secret scan over tracked files. Exits non-zero on a suspected credential.
 # Documentation and test fixtures contain explicit dummy tokens and are excluded by design.
-param([string]$RepoRoot = "D:\HCSUDA")
+param([string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path)
 
 $ErrorActionPreference = "Stop"
 Push-Location $RepoRoot
