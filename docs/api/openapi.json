@@ -5,62 +5,224 @@
     "version": "0.1.0",
     "description": "Local-only HCSUDA runtime API. Binds 127.0.0.1 only; all non-health endpoints require a per-process random bearer token. No arbitrary code execution, shell, DLL load or unrestricted file access is exposed."
   },
-  "servers": [{ "url": "http://127.0.0.1:8710" }],
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8710"
+    }
+  ],
   "components": {
     "securitySchemes": {
-      "bearerAuth": { "type": "http", "scheme": "bearer", "description": "Random 64-hex token printed to stderr at process start." }
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Random 64-hex token printed to stderr at process start."
+      }
     },
     "schemas": {
       "Error": {
         "type": "object",
         "properties": {
-          "error": { "type": "object", "properties": {
-            "status": { "type": "integer" },
-            "code": { "type": "string" },
-            "message": { "type": "string" }
-          } }
+          "error": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "integer"
+              },
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
         }
       }
     }
   },
-  "security": [{ "bearerAuth": [] }],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
   "paths": {
     "/api/v1/health": {
       "get": {
         "security": [],
         "summary": "Liveness and local-only confirmation",
-        "responses": { "200": { "description": "OK", "content": { "application/json": { "example": { "status": "ok", "local_only": true } } } } }
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "ok",
+                  "local_only": true
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/version": {
       "get": {
         "summary": "Product, version and C ABI version",
-        "responses": { "200": { "description": "OK" }, "401": { "description": "Missing or invalid token", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } } }
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Missing or invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/v1/devices": {
       "get": {
         "summary": "Real device inventory (Vulkan + CPU)",
-        "responses": { "200": { "description": "OK" }, "401": { "description": "Unauthorized" } }
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
       }
     },
     "/api/v1/runtime/status": {
       "get": {
         "summary": "Runtime status and device inventory",
-        "responses": { "200": { "description": "OK" }, "401": { "description": "Unauthorized" } }
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
       }
     },
     "/api/v1/memory/budget": {
       "get": {
         "summary": "Driver-reported heap, budget and usage; not a VRAM size",
-        "responses": { "200": { "description": "OK" }, "401": { "description": "Unauthorized" } }
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
       }
     },
     "/ui/": {
       "get": {
         "security": [],
         "summary": "Self-contained local browser console",
-        "responses": { "200": { "description": "text/html" } }
+        "responses": {
+          "200": {
+            "description": "text/html"
+          }
+        }
+      }
+    },
+    "/api/v1/settings": {
+      "get": {
+        "summary": "Validated settings with defaults (token never persisted)",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "summary": "Validate, persist and return settings (max 16 KiB body)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "backend_policy": {
+                    "type": "string",
+                    "enum": [
+                      "auto",
+                      "vulkan",
+                      "cpu"
+                    ]
+                  },
+                  "memory_cap_mib": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 65536
+                  },
+                  "cpu_threads": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 256
+                  },
+                  "api_port": {
+                    "type": "integer",
+                    "minimum": 1024,
+                    "maximum": 65535
+                  },
+                  "prefetch_policy": {
+                    "type": "string",
+                    "enum": [
+                      "off",
+                      "conservative",
+                      "adaptive"
+                    ]
+                  },
+                  "theme": {
+                    "type": "string",
+                    "enum": [
+                      "dark",
+                      "light"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Validation failed"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/v1/settings/reset": {
+      "post": {
+        "summary": "Restore defaults and persist",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
       }
     }
   }
