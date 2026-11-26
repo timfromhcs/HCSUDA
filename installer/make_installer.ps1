@@ -1,6 +1,6 @@
 param(
-    [string]$BuildDir = "D:\HCSUDA\build\windows-tests\RelWithDebInfo",
-    [string]$RepoRoot = "D:\HCSUDA"
+    [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path,
+    [string]$BuildDir = (Join-Path $RepoRoot "build\windows-tests\RelWithDebInfo")
 )
 
 $ErrorActionPreference = "Stop"

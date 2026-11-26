@@ -1,4 +1,4 @@
-param([string]$Source = "D:\HCSUDA\installer")
+param([string]$Source = (Join-Path (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path "installer"))
 
 $ErrorActionPreference = "Stop"
 $testRoot = Join-Path $env:TEMP ("hcsuda-install-test-" + [guid]::NewGuid().ToString("N"))
@@ -11,13 +11,14 @@ try {
     New-Item -ItemType Directory -Force -Path $package | Out-Null
     Copy-Item -LiteralPath (Join-Path $Source "install.ps1") -Destination $package -Force
     Copy-Item -LiteralPath (Join-Path $Source "uninstall.ps1") -Destination $package -Force
-    $buildDir = "D:\HCSUDA\build\windows-tests\RelWithDebInfo"
+    $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
+    $buildDir = Join-Path $repoRoot "build\windows-tests\RelWithDebInfo"
     foreach ($binary in @("hcsdoctor.exe", "hcsbench.exe", "hcscc.exe", "hcsport.exe",
                           "hcsbridge-mcp.exe", "hcsbridge-rest.exe")) {
         Copy-Item -LiteralPath (Join-Path $buildDir $binary) -Destination $package -Force
     }
     foreach ($doc in @("LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "README.md")) {
-        Copy-Item -LiteralPath (Join-Path "D:\HCSUDA" $doc) -Destination $package -Force
+        Copy-Item -LiteralPath (Join-Path $repoRoot $doc) -Destination $package -Force
     }
     & (Join-Path $package "install.ps1") -InstallDir $installDir -Quiet
     $expected = @("hcsdoctor.exe", "hcsbench.exe", "hcscc.exe", "hcsport.exe",

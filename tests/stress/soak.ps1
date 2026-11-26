@@ -1,10 +1,13 @@
 param(
     [int]$Minutes = 60,
-    [string]$Exe = "D:\HCSUDA\build\windows-tests\RelWithDebInfo\hcsbench.exe",
-    [string]$Log = "D:\HCSUDA\artifacts\soak.log"
+    [string]$RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path,
+    [string]$Exe = "",
+    [string]$Log = ""
 )
 
 $ErrorActionPreference = "Stop"
+if ([string]::IsNullOrWhiteSpace($Exe)) { $Exe = Join-Path $RepoRoot "build\windows-tests\RelWithDebInfo\hcsbench.exe" }
+if ([string]::IsNullOrWhiteSpace($Log)) { $Log = Join-Path $RepoRoot "artifacts\soak.log" }
 if (-not (Test-Path -LiteralPath $Exe)) { throw "hcsbench not found: $Exe" }
 # Use a private copy so a concurrent rebuild cannot replace the binary mid-run.
 $private = Join-Path $env:TEMP ("hcsuda-soak-bin-" + [guid]::NewGuid().ToString("N") + ".exe")
