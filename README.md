@@ -8,10 +8,12 @@
 **HCS Unified Compute Runtime** — a Vulkan-based, cross-vendor GPU compute runtime with a
 portable C ABI, a CPU reference backend, and an expanding CUDA-source migration path.
 
-> **Status: 0.1.0 development build.** Wave 0–3 of the build plan are implemented and tested
-> on real hardware (AMD Radeon 680M, Vulkan 1.4.315). There is no installer, desktop UI, AI
-> model vault, or CUDA transpiler yet. Everything listed below is backed by code in this
-> repository and by the test run recorded in `docs/TEST_MATRIX.md`.
+> **Status: 0.1.0 release candidate.** Waves 0–13 are implemented. Runtime, kernels, HCSIR/HCSCC,
+> a narrow CUDA-source migration subset, a local model catalog, local REST/MCP with a browser UI,
+> and a single-file installer are present and tested on the reference hardware (Radeon 680M,
+> Vulkan 1.4.315) and CPU backend. GGUF inference, PTX import and a native Qt/WebView2 shell are
+> deliberately out of V1 scope. Every capability below is backed by code and by the evidence in
+> `docs/TEST_MATRIX.md`; external release blockers are listed in `docs/AGENT_STATUS.md`.
 
 HCSUDA is an independent project. It is **not** affiliated with, endorsed by, or sponsored by
 NVIDIA Corporation. "CUDA" is a trademark of NVIDIA and appears here only to describe
