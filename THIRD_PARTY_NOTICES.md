@@ -27,17 +27,18 @@ HCSUDA itself loads, but does not redistribute, the following system components:
 No NVIDIA CUDA headers, libraries, binaries, or compiler components are
 bundled with this project.
 
-## Planned dependencies (not yet integrated)
+## Evaluated but not integrated (not V1 commitments)
 
-These are evaluated but not currently linked. When integrated, their license
-texts will be added here and to the installer's license page.
+These components were evaluated and are **not** linked, bundled or promised for V1. If one is
+integrated in a future version, its exact version, license text and redistribution terms must be
+added here before that change is merged.
 
-| Component | Planned usage | License (to verify) |
+| Component | Why it was not integrated | License (to verify if ever used) |
 |---|---|---|
-| Vulkan Memory Allocator (VMA) | Allocation pooling | MIT |
-| llama.cpp (Vulkan backend) | GGUF inference adapter | MIT |
-| Qt 6 Quick | Desktop UI (alternative under evaluation) | LGPLv3 / commercial |
-| WebView2 runtime | Not used in V1 (local browser UI instead) | Microsoft distribution terms |
+| Vulkan Memory Allocator (VMA) | explicit cap + per-buffer allocations are tested; pooling deferred | MIT |
+| llama.cpp (Vulkan backend) | GGUF inference explicitly omitted from V1 claims | MIT |
+| Qt 6 Quick | licensing/redistribution review would be required; local browser UI used instead | LGPLv3 / commercial |
+| WebView2 runtime | native COM host rejected; UI served locally over REST | Microsoft distribution terms |
 
 **Status:** no runtime third-party binary is currently distributed with the
 `0.1.0` development build. The build produces HCSUDA-owned executables plus
