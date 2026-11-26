@@ -431,3 +431,20 @@ Real observation: vecadd median was ~0.12 ms early and ~0.37 ms over the full ru
 iterations sometimes 2-15 ms. The cause was not isolated (thermal throttling and concurrent
 system activity are plausible); no performance regression is claimed from this data and no
 hardware counters were available. Raw log: `artifacts/soak.log` (ignored, not committed).
+
+## 2026-11-26 — publication and hosted CI
+
+Repository created and pushed to <https://github.com/timfromhcs/HCSUDA> (public, `main`).
+No GitHub Release was created. CI initially failed on hosted runners for four real reasons,
+each fixed and verified with a new run:
+
+1. `windows-latest` had no Visual Studio → switched to `windows-2022`.
+2. `scripts/check-secrets.ps1` had a hardcoded `D:\HCSUDA` path → derived from `$PSScriptRoot`.
+3. CPU-only builds compiled the Vulkan-only IR test and failed to link generated SPIR-V symbols
+   → test source is now conditional on `HCS_ENABLE_VULKAN`.
+4. ModelVault compared a canonical model path against a non-canonical (junction) root → root is
+   canonicalized in `initialize()`. Installer scripts had hardcoded paths and assumed a system
+   Vulkan loader; both were corrected.
+
+Final run: `45800355572`, conclusion `success`, all six jobs green. Node.js 20 deprecation
+warnings from `actions/checkout@v4` are upstream annotations, not failures.

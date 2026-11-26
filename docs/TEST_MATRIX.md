@@ -90,6 +90,7 @@ Last result: **1/1 CTest target passed; 81/81 HCS tests passed** (2026-11-25).
 | INS-03 | tests/installer/test_upgrade.ps1 | installer | PASS | in-place reinstall keeps user files, binaries still run, uninstall removes only HCSUDA files |
 | SEC-01 | scripts/check-secrets.ps1 | repository | PASS | 104 tracked files scanned, no credential patterns in code (dummy tokens only in docs/tests) |
 | SOAK-01 | 60-minute bounded soak | Vulkan | PASS (stability) | 1610 iterations, 0 failures; all vecadd samples verified. Median vecadd drifted 0.12 ms -> 0.37 ms with outliers to 15.5 ms; cause not diagnosed (thermal/system load), so no performance claim is made |
+| CI-01 | hosted GitHub Actions run 45800355572 | CI | PASS | all six jobs success: windows-tests, cpu-only build, cpu-only tests, validation, installer, secret scan |
 | SET-01 | settings_defaults_are_safe | settings | PASS | safe defaults: auto backend, no cap, port 8710, no telemetry/start-on-login |
 | SET-02 | settings_persist_and_reset | settings | PASS | JSON persist/reload for 5 fields plus reset to defaults |
 | SET-03 | settings_reject_invalid_values | settings | PASS | invalid policy/port/threads/theme/prefetch and traversal paths rejected atomically |
