@@ -1,6 +1,7 @@
 # ADR-0003: Desktop UI strategy when Qt is unavailable
 
-* Status: proposed (Wave 10 decision, not yet implemented)
+* Status: accepted with amendment — the WebView2 native shell was rejected; the V1 UI is
+  a self-contained local page served by the REST service (implemented in Wave 10)
 * Date: 2026-11-25
 
 ## Context
@@ -36,7 +37,11 @@ silently.
 * Accessibility and keyboard navigation must be validated in the WebView2 shell; this is a
   real risk and is tracked in Wave 10 acceptance tests.
 
-## Status note
+## Amendment (2026-11-26)
 
-Not implemented. No UI claim is made in the README until it exists and is screenshotted from
-the real build.
+The WebView2 host was not built. Instead, `src/api/rest/ui_page.cpp` serves a self-contained
+HTML/CSS/JS console from `GET /ui/` on the localhost-only REST service. It uses only real API
+data, renders "Not exposed by this driver/API" for unavailable metrics, and persists validated
+settings through `/api/v1/settings`. No automated browser screenshot was produced, so no
+screenshot is claimed as product evidence. This avoids Qt licensing and WebView2 COM hosting for
+V1 while keeping every visible control connected to real state.
