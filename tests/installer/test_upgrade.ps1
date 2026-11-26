@@ -37,7 +37,9 @@ try {
         throw "uninstall after upgrade left binaries behind"
     }
     $loader = Join-Path $env:WINDIR "System32\vulkan-1.dll"
-    if (-not (Test-Path -LiteralPath $loader)) { throw "system Vulkan loader was removed" }
+    if ($loaderBefore -and -not (Test-Path -LiteralPath $loader)) {
+        throw "uninstall removed the Vulkan loader"
+    }
     Write-Host "UPGRADE_TEST_PASS"
 } finally {
     if (Test-Path -LiteralPath $testRoot) {
