@@ -235,7 +235,7 @@ endif()
 # ---------------------------------------------------------------------------
 if(HCS_BUILD_TESTS)
     enable_testing()
-    add_executable(hcs_tests
+    set(HCS_TEST_SOURCES
         tests/unit/test_main.cpp
         tests/unit/test_api.cpp
         tests/unit/test_cpu.cpp
@@ -251,8 +251,12 @@ if(HCS_BUILD_TESTS)
         tests/unit/test_settings.cpp
         tests/unit/test_ir.cpp
         tests/unit/test_ir_glsl.cpp
-        tests/unit/test_ir_vulkan.cpp
         tests/unit/test_vulkan.cpp)
+    if(HCS_ENABLE_VULKAN)
+        # Needs the generated HCSCC SPIR-V library, which only exists in Vulkan builds.
+        list(APPEND HCS_TEST_SOURCES tests/unit/test_ir_vulkan.cpp)
+    endif()
+    add_executable(hcs_tests ${HCS_TEST_SOURCES})
     target_link_libraries(hcs_tests PRIVATE hcsuda_core)
     if(HCS_ENABLE_VULKAN)
         target_link_libraries(hcs_tests PRIVATE hcsuda_ir_spv)
