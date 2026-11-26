@@ -44,7 +44,9 @@ HCS_TEST(rest_requires_random_bearer_token)
     CHECK_MSG(token != hcs::rest::generateToken(), "tokens must be unique per process");
     CHECK(hcs::rest::constantTimeEquals(token, token));
     CHECK(!hcs::rest::constantTimeEquals(token, token.substr(1)));
-    CHECK(!hcs::rest::constantTimeEquals(token, "0" + token.substr(1)));
+    std::string mutated = token;
+    mutated[0] = mutated[0] == '0' ? '1' : '0';
+    CHECK(!hcs::rest::constantTimeEquals(token, mutated));
 
     const auto config = configWithToken(token);
     CHECK(statusIs(hcs::rest::handleRequest("GET", "/api/v1/version", "", "", config), 401));
