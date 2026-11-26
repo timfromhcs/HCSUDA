@@ -1,6 +1,7 @@
 #include "model_store/sha256.h"
 
 #include <algorithm>
+#include <vector>
 #include <cstdio>
 #include <cstring>
 
@@ -146,11 +147,12 @@ std::string Sha256::hashFile(const std::string& path, uint64_t* bytesRead)
         return {};
     }
     Sha256 hash;
-    uint8_t chunk[64 * 1024];
+    /* Heap buffer: a 64 KiB stack array trips MSVC /analyze C6262. */
+    std::vector<uint8_t> chunk(64 * 1024);
     uint64_t total = 0;
     size_t read = 0;
-    while ((read = std::fread(chunk, 1, sizeof(chunk), file)) > 0) {
-        hash.update(chunk, read);
+    while ((read = std::fread(chunk.data(), 1, chunk.size(), file)) > 0) {
+        hash.update(chunk.data(), read);
         total += read;
     }
     const bool ok = std::ferror(file) == 0;

@@ -35,7 +35,7 @@ Updated: 2026-11-26 (release candidate; Waves 0–13 implemented, only external 
 | 9 | REST API + MCP server | **Done for V1 scope** | MCP stdio, local-only REST with token auth, OpenAPI 3.1 and settings endpoints; model/benchmark/translation endpoints out of V1 scope |
 | 10 | Desktop UI | **Done for V1 scope** | local browser UI with live data + persisted settings; native Qt/WebView2 shell and screenshots explicitly out of V1 scope |
 | 11 | Installer (one EXE) | **Done on reference machine** | native single EXE, silent per-user install, install/uninstall + same-version AND cross-version upgrade tested (INS-01..04); clean VM unverified |
-| 12 | Stress/security/performance hardening | **Partial** | stress/fuzz, 60-min soak (1610 iterations, 0 failures), validation layers and secret scan pass; static analysis tooling not added |
+| 12 | Stress/security/performance hardening | **Done for V1 scope** | stress/fuzz, 60-min soak, validation layers, secret scan and MSVC /analyze pass |
 | 13 | Docs, CI, release candidate | **Partial** | OpenAPI, SBOM, scope doc, public repo pushed, hosted CI green; GitHub Release and signing pending |
 
 ## Implemented surface

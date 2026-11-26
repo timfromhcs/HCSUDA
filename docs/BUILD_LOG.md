@@ -459,3 +459,16 @@ devices, and uninstall removed only HCSUDA files. The temporary worktree was rem
 
 This closes the cross-version upgrade item on the reference machine; a clean-VM test is still
 not performed.
+
+## 2026-11-26 — static analysis preset
+
+Added `HCS_STATIC_ANALYSIS` and the `windows-analyze` preset (MSVC `/analyze`). First run found
+one real issue: `Sha256::hashFile` used a 64 KiB stack buffer (C6262). Fixed by allocating it on
+the heap; C4996 deprecation noise was handled with `_CRT_SECURE_NO_WARNINGS` for project code.
+The second run produced zero warnings. Added a hosted CI job for the preset.
+
+```
+cmake --preset windows-analyze
+cmake --build --preset windows-analyze --parallel  -> zero warnings
+ctest --preset windows-tests --output-on-failure -> 81/81
+```

@@ -60,6 +60,15 @@
       }
     },
     {
+      "name": "windows-analyze",
+      "inherits": "windows-base",
+      "displayName": "Windows x64 MSVC static analysis",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "HCS_STATIC_ANALYSIS": "ON"
+      }
+    },
+    {
       "name": "windows-validation",
       "inherits": "windows-base",
       "displayName": "Windows x64 Vulkan validation tests",
@@ -113,6 +122,11 @@
     {
       "name": "windows-validation",
       "configurePreset": "windows-validation",
+      "configuration": "Debug"
+    },
+    {
+      "name": "windows-analyze",
+      "configurePreset": "windows-analyze",
       "configuration": "Debug"
     }
   ],
