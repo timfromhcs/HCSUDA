@@ -421,3 +421,13 @@ ctest --preset windows-tests --output-on-failure -> 81/81
 ctest --preset windows-validation --timeout 180 -> 81/81, zero validation errors
 installer SHA-256: 29831820EAD55E5FD1C6C26D06AC04ADB3713723EC4C338693720EC74A4F3395
 ```
+
+## 2026-11-26 — 60-minute soak result
+
+`tests/stress/soak.ps1` completed 1610 iterations against a private copy of `hcsbench.exe`
+(no rebuild interference). All vecadd samples verified; zero errors or failed dispatches.
+
+Real observation: vecadd median was ~0.12 ms early and ~0.37 ms over the full run, with late
+iterations sometimes 2-15 ms. The cause was not isolated (thermal throttling and concurrent
+system activity are plausible); no performance regression is claimed from this data and no
+hardware counters were available. Raw log: `artifacts/soak.log` (ignored, not committed).

@@ -9,8 +9,8 @@ authors:
 version: 0.1.0
 date-released: "2026-11-25"
 license: MIT
-repository-code: "https://github.com/HCSMedia/HCSUDA"
-url: "https://github.com/HCSMedia/HCSUDA"
+repository-code: "https://github.com/timfromhcs/HCSUDA"
+url: "https://github.com/timfromhcs/HCSUDA"
 abstract: >-
   A Vulkan-based, cross-vendor compute runtime with a stable C ABI, a CPU reference
   backend, verified built-in kernels, and an expanding CUDA-source migration path.
