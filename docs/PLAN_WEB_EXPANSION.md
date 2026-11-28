@@ -36,10 +36,10 @@ Deploy → Release loop for `webgpu-demo/` and the corresponding `main` merge/re
 ### Phase 4 — main merge, gates, release
 - [x] CI job verifies every WASM reference (extend `web-demo` job).
 - [x] Deploy to Vercel production, verify public alias returns 200 for all assets.
-- [ ] Rebuild local single-file EXE, verify checksum/import scan.
-- [ ] Update README, release notes, TEST_MATRIX and release checklist.
-- [ ] Publish annotated tag `v0.1.0-rc.3` and GitHub Release with EXE, checksum, SBOM.
-- [ ] Hosted CI 8/8 green on the merged `main` commit.
+- [x] Rebuild local single-file EXE, verify checksum/import scan.
+- [x] Update README, release notes, TEST_MATRIX and release checklist.
+- [x] Publish annotated tag `v0.1.0-rc.3` and GitHub Release with EXE, checksum, SBOM.
+- [x] Hosted CI 8/8 green on the merged `main` commit.
 
 ## Acceptance criteria
 
