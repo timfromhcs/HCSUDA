@@ -1,3 +1,5 @@
+![HCSUDA — HCS Unified Compute Runtime](ui/assets/brand/hcsuda-logo.svg)
+
 # HCSUDA
 
 [![CI](https://github.com/timfromhcs/HCSUDA/actions/workflows/ci.yml/badge.svg)](https://github.com/timfromhcs/HCSUDA/actions/workflows/ci.yml)
