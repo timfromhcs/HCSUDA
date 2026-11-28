@@ -902,3 +902,11 @@ with `hcsuda-logo.svg`, `hcsuda-icon.svg`, a 64x64 PNG and an ICO, and embedded 
 the top of the README. The mark is an original compute-lattice "H" in HCSUDA blue/cyan; it does
 not imitate any vendor logo. A non-fatal PowerShell `LineCap` property error during PNG generation
 was ignored; the rendered PNG is valid and was inspected.
+
+## 2026-11-28 — Endless work iteration 24: refresh installer after final code changes
+
+Rebuilt `artifacts/HCSUDA-Setup-x64.exe` after the histogram contract fix and documentation work:
+SHA-256 `F18D065014ED7535FBA03914720543D8E24E2AD152F8AF62461FE373A249F6E0`.
+`scripts/check-artifact.ps1` passed. A full silent install reported version 0.1.0 and 2 real
+devices from the installed `hcsdoctor --json`; uninstall removed only HCSUDA files and preserved
+user data.
