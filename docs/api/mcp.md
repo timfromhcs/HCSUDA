@@ -9,7 +9,7 @@ messages to stdout; diagnostics go to stderr. No HTTP listener is started.
 |---|---|
 | `initialize` | negotiates protocol version `2025-11-25`; advertises `tools` capability only |
 | `notifications/initialized` | accepted, no reply (correct notification semantics) |
-| `tools/list` | four read-only tools |
+| `tools/list` | five read-only tools |
 | `tools/call` | dispatches a named tool or returns JSON-RPC `-32601` |
 | `resources/list`, `prompts/list` | empty lists |
 | anything else | `-32601 Method not found` |
@@ -24,6 +24,8 @@ Malformed, empty, oversized (>1 MiB) and deeply nested (>32 levels) messages are
 * `hcsuda_get_memory_budget` — driver-reported heap/budget/usage with an explicit "not a VRAM
   size" note.
 * `hcsuda_get_diagnostics` — sanitized version/capability report.
+* `hcsuda_list_models` — safe metadata of the indexed local model catalog (id, name, format,
+  size, hash flag, `runnable:false`); no paths, file contents or downloads.
 
 There is deliberately **no** `run_command`, arbitrary file read, download, DLL load or arbitrary
 kernel compilation tool. Tool arguments are not used to open files or make network requests.

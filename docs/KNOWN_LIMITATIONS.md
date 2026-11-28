@@ -84,7 +84,7 @@ the current truth of the code in this repository. It is kept consistent with
 ## Security posture
 
 * REST binds only to 127.0.0.1 with a random bearer token, bounded bodies and Origin checks;
-  MCP stdio exposes four read-only tools and no shell/file/download capability.
+  MCP stdio exposes five read-only tools and no shell/file/download capability.
 * HCSIR and CUDA-source parsers are bounded and fuzz-tested. A PTX parser does not exist in V1.
 
 ## What would block a final V1 release today

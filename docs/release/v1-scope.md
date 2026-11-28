@@ -16,7 +16,7 @@ verified. These decisions are explicit so that no README or UI claim exceeds the
   fail closed.
 * Model catalog with SHA-256, path allowlist and format inspection (storage only).
 * Local-only REST API with token auth and a self-contained browser UI; MCP stdio server with
-  four read-only tools.
+  five read-only tools.
 * Native single-file EXE installer with silent per-user install/uninstall.
 
 ## Explicitly out of V1 scope (not "coming soon" claims)

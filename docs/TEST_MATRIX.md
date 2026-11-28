@@ -97,7 +97,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | REST-04 | rest_returns_real_runtime_data | REST handler | PASS | device list and memory budget from live runtime |
 | REST-05 | live loopback request (manual) | REST server | PASS | health=200, unauthorized=401, devices=200 with Radeon 680M + CPU |
 | REST-06 | rest_rate_limits_requests_per_process | REST handler | PASS | 120 requests/window accepted, 121st → 429 `rate_limited`; window resets; pure callers unlimited; health stays 200 while exhausted |
-| REST-07 | rest_models_endpoint_returns_safe_metadata | REST handler | PASS | authenticated `GET /api/v1/models` returns `configured`/`models` with no paths; unauthenticated request is 401; documented in OpenAPI |
+| REST-07 | rest_models_endpoint_returns_safe_metadata | REST handler | PASS | authenticated `GET /api/v1/models` returns `configured`/`models` with no paths; unauthenticated request is 401; documented in OpenAPI. Live loopback smoke: health=ok, models.configured=false, models.count=0, unauthenticated=401 |
 | TR-01 | translate_vecadd_subset_produces_runnable_hcsir | translator | PASS | fixture → HCSIR → compile → interpreter over 1001 elements matches CPU reference |
 | TR-02 | translate_fma_variant_uses_fma_opcode | translator | PASS | scalar-factor variant emits `fma` |
 | TR-03 | translate_fails_closed_on_unsupported_constructs | translator | PASS | atomics/no-kernel/null input rejected with no partial output |

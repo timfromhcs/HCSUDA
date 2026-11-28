@@ -769,6 +769,11 @@ cannot inject markup. UI-01 asserts the helper exists. A build then hit `LNK1168
 screenshot server had survived as a child process of the shell wrapper (PID 3572) and held the EXE.
 After terminating it, configure/build/test were green with 95/95 tests. No service is left running.
 
+Documentation consistency pass: updated stale "four read-only tools" wording in `docs/api/mcp.md`,
+`docs/KNOWN_LIMITATIONS.md` and `docs/release/v1-scope.md` to five tools, and added the new
+`hcsuda_list_models` tool description. Live REST smoke on port 8714 (process started and stopped in
+the same command): health=ok, `models.configured=false`, `models.count=0`, unauthenticated=401.
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan
