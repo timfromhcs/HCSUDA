@@ -253,6 +253,16 @@ and column information. `hcsport --convert` translates exactly one documented ve
 shape and fails closed on everything else (TR-01..03). CUBIN/SASS and PTX text are out of scope
 on AMD hardware. See `docs/api/hcsport.md` and `docs/compatibility/cuda-api-matrix.md`.
 
+```powershell
+hcsport --scan tests\fixtures\cuda\vecadd.cu --json
+hcsport --convert tests\fixtures\cuda\vecadd.cu --output out.hcsir
+```
+
+The second command prints `hcsport: translated the supported vecadd subset; host code still
+requires manual review.` and writes a versioned module beginning with `hcsir 1`,
+`kernel vec_add_f32`, three `f32` buffers and `local_size 64`. Unsupported constructs produce a
+report with `translated: 0` instead of silently generating incorrect code.
+
 ## Project documents
 
 * `docs/AGENT_STATUS.md` — wave-by-wave status and next actions
