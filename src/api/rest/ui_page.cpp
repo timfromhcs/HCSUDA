@@ -67,6 +67,12 @@ std::string uiPage(const std::string& token)
   <p class="note">Every setting has a default, is validated by the service and can be reset.
   The API token is intentionally not persisted.</p>
  </section>
+ <section><h2>About</h2>
+  <p>HCSUDA — HCS Unified Compute Runtime. Made with love by HCSMedia &amp; timfromhcs.</p>
+  <p>Independent project; not affiliated with, endorsed by or sponsored by NVIDIA. “CUDA” is a
+  trademark of NVIDIA and appears here only to describe migration tooling.</p>
+  <p>Runtime version: <code id="aboutVersion">loading…</code></p>
+ </section>
  <section><h2>Compatibility notice</h2>
   <p>HCSUDA is an independent Vulkan compute runtime with CUDA-source migration tooling. It is
   not affiliated with NVIDIA, does not replace any GPU driver, and cannot execute CUBIN/SASS
@@ -98,6 +104,7 @@ async function refresh() {
     const health = await get('/api/v1/health');
     const version = await get('/api/v1/version');
     const status = await get('/api/v1/runtime/status');
+    document.getElementById('aboutVersion').textContent = version.version;
     document.getElementById('status').innerHTML =
       'Runtime: <code>' + health.status + '</code> · Product: ' + version.product +
       ' · Version: ' + version.version + ' · C ABI: ' + version.api_version +
