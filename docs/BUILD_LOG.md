@@ -796,6 +796,12 @@ Added `scripts/check-openapi.ps1` as a reproducible contract gate:
 powershell -File scripts\check-openapi.ps1 -> OPENAPI_PASS (9 paths, 8 required endpoints)
 ```
 
+Rebuilt the single-file installer after the latest changes with
+`powershell -File installer\make_installer.ps1`: the artifact is unsigned and its SHA-256 is
+`6F2B0FC2CE1D6533377DB811D108E0E104FD55E85A450786BB4BA6F6FF683B76` (verified against
+`artifacts/HCSUDA-Setup-x64.exe.sha256`). Artifacts are gitignored; only the checksum is published
+in release docs.
+
 Final sweep after the documentation scope decision:
 
 ```
