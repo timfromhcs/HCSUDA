@@ -105,7 +105,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | INS-02 | full single-EXE setup run (manual) | installer | PASS | SETUP_EXIT=0, real device report from installed binary, uninstall preserved user data |
 | INS-03 | tests/installer/test_upgrade.ps1 | installer | PASS | in-place reinstall keeps user files, binaries still run, uninstall removes only HCSUDA files (re-run 2026-11-28) |
 | INS-04 | cross-version upgrade (manual, real EXEs) | installer | PASS | setup built from commit b81457e installed first, current setup upgraded it; user sentinel preserved, upgraded hcsdoctor reports real devices, uninstall clean |
-| SEC-01 | scripts/check-secrets.ps1 | repository | PASS | 120 tracked files scanned (2026-11-28), no credential patterns in code (dummy tokens only in docs/tests) |
+| SEC-01 | scripts/check-secrets.ps1 | repository | PASS | 122 tracked files scanned (2026-11-28), no credential patterns in code (dummy tokens only in docs/tests) |
 | SOAK-01 | 60-minute bounded soak | Vulkan | PASS (stability) | 1610 iterations, 0 failures; all vecadd samples verified. Median vecadd drifted 0.12 ms -> 0.37 ms with outliers to 15.5 ms; cause not diagnosed (thermal/system load), so no performance claim is made |
 | CI-01 | hosted GitHub Actions run 45800355572 | CI | PASS | all six jobs success: windows-tests, cpu-only build, cpu-only tests, validation, installer, secret scan |
 | SA-01 | windows-analyze preset (MSVC /analyze) | static analysis | PASS | zero warnings in project-owned core code after heap-allocating the SHA-256 file buffer |

@@ -702,6 +702,19 @@ scan_f32 n=1048576 g=256 median 0.4535 ms
 
 Also removed the last C4456 shadowing warning in `tools/hcsbench/main.cpp`.
 
+## 2026-11-28 — Endless work iteration 10: release-gate re-certification
+
+Re-ran release-critical gates after the shader/benchmark changes:
+
+```
+powershell -File tests\installer\test_installer.ps1 -> INSTALLER_TEST_PASS
+powershell -File tests\installer\test_upgrade.ps1   -> UPGRADE_TEST_PASS
+powershell -File scripts\check-secrets.ps1          -> SECRET_SCAN_PASS (122 tracked files)
+cmake --build --preset windows-analyze --parallel   -> zero warnings
+```
+
+Install/uninstall and upgrade still preserve user data and leave the Vulkan loader intact.
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan
