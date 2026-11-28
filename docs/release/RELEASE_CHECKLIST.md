@@ -48,7 +48,7 @@ Every checked item links to real evidence in `docs/TEST_MATRIX.md`, `docs/BUILD_
 - [x] Clean-ish staged install, uninstall, in-place and cross-version upgrade — INS-01..04.
 - [x] No driver/loader/registry modification — INS-01, uninstall tests.
 - [x] Third-party notices, SBOM, license files — `THIRD_PARTY_NOTICES.md`, `NOTICE`, SBOM artifact.
-- [x] EXE scanned, checksum published — SEC-01 (123 tracked files), installer docs. Rebuilt after
+- [x] EXE scanned, checksum published — SEC-01 (125 tracked files), installer docs. Rebuilt after
       the latest changes; SHA-256 `6F2B0FC2CE1D6533377DB811D108E0E104FD55E85A450786BB4BA6F6FF683B76`.
 - [x] README and compatibility matrix match the build — README compatibility matrix, this file.
 - [ ] Code signing with a publisher certificate — **no certificate configured**; installer is
