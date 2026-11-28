@@ -29,7 +29,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | VK-03 | vulkan_reduce_matches_cpu_reference | Vulkan | PASS | 100000 elements, 64 groups, rel 2e-4 |
 | VK-04 | vulkan_matmul_matches_cpu_reference | Vulkan | PASS | 64³ tiled matmul vs double reference, rel 1e-4 |
 | VK-05 | vulkan_memory_cap_is_enforced | Vulkan | PASS | 4 MiB cap rejects 16 MiB allocation with `HCS_E_OUT_OF_MEMORY` |
-| VK-06 | vulkan_pipeline_cache_persists_across_contexts | Vulkan | PASS | a context with a configured cache directory writes a bounded, device-keyed `hcs-pipeline-*.bin` blob; corrupt/stale files are rejected by magic/key/size checks |
+| VK-06 | vulkan_pipeline_cache_persists_across_contexts | Vulkan | PASS | a context with a configured cache directory writes a bounded, device-keyed `hcs-pipeline-*.bin` blob; corrupt/stale files are rejected by magic/key/size checks. `hcsbench --cache-dir <temp>` wrote a real 16,260-byte blob |
 | IR-01 | ir_vecadd_matches_reference | interpreter | PASS | 1000 invocations (not a multiple of `local_size`) match a double reference, rel 1e-5 |
 | IR-02 | ir_branch_and_select_execute | interpreter | PASS | `gt` + `branch` + constants; 3 blocks execute in source order, 257 invocations |
 | IR-03 | ir_rejects_unknown_version | interpreter | PASS | `hcsir 2` → `HCS_E_UNSUPPORTED_API_VERSION`, diagnostic carries line 1 |

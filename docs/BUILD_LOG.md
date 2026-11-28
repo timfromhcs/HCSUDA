@@ -774,6 +774,13 @@ Documentation consistency pass: updated stale "four read-only tools" wording in 
 `hcsuda_list_models` tool description. Live REST smoke on port 8714 (process started and stopped in
 the same command): health=ok, `models.configured=false`, `models.count=0`, unauthenticated=401.
 
+## 2026-11-28 — Endless work iteration 16: cache option for hcsbench
+
+Added `--cache-dir` to `hcsbench`, wired to the internal pipeline-cache setter before `hcsInit`,
+and gave the target its own `src` include path. Verified with a temporary directory: a real
+device-keyed cache blob (16,260 bytes) was written. Full suite still green (95/95, 2/2 CTest
+targets).
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan

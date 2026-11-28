@@ -7,6 +7,7 @@
  */
 
 #include "hcsuda/hcsuda.h"
+#include "core/internal.h"
 
 #include <algorithm>
 #include <chrono>
@@ -26,6 +27,7 @@ struct Options {
     int reps = 25;
     uint32_t vecElements = 1u << 20;
     uint32_t matSize = 256;
+    std::string cacheDir;
     bool json = false;
 };
 
@@ -175,13 +177,18 @@ int main(int argc, char** argv)
             options.vecElements = static_cast<uint32_t>(std::max(1, std::atoi(argv[++i])));
         } else if (std::strcmp(arg, "--mat") == 0 && i + 1 < argc) {
             options.matSize = static_cast<uint32_t>(std::max(16, std::atoi(argv[++i])));
+        } else if (std::strcmp(arg, "--cache-dir") == 0 && i + 1 < argc) {
+            options.cacheDir = argv[++i];
         } else if (std::strcmp(arg, "--help") == 0) {
             std::printf("usage: hcsbench [--json] [--device N] [--reps N] [--warmup N]\n"
-                        "                [--size elements] [--mat dim]\n");
+                        "                [--size elements] [--mat dim] [--cache-dir path]\n");
             return 0;
         }
     }
 
+    if (!options.cacheDir.empty()) {
+        hcs::setPipelineCacheDir(options.cacheDir);
+    }
     if (hcsInit(nullptr) != HCS_SUCCESS) {
         std::fprintf(stderr, "hcsInit failed\n");
         return 1;

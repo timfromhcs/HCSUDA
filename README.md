@@ -87,7 +87,7 @@ ctest --preset windows-cpu-only --output-on-failure
 Outputs land in `build/<preset>/RelWithDebInfo/`:
 
 * `hcsdoctor.exe` — device, capability and memory-budget report (`--json` supported)
-* `hcsbench.exe` — reproducible micro-benchmarks (`--json`, `--device`, `--reps`)
+* `hcsbench.exe` — reproducible micro-benchmarks (`--json`, `--device`, `--reps`, `--cache-dir`)
 * `hcscc.exe` — HCSIR v1 → GLSL 450 compute shader (`--input`, `--output`, `--stats`)
 * `hcsport.exe` — CUDA source compatibility scan (`--scan <file.cu> [--json]`) and narrow,
   conformance-tested vecadd translation (`--convert <file.cu> [--output out.hcsir]`)

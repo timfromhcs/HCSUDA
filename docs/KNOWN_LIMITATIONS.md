@@ -28,8 +28,9 @@ the current truth of the code in this repository. It is kept consistent with
   HCSCC path, does not reflect entry points, and returns `HCS_E_UNSUPPORTED_FEATURE` on CPU.
 * **Persistent cache covers Vulkan pipelines, not HCSIR modules.** A bounded, device-fingerprinted
   on-disk `VkPipelineCache` is used for compute pipelines (VK-06); corrupt/stale/oversized files
-  are ignored. HCSIR→GLSL lowering still happens at build time, and HCSIR binary serialization
-  (IR-21..IR-23) is not used as a runtime cache.
+  are ignored. It is configured via the `shader_cache_dir` setting (REST service) or
+  `hcsbench --cache-dir`; other tools default to no cache. HCSIR→GLSL lowering still happens at
+  build time, and HCSIR binary serialization (IR-21..IR-23) is not used as a runtime cache.
 * **HCSIR covers an elementwise subset only.** No integer/bitwise opcodes, no atomics, no
   subgroup or matrix operations, no structured loops. Binary serialization is implemented and
   tested; it does not make the IR a general-purpose compiler.

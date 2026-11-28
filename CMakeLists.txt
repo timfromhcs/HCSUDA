@@ -158,6 +158,7 @@ if(HCS_BUILD_TOOLS)
 
     add_executable(hcsbench tools/hcsbench/main.cpp)
     target_link_libraries(hcsbench PRIVATE hcsuda_core)
+    target_include_directories(hcsbench PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
     add_executable(hcsbridge-rest tools/hcsbridge-rest/main.cpp)
     target_link_libraries(hcsbridge-rest PRIVATE hcsuda_core ws2_32)
