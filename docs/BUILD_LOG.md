@@ -938,3 +938,8 @@ installer artifact checksum f18d065014ed7535. Repo clean and fully pushed.
 100 automated 2-minute pulses, 88 pushes to main, all hosted CI runs green, all local gates green,
 60-minute soak PASS (1418 iterations). Internal work is complete; remaining items are the four
 owner actions in `docs/release/EXTERNAL_BLOCKERS.md`.
+
+## 2026-11-28 — Endless work iteration 28: pulse 101 stability check
+
+All local gates green: 2/2 CTest targets (96/96), secret scan now 132 tracked files (new
+external-blocker playbook), OpenAPI 9 paths, artifact checksum f18d065014ed7535. Repo clean.
