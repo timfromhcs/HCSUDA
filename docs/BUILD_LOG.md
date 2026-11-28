@@ -498,3 +498,24 @@ flipping the first character to the opposite hex value. Local and hosted runs no
 
 Note: hosted runners have no Vulkan SDK, so their `windows-tests` binary contains 81 tests (the
 three HCSIR-generated-SPIR-V tests are correctly excluded); the reference machine runs 84.
+
+## 2026-11-28 — Limitless Work loop started; truthful-copy gap closed
+
+Reconnaissance: working tree clean on `main` (`fde331d` == `origin/main`); no other branches,
+so there is no branch diff to merge. Wrote `docs/LIMITLESS_WORK_PLAN.md`, started a lock-protected
+never-ending build/test driver (`scripts/loop-build-test.ps1`, log `logs/limitless-loop.log`) and
+a 2-minute chat pulse automation.
+
+First gap closed: stale claims in `docs/KNOWN_LIMITATIONS.md`, `README.md`,
+`docs/release/RELEASE_NOTES.md` and the `hcsport` tool header contradicted implemented/tested
+features (OpenAPI, settings UI+REST, vecadd translation, cross-version upgrade, HCSIR binary
+serialization). Copy now matches `docs/TEST_MATRIX.md` and `docs/AGENT_STATUS.md`.
+
+```
+powershell -File scripts\build-test-once.ps1
+configure exit=0; build exit=0; test exit=0
+ctest --preset windows-tests --output-on-failure -> 1/1 CTest target, 84/84 HCS tests
+```
+
+The background loop has since completed further green cycles (e.g. 10:25:58 and 10:26:29 starts,
+all `configure/build/test exit=0`).

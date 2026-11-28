@@ -28,8 +28,8 @@ are release-candidate notes, not a claim that every V1 gate from `AGENTS.md` has
   tests are correctly excluded); zero Vulkan validation errors; hosted CI all seven jobs green.
 * 60-minute soak: 1610 iterations, zero failures. Performance drift was observed and is
   documented without a performance claim.
-* Install, uninstall and same-version in-place upgrade tested; system Vulkan loader unchanged on
-  the reference machine.
+* Install, uninstall, same-version in-place upgrade and cross-version upgrade with two real EXEs
+  tested on the reference machine (INS-01..04); system Vulkan loader unchanged.
 * Secret scan passed over all tracked files.
 
 ## Explicitly not part of this RC

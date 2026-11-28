@@ -1,7 +1,8 @@
-# Known limitations (0.1.0 development build)
+# Known limitations (0.1.0 release candidate)
 
 This list is part of the release contract. Nothing here is a footnote to hide behind; it is
-the current truth of the code in this repository.
+the current truth of the code in this repository. It is kept consistent with
+`docs/AGENT_STATUS.md` and `docs/TEST_MATRIX.md`.
 
 ## Runtime and compute
 
@@ -25,10 +26,12 @@ the current truth of the code in this repository.
   both in the CPU interpreter and as HCSCC-generated Vulkan SPIR-V (test IR-18). The program
   API is an explicitly experimental extension, loads only modules produced by the build-time
   HCSCC path, does not reflect entry points, and returns `HCS_E_UNSUPPORTED_FEATURE` on CPU.
-* **No persistent on-disk module cache yet.** HCSIR binary serialization exists and is
-  fuzz-tested, but compiled modules are still rebuilt by `hcscc` at build time.
+* **No persistent on-disk module cache yet.** Versioned HCSIR binary serialization exists and
+  is fuzz-tested (IR-21..IR-23), but compiled modules are still rebuilt at build time and no
+  on-disk cache is wired into the runtime.
 * **HCSIR covers an elementwise subset only.** No integer/bitwise opcodes, no atomics, no
-  subgroup or matrix operations, no structured loops, no module serialization.
+  subgroup or matrix operations, no structured loops. Binary serialization is implemented and
+  tested; it does not make the IR a general-purpose compiler.
 * **Scan is chunk-local.** `scan_f32` writes per-chunk exclusive prefixes; a global scan needs
   a host-side pass over the chunk totals. There is no global scan kernel yet.
 * **No histogram or image-transform kernels.** They are explicitly out of V1 scope, not hidden behind a menu item.
@@ -48,9 +51,9 @@ the current truth of the code in this repository.
 
 ## Translation
 
-* `hcsport` translates exactly one documented vecadd kernel shape and fails closed
-  otherwise. It is not a CUDA compiler; PTX text, CUBIN/SASS, multi-kernel files and CUDA
-  library APIs remain unsupported.
+* `hcsport --scan` reports constructs; `hcsport --convert` translates exactly one documented
+  vecadd kernel shape and fails closed otherwise (PORT-01..03, TR-01..03). It is not a CUDA
+  compiler; PTX text, CUBIN/SASS, multi-kernel files and CUDA library APIs remain unsupported.
 * CUBIN/SASS execution on AMD hardware is explicitly unsupported and will remain so.
 * `docs/compatibility/cuda-api-matrix.md` marks everything except the tested vecadd subset as unsupported.
 
@@ -67,7 +70,7 @@ the current truth of the code in this repository.
 ## Product surface
 
 * The UI is a self-contained local browser page served by REST; there is no Qt/WebView2 shell
-  and no automated screenshot evidence.
+  and no automated screenshot evidence (ADR-0003).
 * REST, MCP, model catalog and a single-file installer exist but cover only the V1 scope listed
   in `docs/release/v1-scope.md`; there is no inference adapter.
 * A CycloneDX SBOM exists; the installer is unsigned because no certificate is configured.
@@ -81,8 +84,9 @@ the current truth of the code in this repository.
 
 ## What would block a final V1 release today
 
-Only external items: clean-VM and cross-version upgrade testing, code signing, a manually
-approved GitHub Release, and cross-vendor hardware verification. See `docs/AGENT_STATUS.md`.
+Only external items remain: clean-VM install testing, code signing (no certificate), a manually
+approved GitHub Release, and cross-vendor hardware verification. Same-version and cross-version
+upgrade are already verified on the reference machine (INS-03/INS-04). See `docs/AGENT_STATUS.md`.
 
 ## Model store (updated Wave 8)
 
@@ -96,9 +100,9 @@ approved GitHub Release, and cross-vendor hardware verification. See `docs/AGENT
 ## API surface (updated Wave 9)
 
 * MCP supports stdio only. There is no Streamable HTTP transport and no remote binding.
-* The REST API is local-only and token-authenticated with five read-only endpoints. There is
-  no OpenAPI document, no rate limiting beyond bounded bodies, and no model/benchmark/
-  translation endpoint yet.
+* The REST API is local-only and token-authenticated. An OpenAPI 3.1 contract exists at
+  `docs/api/openapi.json`; settings endpoints are implemented and UI-tested (SET-05). There is
+  no rate limiting beyond bounded bodies, and no model/benchmark/translation endpoint in V1.
 * MCP tool arguments do not currently open model files; `hcsuda_list_models` is intentionally
   absent until path scopes are configured in a service layer.
 
@@ -106,7 +110,7 @@ approved GitHub Release, and cross-vendor hardware verification. See `docs/AGENT
 
 * The V1 UI is a self-contained page served by the local REST service. There is no Qt or
   WebView2 native shell in this build (see ADR-0003).
-* It currently has Dashboard, Devices, Memory budget and Compatibility sections. Settings,
+* It currently has Dashboard, Devices, Memory budget, Settings and Compatibility sections.
   Models, Translate, Benchmarks, Visualizer, API/MCP, Diagnostics and About pages are not
   present; they are not advertised as working features.
 * No automated browser screenshot exists, so the README contains no product screenshot.
@@ -115,6 +119,7 @@ approved GitHub Release, and cross-vendor hardware verification. See `docs/AGENT
 
 * The single EXE is **unsigned** (no publisher certificate configured). The published SHA-256 is
   the verification mechanism.
-* No clean-VM install, upgrade-from-previous-version, or code-signing test has been performed.
+* No clean-VM install or code-signing test has been performed. Same-version in-place upgrade
+  and cross-version upgrade with two real EXEs passed on the reference machine (INS-03/INS-04).
 * The UI, REST and MCP tools are installed as binaries but are not started automatically; there
   is no Windows service and no "start with Windows" default.

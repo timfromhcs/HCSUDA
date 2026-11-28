@@ -1,9 +1,10 @@
 /*
- * HCSPORT — CUDA source compatibility scanner (V1).
+ * HCSPORT — CUDA source compatibility scanner and narrow translator (V1).
  *
- * V1 performs a conservative compatibility scan only. It never emits translated code and
- * never claims to be a CUDA compiler. `--convert` is explicitly unavailable so that no user
- * can mistake a stub for a working translator.
+ * V1 performs a conservative compatibility scan and translates exactly one documented
+ * vecadd kernel shape via `--convert`. It is not a CUDA compiler: every other construct
+ * fails closed with a machine-readable report, and unsupported CUDA libraries, PTX, CUBIN
+ * and SASS remain explicitly unsupported.
  */
 
 #include "translation/cuda_source/scanner.h"
