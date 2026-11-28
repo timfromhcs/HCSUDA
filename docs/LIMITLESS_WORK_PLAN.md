@@ -113,7 +113,7 @@ V1 scope decisions with a written reason. No branch diff existed to merge. Verif
   PORT-04; real UI screenshots UI-04/UI-05; reproducible soak harness SOAK-02.
 * Hosted CI run 46145049072 green with all seven jobs.
 * 60-minute soak PASS: 1418 iterations, 0 failures (SOAK-02).
-* All iterations were committed and pushed to `main` incrementally (latest `0329aec`).
+* All iterations were committed and pushed to `main` incrementally (latest `6a20bd3`).
 
 **Not closable by this agent (owner/external actions, kept honest, never marked green):**
 clean-VM install test, code signing (no certificate), manually approved GitHub Release/tag,
