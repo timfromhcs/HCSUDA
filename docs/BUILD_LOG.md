@@ -848,3 +848,14 @@ Install/uninstall still preserves user data and leaves the system Vulkan loader 
 The kernel docs stated that histogram rejects multiple workgroups, but only the Vulkan backend
 enforced it. Added the same check to the CPU backend and a KC-14 regression test over both
 backends. Result: 96/96 tests, 0 failures (2/2 CTest targets).
+
+## 2026-11-28 — Endless work iteration 18: gate sweep after histogram fix
+
+```
+powershell -File tests\installer\test_installer.ps1 -> INSTALLER_TEST_PASS
+powershell -File tests\installer\test_upgrade.ps1   -> UPGRADE_TEST_PASS
+powershell -File scripts\check-secrets.ps1          -> SECRET_SCAN_PASS (125 tracked files)
+powershell -File scripts\check-openapi.ps1          -> OPENAPI_PASS (9 paths, 8 required endpoints)
+cmake --build --preset windows-analyze --parallel   -> zero warnings
+windows-cpu-only 93/93, windows-validation 96/96, windows-tests 96/96
+```
