@@ -215,6 +215,7 @@ on AMD hardware. See `docs/api/hcsport.md` and `docs/compatibility/cuda-api-matr
 * `docs/BUILD_LOG.md` — build commands and outcomes
 * `docs/TEST_MATRIX.md` — test IDs, environment, results
 * `docs/KNOWN_LIMITATIONS.md` — what does not work yet
+* `docs/release/RELEASE_CHECKLIST.md` — gate-by-gate release evidence and honest open items
 * `docs/api/kernels.md` — built-in kernel contracts
 * `docs/architecture/` — ADRs
 * `THIRD_PARTY_NOTICES.md`, `SECURITY.md`, `CONTRIBUTING.md`
