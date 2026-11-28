@@ -67,7 +67,9 @@ Every checked item links to real evidence in `docs/TEST_MATRIX.md`, `docs/BUILD_
 - [x] `cmake --build --preset windows-tests --parallel` + `ctest --preset windows-tests` — green.
 - [x] `ctest --preset windows-cpu-only` — 93/93; `ctest --preset windows-validation` — 96/96.
 - [x] `cmake --build --preset windows-analyze` — zero warnings.
-- [x] `scripts/check-secrets.ps1` — PASS (123 files); `scripts/check-openapi.ps1` — PASS.
+- [x] `scripts/check-secrets.ps1` — PASS (125 files); `scripts/check-openapi.ps1` — PASS.
+- [x] Clean out-of-tree build from an empty directory — CV-01, 9 shaders compiled fresh, 96/96.
+- [x] `scripts/check-artifact.ps1` — ART-01, checksum match, no secret patterns or forbidden imports.
 - [x] `scripts/soak.ps1 -Minutes 60` — PASS, 1418 iterations, 0 failed runs, 0 unverified rows
       (SOAK-02; 1-minute smoke also passed with 24 iterations).
 
