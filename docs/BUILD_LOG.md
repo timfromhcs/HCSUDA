@@ -894,3 +894,11 @@ the published `.sha256`, scans raw bytes for private-key/token/GitHub-PAT patter
 `dumpbin /dependents` to reject static imports of `nvcuda.dll`, `nvrtc.dll`, `cudart64*` and
 `vulkan-1.dll`. Result: `ARTIFACT_PASS sha256=6f2b0fc2ce1d6533 bytes=5316608 imports_checked=True`.
 The installer remains unsigned; no signature is claimed.
+
+## 2026-11-28 — Endless work iteration 23: original brand assets
+
+The README audit exposed a missing item: no original logo existed. Added `ui/assets/brand/`
+with `hcsuda-logo.svg`, `hcsuda-icon.svg`, a 64x64 PNG and an ICO, and embedded the SVG logo at
+the top of the README. The mark is an original compute-lattice "H" in HCSUDA blue/cyan; it does
+not imitate any vendor logo. A non-fatal PowerShell `LineCap` property error during PNG generation
+was ignored; the rendered PNG is valid and was inspected.
