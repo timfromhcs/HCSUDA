@@ -910,3 +910,14 @@ SHA-256 `F18D065014ED7535FBA03914720543D8E24E2AD152F8AF62461FE373A249F6E0`.
 `scripts/check-artifact.ps1` passed. A full silent install reported version 0.1.0 and 2 real
 devices from the installed `hcsdoctor --json`; uninstall removed only HCSUDA files and preserved
 user data.
+
+## 2026-11-28 — Endless work iteration 25: stability re-check
+
+```
+ctest --preset windows-tests      -> 2/2, 96/96
+ctest --preset windows-cpu-only   -> 2/2, 93/93
+ctest --preset windows-validation -> 2/2, 96/96, zero validation errors
+check-secrets.ps1                 -> PASS (131 files)
+check-openapi.ps1                 -> OPENAPI_PASS (9 paths)
+check-artifact.ps1                -> ARTIFACT_PASS (f18d065014ed7535)
+```
