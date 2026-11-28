@@ -631,6 +631,21 @@ zero validation errors
 `reduce_final_cpu_matches_reference` and `reduce_final_vulkan_matches_reference` both pass with
 37 partial sums and a 2e-4 relative tolerance (KC-07/KC-08).
 
+## 2026-11-28 — Endless work iteration 6: host-free global scan
+
+Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan
+can run entirely on the selected backend: local scan → chunk totals → scan offsets → add offsets.
+Test bug found and fixed: the totals stage initially reduced the first `groups` input elements
+instead of the chunk sums; corrected to `n=10001, groups=64` on the full input.
+
+```
+powershell -File scripts\build-test-once.ps1 (after fix) -> 0/0/0
+& build\windows-tests\RelWithDebInfo\hcs_tests.exe -> 90 tests run, 0 failures
+cmake --preset windows-cpu-only && ctest --preset windows-cpu-only -> 2/2, 87 tests
+cmake --preset windows-validation && ctest --preset windows-validation -> 2/2, 90 tests,
+zero validation errors
+```
+
 ## 2026-11-28 — Endless work iteration 5: installer/security re-certification
 
 Re-ran the release-critical gates after the cache, rate-limit and reduce changes:

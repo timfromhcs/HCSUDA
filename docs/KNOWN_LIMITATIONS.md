@@ -33,8 +33,10 @@ the current truth of the code in this repository. It is kept consistent with
 * **HCSIR covers an elementwise subset only.** No integer/bitwise opcodes, no atomics, no
   subgroup or matrix operations, no structured loops. Binary serialization is implemented and
   tested; it does not make the IR a general-purpose compiler.
-* **Scan is chunk-local.** `scan_f32` writes per-chunk exclusive prefixes; a global scan needs
-  a host-side pass over the chunk totals. There is no global scan kernel yet.
+* **Global scan is a four-stage pipeline, not a single kernel.** `scan_f32` (local prefixes) →
+  `reduce_sum_f32` (chunk totals) → `scan_f32` (offsets) → `scan_add_offsets_f32` (add offsets),
+  all on the selected backend (KC-09/KC-10). No host-side pass over chunk totals is required, but
+  there is still no one-call global scan primitive.
 * **No histogram or image-transform kernels.** They are explicitly out of V1 scope, not hidden behind a menu item.
 * **Reduce remains two-stage.** `reduce_sum_f32` writes one partial sum per workgroup and
   `reduce_final_f32` reduces those partials to `out[0]` in one workgroup (KC-07/KC-08). There is

@@ -1,6 +1,7 @@
 #include "test_framework.h"
 #include "test_helpers.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <cstdio>
@@ -180,4 +181,73 @@ HCS_TEST(reduce_final_cpu_matches_reference)
 HCS_TEST(reduce_final_vulkan_matches_reference)
 {
     checkReduceFinal(HCS_BACKEND_VULKAN, 37, "reduce_final_vulkan_matches_reference");
+}
+
+void checkGlobalScan(uint32_t backend, uint32_t n, uint32_t groups, const char* label)
+{
+    testutil::DeviceSession session;
+    if (!session.open(backend)) {
+        hcstest::reportSkip("device not available");
+        return;
+    }
+    std::vector<float> input(n), local(n, 0.0f), totals(groups, 0.0f);
+    std::vector<float> offsets(groups, 0.0f), result(n, 0.0f);
+    testutil::fillPattern(input, 2.0f, 61);
+
+    hcsBuffer in = nullptr, loc = nullptr, tot = nullptr, off = nullptr, out = nullptr;
+    HCS_REQUIRE_OK(testutil::makeBuffer(session.context, n * sizeof(float), input.data(), &in));
+    HCS_REQUIRE_OK(testutil::makeBuffer(session.context, n * sizeof(float), nullptr, &loc));
+    HCS_REQUIRE_OK(testutil::makeBuffer(session.context, groups * sizeof(float), nullptr, &tot));
+    HCS_REQUIRE_OK(testutil::makeBuffer(session.context, groups * sizeof(float), nullptr, &off));
+    HCS_REQUIRE_OK(testutil::makeBuffer(session.context, n * sizeof(float), nullptr, &out));
+
+    testutil::ReducePush push{n, groups, 0, 0};
+    hcsKernel scan = nullptr, reduce = nullptr, add = nullptr;
+    HCS_REQUIRE_OK(hcsKernelCreate(session.context, "scan_f32", &scan));
+    HCS_REQUIRE_OK(hcsKernelCreate(session.context, "reduce_sum_f32", &reduce));
+    HCS_REQUIRE_OK(hcsKernelCreate(session.context, "scan_add_offsets_f32", &add));
+
+    auto localDesc = testutil::makeDispatch({in, loc}, groups, &push, sizeof(push));
+    HCS_REQUIRE_OK(hcsDispatch(scan, &localDesc, nullptr));
+    auto totalDesc = testutil::makeDispatch({in, tot}, groups, &push, sizeof(push));
+    HCS_REQUIRE_OK(hcsDispatch(reduce, &totalDesc, nullptr));
+    testutil::ReducePush offsetPush{groups, 1, 0, 0};
+    auto offsetDesc = testutil::makeDispatch({tot, off}, 1, &offsetPush, sizeof(offsetPush));
+    HCS_REQUIRE_OK(hcsDispatch(scan, &offsetDesc, nullptr));
+    auto finalDesc = testutil::makeDispatch({loc, off, out}, groups, &push, sizeof(push));
+    HCS_REQUIRE_OK(hcsDispatch(add, &finalDesc, nullptr));
+
+    HCS_REQUIRE_OK(hcsBufferDownload(out, 0, result.data(), n * sizeof(float)));
+    double prefix = 0.0;
+    for (uint32_t i = 0; i < n; ++i) {
+        const double want = prefix;
+        prefix += static_cast<double>(input[i]);
+        if (std::fabs(static_cast<double>(result[i]) - want) >
+            8e-4 * std::max(1.0, std::fabs(want))) {
+            char text[160];
+            std::snprintf(text, sizeof(text), "i=%u got=%.9g want=%.9g", i,
+                          static_cast<double>(result[i]), want);
+            hcstest::reportFailure(__FILE__, __LINE__, label, text);
+            break;
+        }
+    }
+
+    hcsKernelDestroy(scan);
+    hcsKernelDestroy(reduce);
+    hcsKernelDestroy(add);
+    hcsBufferDestroy(in);
+    hcsBufferDestroy(loc);
+    hcsBufferDestroy(tot);
+    hcsBufferDestroy(off);
+    hcsBufferDestroy(out);
+}
+
+HCS_TEST(global_scan_cpu_matches_reference)
+{
+    checkGlobalScan(HCS_BACKEND_CPU, 10001, 64, "global_scan_cpu_matches_reference");
+}
+
+HCS_TEST(global_scan_vulkan_matches_reference)
+{
+    checkGlobalScan(HCS_BACKEND_VULKAN, 10001, 64, "global_scan_vulkan_matches_reference");
 }

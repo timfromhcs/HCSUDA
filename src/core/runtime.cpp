@@ -38,6 +38,8 @@ const hcs::KernelDef kKernels[] = {
      "b[col,row] = a[row,col], row major, 16x16 tiles"},
     {"reduce_final_f32", hcs::KernelId::ReduceFinalF32, 256,
      "out[0] = sum of a per-group partial-sum buffer"},
+    {"scan_add_offsets_f32", hcs::KernelId::ScanAddOffsetsF32, 256,
+     "result[i] = local_scan[i] + offsets[group], completing a global prefix sum"},
 };
 
 constexpr uint32_t kKernelCount = sizeof(kKernels) / sizeof(kKernels[0]);

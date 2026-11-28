@@ -276,6 +276,8 @@ public:
             return dispatchReduce(desc);
         case KernelId::ReduceFinalF32:
             return dispatchReduceFinal(desc);
+        case KernelId::ScanAddOffsetsF32:
+            return dispatchScanAddOffsets(desc);
         case KernelId::MatMulF32:
             return dispatchMatMul(desc);
         case KernelId::ScanF32:
@@ -411,6 +413,37 @@ private:
             sum += partials[i];
         }
         out[0] = static_cast<float>(sum);
+        return HCS_SUCCESS;
+    }
+
+    hcsResult dispatchScanAddOffsets(const hcsDispatchDesc* desc)
+    {
+        if (!validBuffers(desc, 3)) {
+            return HCS_E_INVALID_ARGUMENT;
+        }
+        const uint64_t n = pcU32(desc, 0);
+        const uint64_t groups = std::max(1u, pcU32(desc, 1));
+        if (desc->buffers[1]->size / sizeof(float) < groups) {
+            return fail(HCS_E_INVALID_ARGUMENT, "cpu.dispatch.scan_add_offsets",
+                        "offset buffer is too small for the requested group count");
+        }
+        const uint64_t available = std::min<uint64_t>(
+            n, std::min<uint64_t>(desc->buffers[0]->size, desc->buffers[2]->size) /
+                   sizeof(float));
+        const uint64_t chunk = (n + groups - 1) / groups;
+        const auto* local = static_cast<const float*>(desc->buffers[0]->host);
+        const auto* offsets = static_cast<const float*>(desc->buffers[1]->host);
+        auto* result = static_cast<float*>(desc->buffers[2]->host);
+        parallelFor(groups, 1, [&](uint64_t begin, uint64_t end) {
+            for (uint64_t g = begin; g < end; ++g) {
+                const uint64_t first = g * chunk;
+                const uint64_t last = std::min<uint64_t>(available, first + chunk);
+                const float offset = offsets[g];
+                for (uint64_t i = first; i < last; ++i) {
+                    result[i] = local[i] + offset;
+                }
+            }
+        });
         return HCS_SUCCESS;
     }
 

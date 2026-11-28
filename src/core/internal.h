@@ -24,7 +24,8 @@ enum class KernelId : int {
     ScanF32 = 5,
     TransposeF32 = 6,
     ReduceFinalF32 = 7,
-    Count = 8
+    ScanAddOffsetsF32 = 8,
+    Count = 9
 };
 
 struct KernelDef {

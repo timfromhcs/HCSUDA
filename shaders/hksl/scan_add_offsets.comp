@@ -1,0 +1,29 @@
+#version 450
+// HCSUDA built-in kernel: final stage of a global exclusive prefix sum.
+// local[] holds the chunk-local exclusive scan (scan_f32), offsets[] holds the
+// exclusive prefix of the per-chunk totals. This kernel adds them together.
+layout(local_size_x = 256) in;
+
+layout(binding = 0) buffer L { float local_scan[]; };
+layout(binding = 1) buffer O { float offsets[]; };
+layout(binding = 2) buffer R { float result[]; };
+
+layout(push_constant) uniform PC {
+    uint n;
+    uint groups;
+    uint pad0;
+    uint pad1;
+} pc;
+
+void main()
+{
+    uint gid = gl_WorkGroupID.x;
+    uint lid = gl_LocalInvocationID.x;
+    uint chunk = (pc.n + pc.groups - 1u) / pc.groups;
+    uint first = gid * chunk;
+    uint last = min(pc.n, first + chunk);
+    float offset = offsets[gid];
+    for (uint i = first + lid; i < last; i += 256u) {
+        result[i] = local_scan[i] + offset;
+    }
+}
