@@ -1221,3 +1221,10 @@ URL-shareable parameters, seven WGSL kernels, WASM-vs-WebGPU validation, JSON/CS
 canvas visualisation with measured timing bars, benchmark median/p10/p90 and a clearly labelled
 race game with a localStorage scoreboard. Headless Chrome checked all seven kernels via
 `?backend=wasm` — all PASS. Vercel production alias redeployed and serves all assets with 200.
+
+## 2026-11-28 — rc.3 merge verified
+
+After the expanded web demo was merged to `main` and tagged `v0.1.0-rc.3`, hosted CI run
+46188973149 passed all eight jobs including the WebGPU/WASM gate. Local gates: 96/96 tests,
+WASM seven-kernel gate PASS, secret scan 142 files, artifact 1893992bc683caf6. README, release
+notes, plan and checklist are aligned with the new release.
