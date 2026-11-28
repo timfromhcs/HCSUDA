@@ -308,3 +308,28 @@ HCS_TEST(histogram_vulkan_matches_reference)
 {
     checkHistogram(HCS_BACKEND_VULKAN, 5000, "histogram_vulkan_matches_reference");
 }
+
+HCS_TEST(histogram_rejects_multiple_workgroups)
+{
+    for (uint32_t backend : {HCS_BACKEND_CPU, HCS_BACKEND_VULKAN}) {
+        testutil::DeviceSession session;
+        if (!session.open(backend)) {
+            continue; /* CPU-only builds have no Vulkan device */
+        }
+        std::vector<uint32_t> values(16, 7u);
+        std::vector<uint32_t> bins(256, 0u);
+        hcsBuffer in = nullptr, out = nullptr;
+        HCS_REQUIRE_OK(testutil::makeBuffer(session.context, values.size() * sizeof(uint32_t),
+                                            values.data(), &in));
+        HCS_REQUIRE_OK(testutil::makeBuffer(session.context, bins.size() * sizeof(uint32_t),
+                                            bins.data(), &out));
+        hcsKernel kernel = nullptr;
+        HCS_REQUIRE_OK(hcsKernelCreate(session.context, "histogram_u32", &kernel));
+        testutil::ReducePush push{static_cast<uint32_t>(values.size()), 0, 0, 0};
+        auto desc = testutil::makeDispatch({in, out}, 2, &push, sizeof(push));
+        CHECK_EQ(hcsDispatch(kernel, &desc, nullptr), HCS_E_INVALID_ARGUMENT);
+        hcsKernelDestroy(kernel);
+        hcsBufferDestroy(in);
+        hcsBufferDestroy(out);
+    }
+}

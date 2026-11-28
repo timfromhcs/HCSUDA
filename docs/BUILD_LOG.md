@@ -842,3 +842,9 @@ powershell -File scripts\check-secrets.ps1          -> SECRET_SCAN_PASS (120 tra
 ```
 
 Install/uninstall still preserves user data and leaves the system Vulkan loader untouched.
+
+## 2026-11-28 — Endless work iteration 17: histogram group-count contract
+
+The kernel docs stated that histogram rejects multiple workgroups, but only the Vulkan backend
+enforced it. Added the same check to the CPU backend and a KC-14 regression test over both
+backends. Result: 96/96 tests, 0 failures (2/2 CTest targets).

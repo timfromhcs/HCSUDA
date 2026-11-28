@@ -11,7 +11,7 @@ Created: 2026-11-28. Owner: autonomous agent loop. Language: German request / En
 | Other branches | **None** (`git branch -a` shows only `main` + `origin/main`) |
 | Diff to main / branches | **Empty** — nothing to port or merge |
 | Remote | `https://github.com/timfromhcs/HCSUDA.git` (fetch+push) |
-| Project phase | 0.1.0 release candidate; Waves 0–13 implemented, 95/95 tests green |
+| Project phase | 0.1.0 release candidate; Waves 0–13 implemented, 96/96 tests green |
 | Test evidence | `docs/TEST_MATRIX.md` (API/CPU/VK/IR/FL/GR/KC/PORT/MV/MCP/REST/TR/UI/INS/SEC/SOAK/CI/SA/SET/STR) |
 | Hardware | Ryzen 7 7735HS + Radeon 680M (Vulkan 1.4.315), Windows 11 Pro 26200 |
 
@@ -25,7 +25,7 @@ Created: 2026-11-28. Owner: autonomous agent loop. Language: German request / En
   version header). Fixed together with README, release notes, publication copy, v1-scope and the
   `hcsport` tool header. Release identity aligned to the actual `0.1.0` binary version.
 - **[CLOSED] PRESETS:** no `ctest` preset existed for cpu-only/release/relwithdebinfo/vulkan;
-  added and verified (CPU-only 92/92, validation 95/95).
+  added and verified (CPU-only 93/93, validation 96/96).
 - **[CLOSED] EVIDENCE:** `hcsport --convert` CLI exercised end-to-end (PORT-04); a real UI
   screenshot captured from the live REST service (UI-04) and embedded in README.
 - **[CLOSED] CACHE:** persistent shader cache. Implemented as a bounded, device-fingerprinted
@@ -94,10 +94,10 @@ no iteration is skipped. Reminders are a pulse, **not** a wait state — work co
 **Internally stable: yes.** All §2.1 points are closed or explicitly reclassified as intentional
 V1 scope decisions with a written reason. No branch diff existed to merge. Verified green:
 
-* `windows-tests`: configure/build/test exit 0; 95/95 HCS tests + automated UI capture; repeated
+* `windows-tests`: configure/build/test exit 0; 96/96 HCS tests + automated UI capture; repeated
   background cycles all green (`logs/limitless-loop.log`).
-* `windows-cpu-only`: build exit 0; 92/92 tests via `ctest --preset windows-cpu-only`.
-* `windows-validation`: build exit 0; 95/95 tests, zero validation errors.
+* `windows-cpu-only`: build exit 0; 93/93 tests via `ctest --preset windows-cpu-only`.
+* `windows-validation`: build exit 0; 96/96 tests, zero validation errors.
 * `windows-analyze`: zero MSVC `/analyze` warnings in project-owned code.
 * `scripts/check-secrets.ps1`: PASS, 122 tracked files.
 * Installer/upgrade tests re-run; real CLI evidence PORT-04; real UI screenshots UI-04/UI-05;

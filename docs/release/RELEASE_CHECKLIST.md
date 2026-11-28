@@ -6,7 +6,7 @@ Every checked item links to real evidence in `docs/TEST_MATRIX.md`, `docs/BUILD_
 ## Runtime and compute
 
 - [x] Launches on Windows 11 x64 without developer tools — INS-01/02, installer EXE.
-- [x] CPU fallback without Vulkan — `windows-cpu-only` profile, 92/92 tests.
+- [x] CPU fallback without Vulkan — `windows-cpu-only` profile, 93/93 tests.
 - [x] Vulkan devices discovered and selected by capability — API-03, VK-01, `hcsdoctor`.
 - [x] Device/driver/API/memory report is truthful — VK-01, no invented VRAM/utilization/temperature.
 - [x] Memory cap and graceful OOM — VK-05.
@@ -14,7 +14,7 @@ Every checked item links to real evidence in `docs/TEST_MATRIX.md`, `docs/BUILD_
 - [x] Flow/event/graph deterministic tests — FL-01..05, GR-01..04, STR-01..02.
 - [x] No false FP16/BF16/matrix/subgroup claims — capability bits + KNOWN_LIMITATIONS.
 - [x] Pipeline cache survives restart and rejects corruption — VK-06, `hcsbench --cache-dir`.
-- [x] Validation layers clean — VAL-01, 95/95, zero errors.
+- [x] Validation layers clean — VAL-01, 96/96, zero errors.
 
 ## Translation
 
@@ -64,7 +64,7 @@ Every checked item links to real evidence in `docs/TEST_MATRIX.md`, `docs/BUILD_
 ## Stability gates (re-run after every code change)
 
 - [x] `cmake --build --preset windows-tests --parallel` + `ctest --preset windows-tests` — green.
-- [x] `ctest --preset windows-cpu-only` — 92/92; `ctest --preset windows-validation` — 95/95.
+- [x] `ctest --preset windows-cpu-only` — 93/93; `ctest --preset windows-validation` — 96/96.
 - [x] `cmake --build --preset windows-analyze` — zero warnings.
 - [x] `scripts/check-secrets.ps1` — PASS (123 files); `scripts/check-openapi.ps1` — PASS.
 - [x] `scripts/soak.ps1 -Minutes 1` — PASS, 24 iterations, 0 failures; 60-minute run in progress

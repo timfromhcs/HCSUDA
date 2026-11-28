@@ -454,6 +454,10 @@ private:
         if (!validBuffers(desc, 2)) {
             return HCS_E_INVALID_ARGUMENT;
         }
+        if (desc->group_count_x != 1) {
+            return fail(HCS_E_INVALID_ARGUMENT, "cpu.dispatch.histogram",
+                        "histogram uses a single workgroup to avoid bin-reset races");
+        }
         if (desc->buffers[1]->size < 256u * sizeof(uint32_t)) {
             return fail(HCS_E_INVALID_ARGUMENT, "cpu.dispatch.histogram",
                         "histogram output must hold 256 bins");
