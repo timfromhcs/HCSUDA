@@ -41,6 +41,14 @@ Created: 2026-11-28. Owner: autonomous agent loop. Language: German request / En
   type-aware GLSL store/lowering path (the current store lowering is F32-only). Shipping a partial
   opcode set would produce misleading compiler behaviour, so the elementwise-F32 subset stays the
   documented V1 contract instead.
+- **[DEFERRED — explicit risk decision] GPU timestamp queries.** Adding `VkQueryPool`, timestamp
+  writes in per-submission command buffers, result readback and a new timing API would change the
+  dispatch hot path. `hcsbench` therefore reports wall-clock (submit + fence) and says so; no
+  fabricated kernel duration is published. Revisit only with dedicated GPU timing tests.
+- **[DEFERRED — explicit risk decision] Allocator pooling.** The current one-allocation-per-buffer
+  path is simple, bounded and covered by cap/OOM tests. A suballocator must preserve budget
+  accounting, alignment, device-loss invalidation and flow lifetime rules; introducing it late in
+  the RC would risk memory corruption. Each buffer remains bounded and released deterministically.
 - **[DEFERRED — explicit ADR-0003] UI:** no native Qt/WebView2 shell. A real screenshot now exists;
   automated screenshot regression remains out of scope.
 
