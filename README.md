@@ -135,6 +135,23 @@ powershell -File scripts\check-openapi.ps1        # OpenAPI 3.1 contract gate
 powershell -File scripts\soak.ps1 -Minutes 5       # bounded soak with verified benchmark rows
 ```
 
+## Local REST API and MCP
+
+```powershell
+.\hcsbridge-rest.exe --port 8710
+# stderr prints a fresh 64-hex bearer token; nothing is persisted or hardcoded.
+Invoke-RestMethod http://127.0.0.1:8710/api/v1/health
+Invoke-RestMethod http://127.0.0.1:8710/api/v1/devices `
+  -Headers @{ Authorization = 'Bearer <token-from-stderr>' }
+# The console itself: http://127.0.0.1:8710/ui/
+
+.\hcsbridge-mcp.exe   # stdio JSON-RPC; stdout carries protocol messages only
+```
+
+Both services bind locally by default, use bounded inputs and expose no shell, arbitrary file read
+or download tool. The console embeds its token for same-origin browser use; see
+`docs/KNOWN_LIMITATIONS.md` for the same-user trust boundary.
+
 ## Minimal C API example
 
 ```c
