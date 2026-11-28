@@ -715,6 +715,20 @@ cmake --build --preset windows-analyze --parallel   -> zero warnings
 
 Install/uninstall and upgrade still preserve user data and leave the Vulkan loader intact.
 
+## 2026-11-28 — Endless work iteration 11: reproducible soak harness
+
+The earlier soak was a one-off run; added `scripts/soak.ps1` as a bounded, reproducible harness:
+fixed small workloads, one device, JSON verification of every benchmark row, per-iteration log and
+a final summary JSON under `logs/`. No unbounded allocations or sleeps beyond the 2 s interval.
+
+```
+powershell -File scripts\soak.ps1 -Minutes 1 -Device 0
+-> SOAK PASS: iterations=24 failed_runs=0 unverified_rows=0
+```
+
+A 60-minute run was started in the background afterwards; its summary will be recorded in
+`docs/TEST_MATRIX.md` (SOAK-02) when it completes.
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan
