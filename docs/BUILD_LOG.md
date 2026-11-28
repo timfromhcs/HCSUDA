@@ -1101,3 +1101,14 @@ OpenAPI 9 paths, artifact f18d065014ed7535. Repo clean and fully pushed.
 
 All gates green: 2/2 CTest targets (96/96), WASM n=1001 worst=0, secret scan 140 files,
 OpenAPI 9 paths, artifact f18d065014ed7535. Repo clean and fully pushed.
+
+## 2026-11-28 — Release v0.1.0-rc.2 (local + cloud) and next-stable plan
+
+Rebuilt the single-file EXE from current `main` (SHA-256 BC1F8A016920C2D6938E31B719ACF31307B7222392754BCDDA5E98AF9CAEF24D),
+redeployed the WebGPU/WASM demo to Vercel production with stable alias
+`https://hcsuda-webgpu-demo.vercel.app` (public 200 for index/app.js/kernel.wasm), updated README
+and release notes, then pushed annotated tag `v0.1.0-rc.2` and published the GitHub Release with
+EXE, checksum and SBOM.
+
+Added `docs/PLAN_NEXT_STABLE.md`: exact gates, owner actions and loop protocol required before a
+v1.0.0 stable claim. No stable claim is made while signing, clean VM or cross-vendor evidence is open.

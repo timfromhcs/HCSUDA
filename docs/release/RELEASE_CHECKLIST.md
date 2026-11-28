@@ -56,7 +56,9 @@ Every checked item links to real evidence in `docs/TEST_MATRIX.md`, `docs/BUILD_
 - [ ] Code signing with a publisher certificate — **no certificate configured**; installer is
       honestly unsigned and published with SHA-256.
 - [x] GitHub Release/tag `v0.1.0-rc.1` — published with EXE, checksum and SBOM:
-      <https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.1>.
+      <https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.1> and refreshed as
+      `v0.1.0-rc.2` with the current local EXE and cloud demo:
+      <https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.2>.
 
 ## Hardware QA
 
