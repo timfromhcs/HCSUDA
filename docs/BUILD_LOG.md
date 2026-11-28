@@ -781,6 +781,15 @@ and gave the target its own `src` include path. Verified with a temporary direct
 device-keyed cache blob (16,260 bytes) was written. Full suite still green (95/95, 2/2 CTest
 targets).
 
+Final gate sweep after the UI/API additions:
+
+```
+Get-Content docs\api\openapi.json | ConvertFrom-Json -> openapi=3.1.0, 9 paths, /api/v1/models present
+powershell -File tests\installer\test_installer.ps1 -> INSTALLER_TEST_PASS
+powershell -File tests\installer\test_upgrade.ps1   -> UPGRADE_TEST_PASS
+powershell -File scripts\check-secrets.ps1          -> SECRET_SCAN_PASS (123 tracked files)
+```
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan
