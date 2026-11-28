@@ -1038,3 +1038,9 @@ Deployed with `vercel deploy --prod --yes --project hcsuda-webgpu-demo --create-
 protection was disabled for this public demo project with
 `vercel project protection disable hcsuda-webgpu-demo --sso`. Deployment
 `hcsuda-webgpu-demo-mhm11twi4-hcsmediacorp.vercel.app` is READY and publicly serves all three files.
+
+## 2026-11-28 — Endless work pulse 174: web release gate check
+
+All gates after the WebGPU/WASM addition are green: secret scan 140 tracked files, OpenAPI 9 paths,
+artifact f18d065014ed7535, 2/2 CTest targets (96/96), Node WASM gate n=1001 worst=0. Release
+checklist now records the public Vercel demo.
