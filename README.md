@@ -49,6 +49,19 @@ unavailable GPU metrics are explicitly marked rather than invented.*
 | Local browser UI (Dashboard, Devices, Memory, Models, Settings, About, Compatibility) | **Experimental** | UI-01..05, SET-01..05, served at `http://127.0.0.1:<port>/ui/` |
 | One-file native EXE installer (unsigned, SHA-256 published) | **Experimental** | INS-01..04, `docs/release/installer.md` |
 
+## Compatibility matrix
+
+| Area | Status | Detail |
+|---|---|---|
+| Vulkan GPU compute | **Supported via Vulkan** | Requires a vendor Vulkan 1.0+ ICD with a compute queue; every capability is queried at runtime, never assumed |
+| Reference GPU | **Tested** | AMD Radeon 680M (RDNA 2, UMA), Vulkan 1.4.315, driver 32.0.21043.12001 |
+| Other Vulkan GPUs | **Capability-dependent, not verified here** | Intel/NVIDIA devices were not available on the test machine; cross-vendor claims are not made |
+| CPU fallback | **Native / Stable** | Scalar + runtime-gated AVX2/FMA; works without any Vulkan driver |
+| FP16 / BF16 / INT8 / matrix | **Not claimed** | No tested feature gate or kernel in V1 |
+| CUDA source | **Translated subset** | One documented vecadd shape; unsupported constructs fail closed |
+| PTX text / CUBIN / SASS | **Unsupported** | No importer and no NVIDIA binary execution on AMD hardware |
+| GGUF inference | **Out of V1 scope** | Model catalog stores and hashes; every model reports `runnable: false` |
+
 ## What HCSUDA is not
 
 * Not a GPU kernel-mode driver. It never installs, replaces, or patches an AMD/Intel/NVIDIA
