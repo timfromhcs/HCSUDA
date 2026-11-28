@@ -790,6 +790,12 @@ powershell -File tests\installer\test_upgrade.ps1   -> UPGRADE_TEST_PASS
 powershell -File scripts\check-secrets.ps1          -> SECRET_SCAN_PASS (123 tracked files)
 ```
 
+Added `scripts/check-openapi.ps1` as a reproducible contract gate:
+
+```
+powershell -File scripts\check-openapi.ps1 -> OPENAPI_PASS (9 paths, 8 required endpoints)
+```
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan

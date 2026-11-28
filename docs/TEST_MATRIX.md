@@ -18,6 +18,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | API-05 | kernel_lookup_is_strict | CPU | PASS | unknown kernel → `HCS_E_KERNEL_NOT_FOUND`, message + correlation id |
 | API-06 | buffer_bounds_are_checked | CPU | PASS | upload/download/clear range validation |
 | API-07 | dispatch_requires_matching_context | CPU | PASS | ABI size check, zero group count rejected, buffer arity |
+| API-08 | scripts/check-openapi.ps1 | API contract | PASS | OpenAPI 3.1.0 parsed, version 0.1.0, 9 paths incl. 8 required endpoints and documented 429 rate-limit behaviour |
 | CPU-01 | cpu_vecadd_matches_reference | CPU | PASS | 1000 elements (non-multiple of 64), alpha 2.5, rel 1e-5 |
 | CPU-02 | cpu_scale_matches_reference | CPU | PASS | 4096 elements, negative alpha |
 | CPU-03 | cpu_reduce_matches_reference | CPU | PASS | 8 groups over 10000 elements, rel 1e-4 |
