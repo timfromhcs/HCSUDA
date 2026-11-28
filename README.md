@@ -150,6 +150,7 @@ only then the driver, if the vendor recommends it); logs are under
 powershell -File scripts\build-test-once.ps1      # one lock-protected build+test cycle
 powershell -File scripts\check-secrets.ps1        # credential scan over tracked files
 powershell -File scripts\check-openapi.ps1        # OpenAPI 3.1 contract gate
+powershell -File scripts\check-artifact.ps1       # installer checksum/secret/import gate
 powershell -File scripts\soak.ps1 -Minutes 5       # bounded soak with verified benchmark rows
 ```
 
