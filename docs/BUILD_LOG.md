@@ -667,6 +667,23 @@ Benchmark smoke after the kernel additions (real Radeon 680M, `--device 0 --reps
 benchmark tool. These are wall-clock numbers including dispatch overhead — no pure-kernel-timing
 claim is made.
 
+## 2026-11-28 — Endless work iteration 8: full benchmark result validation
+
+Added host-reference verification for scale, reduce, matmul, scan and transpose in
+`tools/hcsbench/main.cpp`; previously only vecadd set `verified:true`.
+
+Build-Test-Fix:
+
+1. Build failed with `C2737: 'limit'/'allowed' const object must be initialized` because
+   `std::max(1.0, std::fabs(float))` mixes double and float in template deduction. Fixed with an
+   explicit `static_cast<double>`; also renamed shadowing loop indices.
+2. After the build succeeded, five rows were verified but `scan_f32` reported a 19.5 worst-case
+   mismatch. Root cause: the benchmark dispatched `groups=256` for `n=1,048,576`, while
+   `scan_f32` handles at most 256 elements per workgroup chunk. Fixed the benchmark to use
+   `groups=ceil(n/256)=4096`.
+3. Final run: all six rows `verified:true` on the Radeon 680M; full unit suite still green
+   (92/92, 2/2 CTest targets).
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan

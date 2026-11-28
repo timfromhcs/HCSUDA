@@ -161,8 +161,12 @@ Hardware: AMD Ryzen 7 7735HS, Radeon 680M (integrated, UMA), Windows 11 26200,
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, HCSUDA 0.1.0 RelWithDebInfo.
 
 Method: warm-up 5, 25 repetitions, each sample is **one dispatch including submit + fence
-wait** (V1 dispatches are synchronous). Median and p10/p90 reported. Raw JSON:
+wait** (V1 dispatches are synchronous). Median and p10/p90 reported. Every row is checked
+against an independently computed host reference (`verified: true` in JSON). Raw JSON:
 `benchmarks/baselines/radeon680m-2026-11-25.json`.
+
+`scan_f32` is benchmarked with `groups = ceil(n/256)` because one workgroup handles at most
+256 elements of a chunk; using fewer groups silently leaves later elements untouched.
 
 | Kernel | Size | Vulkan median | Vulkan GB/s | CPU median | CPU GB/s |
 |---|---|---|---|---|---|

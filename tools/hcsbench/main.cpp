@@ -86,6 +86,34 @@ void fill(std::vector<float>& data, int seed)
     }
 }
 
+/* Compares a benchmark result against an independently computed host reference.
+ * Tolerance is relative with a 1.0 floor so near-zero values cannot dominate. */
+bool verifyOutput(hcsBuffer buffer, const std::vector<float>& expected, float tolerance,
+                  const char* kernel, const char* device)
+{
+    std::vector<float> actual(expected.size(), 0.0f);
+    const uint64_t bytes = static_cast<uint64_t>(expected.size()) * sizeof(float);
+    if (hcsBufferDownload(buffer, 0, actual.data(), bytes) != HCS_SUCCESS) {
+        return false;
+    }
+    bool good = true;
+    double worst = 0.0;
+    for (size_t i = 0; i < expected.size(); ++i) {
+        const double allowed =
+            static_cast<double>(tolerance) *
+            std::max(1.0, std::fabs(static_cast<double>(expected[i])));
+        const double diff = std::fabs(static_cast<double>(actual[i]) - expected[i]);
+        worst = std::max(worst, diff);
+        if (diff > allowed) {
+            good = false;
+        }
+    }
+    if (!good) {
+        std::fprintf(stderr, "[verify] %s mismatch on %s, worst %.3g\n", kernel, device, worst);
+    }
+    return good;
+}
+
 struct BenchRow {
     std::string device;
     std::string backend;
@@ -321,6 +349,14 @@ int main(int argc, char** argv)
                     row.timing = measure(options.warmup, options.reps, [&]() {
                         return hcsDispatch(kernel, &desc, nullptr);
                     });
+                    if (row.timing.ok) {
+                        std::vector<float> expected(n);
+                        for (uint32_t i = 0; i < n; ++i) {
+                            expected[i] = static_cast<float>(0.5 * static_cast<double>(x[i]));
+                        }
+                        row.verified =
+                            verifyOutput(out, expected, 2e-4f, "scale_f32", deviceName.c_str());
+                    }
                     rows.push_back(row);
                     hcsKernelDestroy(kernel);
                 }
@@ -372,6 +408,21 @@ int main(int argc, char** argv)
                     row.timing = measure(options.warmup, options.reps, [&]() {
                         return hcsDispatch(kernel, &desc, nullptr);
                     });
+                    if (row.timing.ok) {
+                        const uint64_t chunk = (static_cast<uint64_t>(n) + groups - 1) / groups;
+                        std::vector<float> expected(groups, 0.0f);
+                        for (uint32_t g = 0; g < groups; ++g) {
+                            const uint64_t first = static_cast<uint64_t>(g) * chunk;
+                            const uint64_t last = std::min<uint64_t>(n, first + chunk);
+                            double sum = 0.0;
+                            for (uint64_t idx = first; idx < last; ++idx) {
+                                sum += static_cast<double>(x[idx]);
+                            }
+                            expected[g] = static_cast<float>(sum);
+                        }
+                        row.verified = verifyOutput(out, expected, 1e-3f, "reduce_sum_f32",
+                                                    deviceName.c_str());
+                    }
                     rows.push_back(row);
                     hcsKernelDestroy(kernel);
                 }
@@ -423,6 +474,24 @@ int main(int argc, char** argv)
                     row.timing = measure(options.warmup, options.reps, [&]() {
                         return hcsDispatch(kernel, &desc, nullptr);
                     });
+                    if (row.timing.ok) {
+                        std::vector<float> expected(static_cast<size_t>(d) * d, 0.0f);
+                        for (uint32_t rowIdx = 0; rowIdx < d; ++rowIdx) {
+                            for (uint32_t col = 0; col < d; ++col) {
+                                double sum = 0.0;
+                                for (uint32_t k = 0; k < d; ++k) {
+                                    sum += static_cast<double>(
+                                        a[static_cast<size_t>(rowIdx) * d + k]) *
+                                           static_cast<double>(
+                                               b[static_cast<size_t>(k) * d + col]);
+                                }
+                                expected[static_cast<size_t>(rowIdx) * d + col] =
+                                    static_cast<float>(sum);
+                            }
+                        }
+                        row.verified = verifyOutput(bufC, expected, 1e-3f, "matmul_f32",
+                                                    deviceName.c_str());
+                    }
                     rows.push_back(row);
                     hcsKernelDestroy(kernel);
                 }
@@ -432,10 +501,11 @@ int main(int argc, char** argv)
             if (bufC) hcsBufferDestroy(bufC);
         }
 
-        /* scan: exclusive chunked prefix sum */
+        /* scan: exclusive chunked prefix sum. scan_f32 handles at most 256
+         * elements per chunk, so the group count must satisfy ceil(n/groups) <= 256. */
         {
             const uint32_t n = options.vecElements;
-            const uint32_t groups = 256;
+            const uint32_t groups = (n + 255u) / 256u;
             std::vector<float> x(n);
             fill(x, 7);
             hcsBufferDesc inDesc{};
@@ -473,6 +543,21 @@ int main(int argc, char** argv)
                     row.timing = measure(options.warmup, options.reps, [&]() {
                         return hcsDispatch(kernel, &desc, nullptr);
                     });
+                    if (row.timing.ok) {
+                        const uint64_t chunk = (static_cast<uint64_t>(n) + groups - 1) / groups;
+                        std::vector<float> expected(n, 0.0f);
+                        for (uint32_t g = 0; g < groups; ++g) {
+                            const uint64_t first = static_cast<uint64_t>(g) * chunk;
+                            const uint64_t last = std::min<uint64_t>(n, first + chunk);
+                            double prefix = 0.0;
+                            for (uint64_t idx = first; idx < last; ++idx) {
+                                expected[idx] = static_cast<float>(prefix);
+                                prefix += static_cast<double>(x[idx]);
+                            }
+                        }
+                        row.verified = verifyOutput(out, expected, 5e-4f, "scan_f32",
+                                                    deviceName.c_str());
+                    }
                     rows.push_back(row);
                     hcsKernelDestroy(kernel);
                 }
@@ -521,6 +606,17 @@ int main(int argc, char** argv)
                     row.timing = measure(options.warmup, options.reps, [&]() {
                         return hcsDispatch(kernel, &desc, nullptr);
                     });
+                    if (row.timing.ok) {
+                        std::vector<float> expected(static_cast<size_t>(elements), 0.0f);
+                        for (uint32_t r = 0; r < d; ++r) {
+                            for (uint32_t c = 0; c < d; ++c) {
+                                expected[static_cast<size_t>(c) * d + r] =
+                                    a[static_cast<size_t>(r) * d + c];
+                            }
+                        }
+                        row.verified = verifyOutput(out, expected, 1e-5f, "transpose_f32",
+                                                    deviceName.c_str());
+                    }
                     rows.push_back(row);
                     hcsKernelDestroy(kernel);
                 }

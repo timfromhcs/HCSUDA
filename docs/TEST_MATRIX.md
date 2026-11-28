@@ -147,4 +147,8 @@ build\windows-tests\RelWithDebInfo\hcsbench.exe --device 1 --reps 25 --warmup 5
 ```
 
 Results: see `README.md` and `benchmarks/baselines/radeon680m-2026-11-25.json`.
+Post-change smoke on 2026-11-28 (`--reps 5 --warmup 2 --json`): all six rows report
+`verified:true`. This required two fixes: a `std::max` float/double deduction error in the new
+verification helper, and an invalid benchmark configuration for `scan_f32` (groups=256 on
+1 Mi elements exceeded the kernel's 256-elements-per-chunk limit; now `groups=ceil(n/256)`).
 Vecadd samples are verified against a host double-precision reference on every run.
