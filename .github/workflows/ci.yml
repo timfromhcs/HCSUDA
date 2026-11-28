@@ -75,6 +75,8 @@ jobs:
           cmake --build --preset windows-tests --parallel
       - name: Build installer and checksum
         run: powershell -NoProfile -ExecutionPolicy Bypass -File installer\make_installer.ps1
+      - name: Scan release artifact
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts\check-artifact.ps1
       - name: Test install and uninstall
         run: powershell -NoProfile -ExecutionPolicy Bypass -File tests\installer\test_installer.ps1
       - name: Test in-place upgrade
