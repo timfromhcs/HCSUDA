@@ -98,6 +98,17 @@ jobs:
       - name: Validate OpenAPI contract
         run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts\check-openapi.ps1
 
+  web-demo:
+    name: WebGPU/WASM demo gate
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify WASM reference kernel
+        run: node webgpu-demo/test-wasm.mjs
+
   static-analysis:
     name: Windows x64 MSVC static analysis
     runs-on: windows-2022
