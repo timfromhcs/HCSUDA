@@ -964,3 +964,8 @@ all release gates previously verified. Internal scope complete; owner actions un
 
 Repo clean and fully pushed (100+ commits), endless loop still 2/2 CTest targets green, all gates
 and hosted CI previously verified. No internal open points remain.
+
+## 2026-11-28 — Endless work pulse 125
+
+Local gates green while hosted CI was still running: 2/2 CTest targets (96/96), secret scan 132
+files, OpenAPI 9 paths, artifact f18d065014ed7535.
