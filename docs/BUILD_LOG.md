@@ -1117,3 +1117,8 @@ v1.0.0 stable claim. No stable claim is made while signing, clean VM or cross-ve
 
 After the rc.2 release: local gates green (96/96 tests, WASM n=1001, artifact bc1f8a016920c2d6),
 secret scan now 141 tracked files. Documentation checksums/counts aligned with the new release.
+
+## 2026-11-28 — Endless work pulse 229
+
+All gates green: 2/2 CTest targets (96/96), WASM n=1001 worst=0, secret scan 141 files,
+OpenAPI 9 paths, artifact bc1f8a016920c2d6 (rc.2). Repo clean and fully pushed.
