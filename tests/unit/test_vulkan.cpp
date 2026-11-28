@@ -1,10 +1,14 @@
 #include "hcsuda/hcsuda.hpp"
+#include "core/internal.h"
 #include "test_helpers.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
+#include <string>
 #include <vector>
 
 using namespace testutil;
@@ -196,4 +200,49 @@ HCS_TEST(vulkan_memory_cap_is_enforced)
     hcsBuffer buffer = nullptr;
     CHECK_EQ(hcsBufferCreate(capped.context, &desc, &buffer), HCS_E_OUT_OF_MEMORY);
     CHECK(buffer == nullptr);
+}
+
+HCS_TEST(vulkan_pipeline_cache_persists_across_contexts)
+{
+    const auto unique = std::chrono::steady_clock::now().time_since_epoch().count();
+    const auto dir = std::filesystem::temp_directory_path() /
+                     ("hcsuda-pipeline-cache-" + std::to_string(unique));
+    hcs::setPipelineCacheDir(dir.string());
+    bool haveVulkan = false;
+    {
+        DeviceSession session;
+        haveVulkan = openVulkan(&session);
+        if (haveVulkan) {
+            const std::vector<float> data(256, 1.0f);
+            hcsBuffer a = upload(session.context, data);
+            hcsBuffer b = upload(session.context, data);
+            hcsBuffer c = upload(session.context, std::vector<float>(256, 0.0f));
+            hcsKernel kernel = nullptr;
+            if (a && b && c && hcsKernelCreate(session.context, "vecadd_f32", &kernel) ==
+                                   HCS_SUCCESS) {
+                PushConsts push{256, 1.0f, 0, 0};
+                auto dispatch = makeDispatch({a, b, c}, 4, &push, sizeof(push));
+                (void)hcsDispatch(kernel, &dispatch, nullptr);
+                hcsKernelDestroy(kernel);
+            }
+            hcsBufferDestroy(a);
+            hcsBufferDestroy(b);
+            hcsBufferDestroy(c);
+        }
+    }
+    hcs::setPipelineCacheDir("");
+    if (!haveVulkan) {
+        return; /* no device: nothing to persist, not a failure */
+    }
+    bool found = false;
+    std::error_code ec;
+    if (std::filesystem::exists(dir, ec)) {
+        for (const auto& entry : std::filesystem::directory_iterator(dir, ec)) {
+            if (entry.path().filename().string().rfind("hcs-pipeline-", 0) == 0) {
+                found = true;
+            }
+        }
+    }
+    CHECK_MSG(found, "Vulkan context should persist a pipeline cache blob");
+    std::filesystem::remove_all(dir, ec);
 }

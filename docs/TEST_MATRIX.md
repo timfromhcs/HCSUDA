@@ -4,8 +4,8 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **2/2 CTest targets passed; 85/85 HCS tests passed** (re-verified 2026-11-28).
-CPU-only profile: 82/82; validation profile: 85/85 with zero Vulkan validation errors.
+Last result: **2/2 CTest targets passed; 86/86 HCS tests passed** (re-verified 2026-11-28).
+CPU-only profile: 83/83; validation profile: 86/86 with zero Vulkan validation errors.
 The background loop (`scripts/loop-build-test.ps1`) repeats configure/build/test every ~60 s and has
 produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 
@@ -29,6 +29,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | VK-03 | vulkan_reduce_matches_cpu_reference | Vulkan | PASS | 100000 elements, 64 groups, rel 2e-4 |
 | VK-04 | vulkan_matmul_matches_cpu_reference | Vulkan | PASS | 64³ tiled matmul vs double reference, rel 1e-4 |
 | VK-05 | vulkan_memory_cap_is_enforced | Vulkan | PASS | 4 MiB cap rejects 16 MiB allocation with `HCS_E_OUT_OF_MEMORY` |
+| VK-06 | vulkan_pipeline_cache_persists_across_contexts | Vulkan | PASS | a context with a configured cache directory writes a bounded, device-keyed `hcs-pipeline-*.bin` blob; corrupt/stale files are rejected by magic/key/size checks |
 | IR-01 | ir_vecadd_matches_reference | interpreter | PASS | 1000 invocations (not a multiple of `local_size`) match a double reference, rel 1e-5 |
 | IR-02 | ir_branch_and_select_execute | interpreter | PASS | `gt` + `branch` + constants; 3 blocks execute in source order, 257 invocations |
 | IR-03 | ir_rejects_unknown_version | interpreter | PASS | `hcsir 2` → `HCS_E_UNSUPPORTED_API_VERSION`, diagnostic carries line 1 |
@@ -57,7 +58,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | FL-03 | flow_event_timeout_and_validation | Vulkan | PASS | idle-flow event is immediately satisfied; null flow/event misuse rejected |
 | FL-04 | flow_cpu_backend_completes_immediately | CPU | PASS | CPU flow/event complete synchronously with zero timeout |
 | FL-05 | flow_event_wait_timeout_path | mock flow | PASS | a backend flow whose counter never advances yields `HCS_E_TIMEOUT` |
-| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 85/85 tests, no validation errors |
+| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 86/86 tests, no validation errors |
 | GR-01 | graph_runs_on_cpu_backend | CPU | PASS | 2-node linear DAG with dependency, replayed on a flow, both outputs verified |
 | GR-02 | graph_runs_on_vulkan_backend | Vulkan | PASS | same DAG executes on the Radeon 680M and matches the CPU result |
 | GR-03 | graph_rejects_invalid_dependencies | CPU | PASS | empty graph, future dependency, zero group count, >8 dependencies all rejected |
@@ -128,7 +129,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | Installer staged + reference-machine install/uninstall + in-place and cross-version upgrade | **tested** (INS-01..04); clean VM still not tested | 11 |
 | Stress/fuzz (2000 CPU, 500 GPU submissions, 200 fuzz inputs) + 60-min soak | **tested** (STR-01..03, SOAK-01) | 12 |
 | Intel/NVIDIA Vulkan hardware | **not verified** | requires hardware |
-| Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (85/85 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
+| Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (86/86 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
 
 ## Benchmark evidence
 

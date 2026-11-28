@@ -17,6 +17,7 @@ namespace {
 std::mutex g_mutex;
 bool g_initialized = false;
 std::vector<std::unique_ptr<hcs_device_t>> g_devices;
+std::string g_pipelineCacheDir;
 
 thread_local hcsErrorInfo g_lastError{};
 thread_local bool g_hasError = false;
@@ -51,6 +52,23 @@ void makeCorrelationId(char* out, size_t size)
 } // namespace
 
 namespace hcs {
+
+void setPipelineCacheDir(const std::string& dir)
+{
+    std::lock_guard<std::mutex> lock(g_mutex);
+    /* Reject traversal and relative paths; settings validation does the same. */
+    if (dir.find("..") != std::string::npos) {
+        g_pipelineCacheDir.clear();
+        return;
+    }
+    g_pipelineCacheDir = dir;
+}
+
+std::string pipelineCacheDir()
+{
+    std::lock_guard<std::mutex> lock(g_mutex);
+    return g_pipelineCacheDir;
+}
 
 const KernelDef* kernelTable(uint32_t* count)
 {

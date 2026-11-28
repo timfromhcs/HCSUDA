@@ -7,7 +7,9 @@
  */
 
 #include "api/rest/rest_server.h"
+#include "core/internal.h"
 #include "hcsuda/hcsuda.h"
+#include "service/settings.h"
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
@@ -15,6 +17,7 @@
 #include <csignal>
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
 #include <string>
 
 namespace {
@@ -63,6 +66,11 @@ int main(int argc, char** argv)
     }
     if (config.token.empty()) {
         config.token = hcs::rest::generateToken();
+    }
+    hcs::service::SettingsStore settings(std::filesystem::path{});
+    (void)settings.load();
+    if (!settings.get().shaderCacheDir.empty()) {
+        hcs::setPipelineCacheDir(settings.get().shaderCacheDir);
     }
     if (hcsInit(nullptr) != HCS_SUCCESS) {
         std::fprintf(stderr, "hcsInit failed\n");

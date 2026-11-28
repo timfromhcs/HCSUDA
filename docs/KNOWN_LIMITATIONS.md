@@ -26,9 +26,10 @@ the current truth of the code in this repository. It is kept consistent with
   both in the CPU interpreter and as HCSCC-generated Vulkan SPIR-V (test IR-18). The program
   API is an explicitly experimental extension, loads only modules produced by the build-time
   HCSCC path, does not reflect entry points, and returns `HCS_E_UNSUPPORTED_FEATURE` on CPU.
-* **No persistent on-disk module cache yet.** Versioned HCSIR binary serialization exists and
-  is fuzz-tested (IR-21..IR-23), but compiled modules are still rebuilt at build time and no
-  on-disk cache is wired into the runtime.
+* **Persistent cache covers Vulkan pipelines, not HCSIR modules.** A bounded, device-fingerprinted
+  on-disk `VkPipelineCache` is used for compute pipelines (VK-06); corrupt/stale/oversized files
+  are ignored. HCSIR→GLSL lowering still happens at build time, and HCSIR binary serialization
+  (IR-21..IR-23) is not used as a runtime cache.
 * **HCSIR covers an elementwise subset only.** No integer/bitwise opcodes, no atomics, no
   subgroup or matrix operations, no structured loops. Binary serialization is implemented and
   tested; it does not make the IR a general-purpose compiler.

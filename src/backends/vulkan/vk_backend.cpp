@@ -14,11 +14,14 @@
 #if defined(HCS_ENABLE_VULKAN) && HCS_ENABLE_VULKAN
 
 #include "backends/vulkan/generated_shaders.h"
+#include "model_store/sha256.h"
 
 #include <vulkan/vulkan.h>
 #include <windows.h>
 
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
 #include <functional>
 #include <cstdio>
 #include <cstring>
@@ -66,6 +69,9 @@ namespace {
     X(vkDestroyPipelineLayout)                                \
     X(vkCreateComputePipelines)                               \
     X(vkDestroyPipeline)                                      \
+    X(vkCreatePipelineCache)                                  \
+    X(vkGetPipelineCacheData)                                 \
+    X(vkDestroyPipelineCache)                                 \
     X(vkCreateDescriptorPool)                                 \
     X(vkDestroyDescriptorPool)                                \
     X(vkAllocateDescriptorSets)                               \
@@ -154,6 +160,96 @@ VkInstance g_instance = VK_NULL_HANDLE;
 uint32_t g_instanceApiVersion = VK_API_VERSION_1_0;
 std::mutex g_initMutex;
 bool g_initialized = false;
+
+/* Persistent pipeline cache: own bounded binary format wrapping the data returned by
+ * vkGetPipelineCacheData. Corrupt, stale or oversized files are ignored, never trusted. */
+constexpr char kCacheMagic[8] = {'H', 'C', 'S', 'P', 'C', '1', '\0', '\0'};
+constexpr uint64_t kMaxCacheBytes = 8ull << 20;
+struct CacheHeader {
+    char magic[8];
+    char key[64];
+    uint64_t dataBytes;
+};
+static_assert(sizeof(CacheHeader) == 80, "pipeline cache header layout changed");
+
+std::string pipelineCacheKey(const VkPhysicalDeviceProperties& props)
+{
+    hcs::models::Sha256 hash;
+    hash.update(&props.vendorID, sizeof(props.vendorID));
+    hash.update(&props.deviceID, sizeof(props.deviceID));
+    hash.update(&props.driverVersion, sizeof(props.driverVersion));
+    hash.update(&props.apiVersion, sizeof(props.apiVersion));
+    hash.update(props.pipelineCacheUUID, sizeof(props.pipelineCacheUUID));
+    const char* version = hcsGetVersionString();
+    hash.update(version, std::strlen(version));
+    const char* tag = "hcs-pipeline-v1";
+    hash.update(tag, std::strlen(tag));
+    return hash.finish();
+}
+
+std::filesystem::path pipelineCachePath(const std::string& dir, const std::string& key)
+{
+    return std::filesystem::path(dir) / ("hcs-pipeline-" + key + ".bin");
+}
+
+bool loadPipelineCache(const std::string& dir, const std::string& key,
+                       std::vector<unsigned char>* out)
+{
+    std::ifstream file(pipelineCachePath(dir, key), std::ios::binary);
+    if (!file) {
+        return false;
+    }
+    file.seekg(0, std::ios::end);
+    const std::streamoff size = file.tellg();
+    if (size < static_cast<std::streamoff>(sizeof(CacheHeader)) ||
+        size > static_cast<std::streamoff>(sizeof(CacheHeader) + kMaxCacheBytes)) {
+        return false;
+    }
+    file.seekg(0, std::ios::beg);
+    CacheHeader header{};
+    file.read(reinterpret_cast<char*>(&header), sizeof(header));
+    if (std::memcmp(header.magic, kCacheMagic, sizeof(kCacheMagic)) != 0 ||
+        std::strncmp(header.key, key.c_str(), sizeof(header.key)) != 0 ||
+        header.dataBytes != static_cast<uint64_t>(size - sizeof(CacheHeader)) ||
+        (header.dataBytes % 4u) != 0u) {
+        return false;
+    }
+    out->resize(static_cast<size_t>(header.dataBytes));
+    if (header.dataBytes && !file.read(reinterpret_cast<char*>(out->data()),
+                                       static_cast<std::streamsize>(header.dataBytes))) {
+        out->clear();
+        return false;
+    }
+    return true;
+}
+
+void savePipelineCache(const std::string& dir, const std::string& key,
+                       const std::vector<unsigned char>& data)
+{
+    if (data.empty() || data.size() > kMaxCacheBytes || (data.size() % 4u) != 0u) {
+        return;
+    }
+    std::error_code ec;
+    std::filesystem::create_directories(dir, ec);
+    if (ec) {
+        return;
+    }
+    const auto path = pipelineCachePath(dir, key);
+    const auto temporary = std::filesystem::path(path.string() + ".tmp");
+    std::ofstream file(temporary, std::ios::binary | std::ios::trunc);
+    if (!file) {
+        return;
+    }
+    CacheHeader header{};
+    std::memcpy(header.magic, kCacheMagic, sizeof(kCacheMagic));
+    std::strncpy(header.key, key.c_str(), sizeof(header.key) - 1);
+    header.dataBytes = data.size();
+    file.write(reinterpret_cast<const char*>(&header), sizeof(header));
+    file.write(reinterpret_cast<const char*>(data.data()),
+               static_cast<std::streamsize>(data.size()));
+    file.close();
+    std::filesystem::rename(temporary, path, ec);
+}
 
 const char* vkVendorName(uint32_t vendorId)
 {
@@ -698,6 +794,22 @@ public:
         }
         g_api.vkGetDeviceQueue(device_, queueFamily_, 0, &queue_);
 
+        VkPhysicalDeviceProperties properties{};
+        g_api.vkGetPhysicalDeviceProperties(physical_, &properties);
+        cacheKey_ = pipelineCacheKey(properties);
+        std::vector<unsigned char> initialData;
+        VkPipelineCacheCreateInfo cacheInfo{};
+        cacheInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+        if (loadPipelineCache(pipelineCacheDir(), cacheKey_, &initialData) &&
+            !initialData.empty()) {
+            cacheInfo.pInitialData = initialData.data();
+            cacheInfo.initialDataSize = initialData.size();
+        }
+        if (g_api.vkCreatePipelineCache(device_, &cacheInfo, nullptr, &pipelineCache_) !=
+            VK_SUCCESS) {
+            pipelineCache_ = VK_NULL_HANDLE; /* optional: continue without a cache */
+        }
+
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
@@ -1043,6 +1155,23 @@ private:
         if (commandPool_) {
             g_api.vkDestroyCommandPool(device_, commandPool_, nullptr);
         }
+        if (pipelineCache_) {
+            const std::string dir = pipelineCacheDir();
+            if (!dir.empty()) {
+                size_t bytes = 0;
+                if (g_api.vkGetPipelineCacheData(device_, pipelineCache_, &bytes, nullptr) ==
+                        VK_SUCCESS &&
+                    bytes > 0) {
+                    std::vector<unsigned char> data(bytes);
+                    if (g_api.vkGetPipelineCacheData(device_, pipelineCache_, &bytes,
+                                                     data.data()) == VK_SUCCESS) {
+                        savePipelineCache(dir, cacheKey_, data);
+                    }
+                }
+            }
+            g_api.vkDestroyPipelineCache(device_, pipelineCache_, nullptr);
+            pipelineCache_ = VK_NULL_HANDLE;
+        }
         g_api.vkDestroyDevice(device_, nullptr);
         device_ = VK_NULL_HANDLE;
     }
@@ -1188,7 +1317,7 @@ private:
         pipelineInfo.stage.pName = "main";
         pipelineInfo.layout = pipelineLayout_;
         VkPipeline pipeline = VK_NULL_HANDLE;
-        vk = g_api.vkCreateComputePipelines(device_, VK_NULL_HANDLE, 1, &pipelineInfo,
+        vk = g_api.vkCreateComputePipelines(device_, pipelineCache_, 1, &pipelineInfo,
                                             nullptr, &pipeline);
         g_api.vkDestroyShaderModule(device_, module, nullptr);
         if (vk != VK_SUCCESS) {
@@ -1210,6 +1339,8 @@ private:
     VkDescriptorSetLayout descriptorLayout_ = VK_NULL_HANDLE;
     VkPipelineLayout pipelineLayout_ = VK_NULL_HANDLE;
     VkDescriptorPool descriptorPool_ = VK_NULL_HANDLE;
+    VkPipelineCache pipelineCache_ = VK_NULL_HANDLE;
+    std::string cacheKey_;
     std::unordered_map<uint64_t, VkPipeline> pipelines_;
     std::vector<std::pair<hcs_flow_t*, VulkanFlow*>> flows_;
     std::mutex mutex_;

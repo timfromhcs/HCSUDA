@@ -47,7 +47,8 @@ Limitless Work loop active: `docs/LIMITLESS_WORK_PLAN.md`, continuous build/test
 * CPU backend: scalar + AVX2/FMA with runtime CPUID gate, bounded thread use, deterministic
   clamping to the smallest bound.
 * Vulkan backend: dynamic loader, capability probing (incl. subgroup size and memory budget),
-  host-visible coherent buffers, compute pipelines, synchronous dispatch, device-loss mapping.
+  host-visible coherent buffers, compute pipelines, synchronous dispatch, device-loss mapping,
+  and a bounded, device-fingerprinted on-disk `VkPipelineCache` configured via settings.
 * Built-in kernels: `vecadd_f32`, `scale_f32`, `reduce_sum_f32`, `matmul_f32`, `scan_f32`, `transpose_f32`.
 * Tools: `hcsdoctor`, `hcsbench`, `hcscc`, `hcsport`, `hcsbridge-mcp`, `hcsbridge-rest`, native single-file setup; SPIR-V compiled at build time by `glslc` and embedded.
 * HCSIR v1: bounded parser, verifier, CPU interpreter and versioned binary serialization
@@ -68,7 +69,7 @@ Limitless Work loop active: `docs/LIMITLESS_WORK_PLAN.md`, continuous build/test
   16x16 tiled transpose, each with a CPU reference and odd-size/boundary tests.
 * Services: local-only REST with random bearer token and settings persistence, MCP stdio with
   four read-only tools, self-contained browser UI with live data.
-* Tests: 85 HCS unit/integration tests plus an automated live-UI capture test (`hcs_ui_capture`),
+* Tests: 86 HCS unit/integration tests plus an automated live-UI capture test (`hcs_ui_capture`),
   covering API contract, CPU/Vulkan correctness, memory caps, HCSIR accept/reject/serialize,
   generated GLSL + GPU execution, flows/events/graphs, scan/transpose, CUDA scan/translation,
   catalog/checksums, REST/MCP/UI, settings, stress/fuzz and installer gates.
@@ -77,11 +78,13 @@ Limitless Work loop active: `docs/LIMITLESS_WORK_PLAN.md`, continuous build/test
 
 Validation layers are wired into `windows-validation` and pass with zero errors. Hosted CI passed
 all seven jobs on commit c5f3d4c. On 2026-11-28 all three local profiles were re-verified green:
-`windows-tests` 85/85, `windows-cpu-only` 82/82, `windows-validation` 85/85 with zero validation
-errors. A process-wide REST rate limit (120 requests / 10 s, HTTP 429) was added and tested (REST-06). `ctest` presets now exist for all profiles. `hcsport --convert` was exercised end-to-end
-(PORT-04) and a real UI screenshot was captured from the live REST service (UI-04). HCSIR binary
-serialization is implemented and fuzz-tested; a persistent shader/module cache remains deferred
-and not a release blocker (it would require an init-descriptor/config ABI extension).
+`windows-tests` 86/86, `windows-cpu-only` 83/83, `windows-validation` 86/86 with zero validation
+errors. A process-wide REST rate limit (120 requests / 10 s, HTTP 429) was added and tested
+(REST-06). `ctest` presets now exist for all profiles. `hcsport --convert` was exercised end-to-end
+(PORT-04) and a real UI screenshot was captured from the live REST service (UI-04/UI-05). A bounded,
+device-fingerprinted on-disk `VkPipelineCache` is now implemented and tested (VK-06), configured
+through the existing settings value without changing the stable C ABI. HCSIR binary serialization
+remains available (IR-21..23) but is not used as a runtime module cache.
 
 ## Remaining external blockers
 

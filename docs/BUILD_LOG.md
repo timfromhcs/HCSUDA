@@ -591,3 +591,25 @@ Build-Test-Fix evidence:
 3. `cmake --preset windows-cpu-only && ctest --preset windows-cpu-only` → 2/2 targets, 82/82 tests.
 4. `cmake --preset windows-validation && ctest --preset windows-validation` → 2/2 targets, 85/85
    tests, zero Vulkan validation errors.
+
+## 2026-11-28 — Endless work iteration 3: persistent Vulkan pipeline cache
+
+Closed the deferred cache item without an ABI change. Added an internal cache-directory setter in
+`src/core/runtime.cpp`, a bounded 80-byte wrapper format (magic / device-key / size) around
+`vkGetPipelineCacheData` in `src/backends/vulkan/vk_backend.cpp`, and wired the existing
+`shader_cache_dir` setting through `tools/hcsbridge-rest/main.cpp`. Cache files are keyed by
+SHA-256 of vendor/device/driver/API version, pipelineCacheUUID, product version and a format tag;
+corrupt, stale, truncated or >8 MiB files are ignored. Pipeline creation now passes the cache in
+both the built-in and experimental-program paths.
+
+Build-Test-Fix evidence:
+
+1. First build failed: `C2198: PFN_vkGetPipelineCacheData too few arguments` (needs a fourth data
+   pointer; the second call also wrote into the size variable). Fixed both calls.
+2. Second build failed: `C2512: SettingsStore has no default constructor`. Fixed by passing an
+   explicit empty `std::filesystem::path{}`.
+3. Third build green. New VK-06 test confirmed the cache file is written and reloaded:
+   `86 tests run, 0 failures` on `windows-tests`.
+4. `windows-cpu-only`: 2/2 CTest targets, 83/83 HCS tests.
+   `windows-validation`: 2/2 CTest targets, 86/86 HCS tests, zero validation errors.
+   `windows-analyze`: zero warnings.

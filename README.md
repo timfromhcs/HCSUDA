@@ -38,6 +38,7 @@ unavailable GPU metrics are explicitly marked rather than invented.*
 | Compute dispatch: vector add, scale, reduce-sum, FP32 matmul, chunked scan, transpose | **Native / Stable** | CPU + Vulkan tests |
 | CPU backend (scalar + runtime AVX2/FMA) | **Native / Stable** | `cpu_*` tests |
 | Memory cap and clean OOM error | **Native / Stable** | `vulkan_memory_cap_is_enforced` |
+| Bounded on-disk Vulkan pipeline cache (device-fingerprinted, corruption-safe) | **Native / Stable** | `vulkan_pipeline_cache_persists_across_contexts` (VK-06) |
 | HCSFlow async submit + hcsFlowSynchronize, HEvent flow marker | **Native / Stable** | FL-01..FL-05 |
 | Diagnostics CLI (`hcsdoctor`) | **Native / Stable** | this repo |
 | Benchmarks (`hcsbench`) | **Native / Stable** | `benchmarks/baselines/` |

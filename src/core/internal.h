@@ -66,6 +66,11 @@ public:
 std::unique_ptr<BackendContext> createCpuContext(hcs_device_t* device, uint64_t memory_cap);
 std::unique_ptr<BackendContext> createVulkanContext(hcs_device_t* device, uint64_t memory_cap);
 
+/* Directory for persistent Vulkan pipeline caches. Internal (not part of the C ABI):
+ * services read the already-documented settings value and set it before hcsInit. */
+void setPipelineCacheDir(const std::string& dir);
+std::string pipelineCacheDir();
+
 void enumerateCpuDevices(std::vector<std::unique_ptr<hcs_device_t>>& out);
 void enumerateVulkanDevices(std::vector<std::unique_ptr<hcs_device_t>>& out);
 void shutdownVulkanGlobal();
