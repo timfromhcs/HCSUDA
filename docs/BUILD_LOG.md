@@ -761,6 +761,14 @@ powershell -File scripts\build-test-once.ps1 -> configure/build/test exit=0; 95 
 The README screenshot was recaptured from the live service at the updated UI (Models section
 visible, empty catalog shown honestly as "No data.").
 
+## 2026-11-28 — Endless work iteration 15: UI output escaping
+
+The console inserted catalog values and the configured model directory straight into HTML. Added a
+`esc()` helper and used it for table cells and the model-dir note so user-controlled catalog data
+cannot inject markup. UI-01 asserts the helper exists. A build then hit `LNK1168` again: the manual
+screenshot server had survived as a child process of the shell wrapper (PID 3572) and held the EXE.
+After terminating it, configure/build/test were green with 95/95 tests. No service is left running.
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan

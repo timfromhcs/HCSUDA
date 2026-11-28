@@ -80,11 +80,16 @@ async function get(path) {
   if (!r.ok) throw new Error(path + ' -> HTTP ' + r.status);
   return r.json();
 }
+function esc(v) {
+  return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
 function table(rows, columns) {
   if (!rows.length) return '<p class="note">No data.</p>';
   return '<table><thead><tr>' + columns.map(c => '<th>' + c.label + '</th>').join('') +
     '</tr></thead><tbody>' + rows.map(r => '<tr>' + columns.map(c =>
-      '<td>' + (r[c.key] === undefined || r[c.key] === null ? 'Not exposed by this driver/API' : r[c.key]) +
+      '<td>' + (r[c.key] === undefined || r[c.key] === null
+        ? 'Not exposed by this driver/API' : esc(r[c.key])) +
       '</td>').join('') + '</tr>').join('') + '</tbody></table>';
 }
 async function refresh() {
@@ -137,7 +142,7 @@ async function loadSettings() {
       '<option value="light">Light</option></select> ' +
       'Prefetch <select id="pref"><option value="off">Off</option>' +
       '<option value="conservative">Conservative</option><option value="adaptive">Adaptive</option></select> ' +
-      '<p class="note">Model dir: ' + (s.model_dir || 'not set') + ' · API port: ' + s.api_port +
+      '<p class="note">Model dir: ' + esc(s.model_dir || 'not set') + ' · API port: ' + s.api_port +
       ' · Start with Windows: ' + s.start_with_windows + ' · Update check: ' + s.update_check + '</p>';
     document.getElementById('pol').value = String(s.backend_policy);
     document.getElementById('theme').value = s.theme;
