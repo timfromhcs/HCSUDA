@@ -1163,3 +1163,8 @@ OpenAPI 9 paths, artifact bc1f8a016920c2d6 (rc.2). Repo clean and fully pushed.
 260 pulses processed. All local gates and hosted CI (8 jobs) green. GitHub release v0.1.0-rc.2
 (local EXE + checksum + SBOM) and the public Vercel WebGPU/WASM demo remain live. Next stable
 plan: `docs/PLAN_NEXT_STABLE.md`.
+
+## 2026-11-28 — Endless work pulse 263
+
+All gates green: 2/2 CTest targets (96/96), WASM n=1001 worst=0, secret scan 141 files,
+OpenAPI 9 paths, artifact bc1f8a016920c2d6 (rc.2). Repo clean and fully pushed.
