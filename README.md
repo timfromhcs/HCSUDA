@@ -49,6 +49,19 @@ unavailable GPU metrics are explicitly marked rather than invented.*
 | Local browser UI (Dashboard, Devices, Memory, Models, Settings, About, Compatibility) | **Experimental** | UI-01..05, SET-01..05, served at `http://127.0.0.1:<port>/ui/` |
 | One-file native EXE installer (unsigned, SHA-256 published) | **Experimental** | INS-01..04, `docs/release/installer.md` |
 
+### Roadmap (not in V1, no feature claimed today)
+
+* GGUF inference adapter with a tested Vulkan backend and published quantisation support.
+* Textual PTX importer for a verified opcode subset; CUBIN/SASS translation remains unsupported.
+* Native Qt/WebView2 desktop shell (ADR-0003 currently selects the local browser console).
+* Streamable HTTP MCP transport with localhost-only authentication and Origin validation.
+* Additional UI sections: Translate, Benchmarks, Visualizer, API/MCP, Diagnostics.
+* Device-local allocation with staging, GPU timestamp queries and allocator pooling.
+* Multi-GPU scheduling and selected CUDA Runtime ABI compatibility behind an opt-in launcher.
+
+These items are **not** shipped in this release candidate. See `docs/release/v1-scope.md` and
+`docs/KNOWN_LIMITATIONS.md`.
+
 ## Compatibility matrix
 
 | Area | Status | Detail |
