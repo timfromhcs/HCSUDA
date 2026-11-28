@@ -102,7 +102,9 @@ clean-VM install test, code signing (no certificate), manually approved GitHub R
 Intel/NVIDIA cross-vendor hardware verification. These are listed in `docs/AGENT_STATUS.md` and
 `docs/release/v1-scope.md`; no release copy claims them as done.
 
-The background loop is stopped via `logs/limitless-loop.stop` and the 2-minute pulse automation is
-deleted once this state is recorded. The loop was a work driver, never a wait state.
+The background loop was stopped once, then **restarted on explicit user request** together with
+a new 2-minute pulse; work continues with periodic commits/pushes to `main`. Newly closed in the
+endless phase: automated UI capture (`hcs_ui_capture`, UI-05). External blockers were re-checked:
+no signing certificate, no second GPU, no Windows VM image — they remain owner/external actions.
 
 Made with love by HCSMedia & timfromhcs.

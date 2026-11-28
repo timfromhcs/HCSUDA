@@ -276,6 +276,11 @@ if(HCS_BUILD_TESTS)
         target_compile_options(hcs_tests PRIVATE /W4 /permissive- /utf-8)
     endif()
     add_test(NAME hcs_unit COMMAND hcs_tests)
+    add_test(NAME hcs_ui_capture
+        COMMAND powershell.exe -NoProfile -ExecutionPolicy Bypass
+                -File "${CMAKE_CURRENT_SOURCE_DIR}/tests/ui/capture_ui.ps1"
+                -ServerExe "$<TARGET_FILE:hcsbridge-rest>")
+    set_tests_properties(hcs_ui_capture PROPERTIES TIMEOUT 90)
 endif()
 
 message(STATUS "HCSUDA ${PROJECT_VERSION}: Vulkan backend ${HCS_ENABLE_VULKAN}, tests ${HCS_BUILD_TESTS}")

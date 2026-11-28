@@ -107,6 +107,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | SET-05 | rest_settings_roundtrip_and_validation | REST | PASS | authenticated GET/POST/reset with 400 on invalid values |
 | UI-03 | settings controls in local UI | UI | PASS | Save/Reset buttons wired to the real settings endpoints |
 | UI-04 | real console screenshot (manual, 2026-11-28) | UI + REST | PASS | headless Chrome captured `docs/screenshots/ui-dashboard.png` from a live server; shows real Radeon 680M + CPU devices, queried memory budgets and persisted settings |
+| UI-05 | `hcs_ui_capture` (CTest) | UI + REST | PASS | automated test starts the local service on a free loopback port, captures the live console with headless Chrome/Edge, validates PNG signature and >=10 KB; skips cleanly when no browser is installed. 2/2 CTest targets pass in both `windows-tests` and `windows-cpu-only` |
 | STR-01 | stress_repeated_cpu_dispatch_reuses_buffers | CPU | PASS | 2000 synchronous dispatches reusing the same buffers |
 | STR-02 | stress_async_flow_many_submissions | Vulkan | PASS | 500 async submissions on one flow, chunked fence wait, verified output |
 | STR-03 | fuzz_bounded_parsers_reject_random_input | parsers/API | PASS | 200 seeded random inputs through HCSIR, scanner, MCP and REST handlers |

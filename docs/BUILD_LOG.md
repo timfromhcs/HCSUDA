@@ -549,3 +549,25 @@ powershell -File scripts\check-secrets.ps1 -> SECRET_SCAN_PASS (118 tracked file
 
 Final status: internally closable work is complete; only owner/external release actions remain
 (clean VM, signing certificate, approved GitHub release, cross-vendor hardware). Loop stopped.
+
+## 2026-11-28 — Endless work restarted; automated UI capture (Build-Test-Fix)
+
+Pushed the three earlier commits (`fde331d..ae0d5ff`), restarted the endless background loop and
+the 2-minute chat pulse. Checked whether external blockers could be closed locally: there is no
+code-signing certificate in `Cert:\CurrentUser\My`, no second Vulkan GPU, and the only local ISO is
+a Linux image (`D:\AI\vmtest\dev2\...`), so a clean Windows 11 VM test remains impossible here.
+
+Closed next internal gap: no automated UI screenshot regression. Added
+`tests/ui/capture_ui.ps1` and CTest target `hcs_ui_capture` (free loopback port, throwaway token,
+headless Chrome/Edge, PNG signature + size validation, SKIP without browser).
+
+Failure found and fixed: first run failed because PowerShell 5.1 treats Chrome's benign stderr
+registry warning as an error record even with `2>$null` (`FAIL: Missing value path for key ...`).
+Replaced the direct invocation with `Start-Process -Wait` and redirected stdout/stderr to temp
+files (UI-05).
+
+```
+ctest --preset windows-tests -R hcs_ui_capture -V -> PASS (52937 bytes)
+powershell -File scripts\build-test-once.ps1 -> configure/build/test exit=0 (2/2 CTest targets)
+cmake --preset windows-cpu-only; ctest --preset windows-cpu-only -> 2/2 PASS
+```

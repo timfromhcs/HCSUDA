@@ -68,7 +68,8 @@ Limitless Work loop active: `docs/LIMITLESS_WORK_PLAN.md`, continuous build/test
   16x16 tiled transpose, each with a CPU reference and odd-size/boundary tests.
 * Services: local-only REST with random bearer token and settings persistence, MCP stdio with
   four read-only tools, self-contained browser UI with live data.
-* Tests: 84 tests covering API contract, CPU/Vulkan correctness, memory caps, HCSIR accept/reject/serialize,
+* Tests: 84 HCS unit/integration tests plus an automated live-UI capture test (`hcs_ui_capture`),
+  covering API contract, CPU/Vulkan correctness, memory caps, HCSIR accept/reject/serialize,
   generated GLSL + GPU execution, flows/events/graphs, scan/transpose, CUDA scan/translation,
   catalog/checksums, REST/MCP/UI, settings, stress/fuzz and installer gates.
 
