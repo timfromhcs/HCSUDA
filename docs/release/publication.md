@@ -12,23 +12,22 @@ Performed 2026-11-26 after explicit owner confirmation of the target repository.
 * Pushed commit at publication time: `02f6cfd`.
 * CI workflow `CI` was triggered automatically by the push.
 
-## Not performed
+## Release created (explicit owner approval, 2026-11-28)
 
-* **No GitHub Release was created.** The user-approved scope of the publication was repository
-  creation plus push to `main`. A release tag should be created only after the remaining
-  release blockers in `docs/AGENT_STATUS.md` are settled.
-* No signed tag, no code signing certificate, no `v0.1.0-rc.1` tag.
-* No remote was fabricated or reported as pushed without verification; the URL and CI run were
-  checked with `gh repo view` and `gh run list`.
+* Annotated tag `v0.1.0-rc.1` pushed to `origin`.
+* GitHub Release: <https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.1>
+* Assets verified: `HCSUDA-Setup-x64.exe`, `HCSUDA-Setup-x64.exe.sha256`, `sbom.json`.
+* Notes: `docs/release/RELEASE_NOTES.md`.
 
-## Exact commands for follow-up (not executed here)
+Commands used:
 
 ```powershell
-# after the remaining release blockers are cleared
 git tag -a v0.1.0-rc.1 -m "HCSUDA 0.1.0 release candidate"
 git push origin v0.1.0-rc.1
-gh release create v0.1.0-rc.1 `
-  artifacts/HCSUDA-Setup-x64.exe `
-  artifacts/HCSUDA-Setup-x64.exe.sha256 `
-  --title "HCSUDA v0.1.0-rc.1" --notes-file docs/release/RELEASE_NOTES.md
+gh release create v0.1.0-rc.1 artifacts\HCSUDA-Setup-x64.exe artifacts\HCSUDA-Setup-x64.exe.sha256 docs\release\sbom.json --title "HCSUDA v0.1.0-rc.1" --notes-file docs\release\RELEASE_NOTES.md
 ```
+
+## Still not performed
+
+* No signed tag and no code signing certificate; the EXE is honestly unsigned with a published SHA-256.
+* No clean-VM or cross-vendor hardware verification; see `docs/release/EXTERNAL_BLOCKERS.md`.

@@ -38,7 +38,7 @@ Limitless Work loop active: `docs/LIMITLESS_WORK_PLAN.md`, continuous build/test
 | 10 | Desktop UI | **Done for V1 scope** | local browser UI with live data + persisted settings; native Qt/WebView2 shell and screenshots explicitly out of V1 scope |
 | 11 | Installer (one EXE) | **Done on reference machine** | native single EXE, silent per-user install, install/uninstall + same-version AND cross-version upgrade tested (INS-01..04); clean VM unverified |
 | 12 | Stress/security/performance hardening | **Done for V1 scope** | stress/fuzz, 60-min soak, validation layers, secret scan and MSVC /analyze pass |
-| 13 | Docs, CI, release candidate | **Partial** | OpenAPI, SBOM, scope doc, public repo pushed, hosted CI green; GitHub Release and signing pending |
+| 13 | Docs, CI, release candidate | **Partial** | OpenAPI, SBOM, scope doc, public repo pushed, `v0.1.0-rc.1` GitHub Release published; clean VM and signing still external |
 
 ## Implemented surface
 
@@ -92,6 +92,6 @@ remains available (IR-21..23) but is not used as a runtime module cache.
 ## Remaining external blockers
 
 See `docs/KNOWN_LIMITATIONS.md` and `docs/release/v1-scope.md`. Only external items remain:
-clean-VM testing, code signing (no certificate), a manually approved GitHub Release, and
-cross-vendor hardware verification (only Radeon 680M + CPU tested). Cross-version upgrade is
-now verified on the reference machine (INS-04).
+clean-VM testing, code signing (no certificate) and cross-vendor hardware verification (only
+Radeon 680M + CPU tested). The GitHub Release `v0.1.0-rc.1` was published with owner approval.
+Cross-version upgrade is verified on the reference machine (INS-04).

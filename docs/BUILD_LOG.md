@@ -1014,3 +1014,10 @@ artifact f18d065014ed7535. Repo clean and fully pushed.
 
 All local gates green: 2/2 CTest targets (96/96), secret scan 132 files, OpenAPI 9 paths,
 artifact f18d065014ed7535. Repo clean and fully pushed.
+
+## 2026-11-28 — GitHub release published (owner approval)
+
+With explicit owner approval, created annotated tag `v0.1.0-rc.1` and GitHub Release
+<https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.1> containing the single-file EXE,
+SHA-256 checksum and SBOM. README, publication record, release checklist and limitation docs were
+updated. Release blocker #3 is now closed; three external items remain.

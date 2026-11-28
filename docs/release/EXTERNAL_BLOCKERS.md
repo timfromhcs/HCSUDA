@@ -31,20 +31,12 @@ Owner action:
    user data policy.
 5. Record VM build, driver state and outputs in `docs/TEST_MATRIX.md` as INS-05.
 
-## 3. GitHub Release / tag (owner approval)
+## 3. GitHub Release / tag — CLOSED 2026-11-28
 
-Current state: repository public, CI green, publication performed; no tag and no release created.
-
-Owner action (after the release decision is explicitly approved):
-
-```powershell
-git tag -a v0.1.0-rc.1 -m "HCSUDA 0.1.0 release candidate"
-git push origin v0.1.0-rc.1
-gh release create v0.1.0-rc.1 artifacts\HCSUDA-Setup-x64.exe artifacts\HCSUDA-Setup-x64.exe.sha256 --title "HCSUDA v0.1.0-rc.1" --notes-file docs\release\RELEASE_NOTES.md
-```
-
-Record the release URL and tag in `docs/release/publication.md`. Do not claim a release before it
-exists.
+Owner explicitly approved the release. Annotated tag `v0.1.0-rc.1` pushed and GitHub Release created
+with `HCSUDA-Setup-x64.exe`, `.sha256` and `sbom.json`:
+<https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.1>. Exact commands are recorded in
+`docs/release/publication.md`. This item is no longer open.
 
 ## 4. Cross-vendor hardware verification
 

@@ -93,8 +93,8 @@ the current truth of the code in this repository. It is kept consistent with
 
 ## What would block a final V1 release today
 
-Only external items remain: clean-VM install testing, code signing (no certificate), a manually
-approved GitHub Release, and cross-vendor hardware verification. Same-version and cross-version
+Only external items remain: clean-VM install testing, code signing (no certificate) and
+cross-vendor hardware verification. The `v0.1.0-rc.1` GitHub Release is published. Same-version and cross-version
 upgrade are already verified on the reference machine (INS-03/INS-04). See `docs/AGENT_STATUS.md`.
 
 ## Model store (updated Wave 8)

@@ -54,7 +54,8 @@ Every checked item links to real evidence in `docs/TEST_MATRIX.md`, `docs/BUILD_
 - [x] README and compatibility matrix match the build — README compatibility matrix, this file.
 - [ ] Code signing with a publisher certificate — **no certificate configured**; installer is
       honestly unsigned and published with SHA-256.
-- [ ] GitHub Release/tag `v0.1.0-rc.1` — owner approval required; see `docs/release/publication.md`.
+- [x] GitHub Release/tag `v0.1.0-rc.1` — published with EXE, checksum and SBOM:
+      <https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.1>.
 
 ## Hardware QA
 

@@ -3,6 +3,7 @@
 # HCSUDA
 
 [![CI](https://github.com/timfromhcs/HCSUDA/actions/workflows/ci.yml/badge.svg)](https://github.com/timfromhcs/HCSUDA/actions/workflows/ci.yml)
+[![Release: v0.1.0-rc.1](https://img.shields.io/badge/release-v0.1.0--rc.1-orange.svg)](https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.1)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Repository:** <https://github.com/timfromhcs/HCSUDA>
@@ -10,7 +11,8 @@
 **HCS Unified Compute Runtime** — a Vulkan-based, cross-vendor GPU compute runtime with a
 portable C ABI, a CPU reference backend, and an expanding CUDA-source migration path.
 
-> **Status: 0.1.0 release candidate.** Waves 0–13 are implemented; release verification is ongoing. Runtime, kernels, HCSIR/HCSCC,
+> **Status: 0.1.0 release candidate, published as [`v0.1.0-rc.1`](https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.1).**
+> Waves 0–13 are implemented; the single-file EXE, checksum and SBOM are attached to the GitHub release. Runtime, kernels, HCSIR/HCSCC,
 > a narrow CUDA-source migration subset, a local model catalog, local REST/MCP with a browser UI,
 > and a single-file installer are present and tested on the reference hardware (Radeon 680M,
 > Vulkan 1.4.315) and CPU backend. GGUF inference, PTX import and a native Qt/WebView2 shell are
