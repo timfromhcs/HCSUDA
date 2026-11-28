@@ -660,6 +660,13 @@ still use `--parallel` in separate build directories. Verified:
 powershell -File scripts\build-test-once.ps1 -> configure/build/test exit=0; 2/2 CTest targets
 ```
 
+Benchmark smoke after the kernel additions (real Radeon 680M, `--device 0 --reps 5 --warmup 2
+--json`): vecadd median 0.2558 ms (verified), scale 0.2817 ms, reduce 0.1467 ms, matmul
+0.1672 ms, scan 0.0949 ms, transpose 0.0979 ms. Only vecadd is marked `verified: true` by
+`hcsbench`; the others are correctness-tested in the unit suite but not re-verified inside the
+benchmark tool. These are wall-clock numbers including dispatch overhead — no pure-kernel-timing
+claim is made.
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan
