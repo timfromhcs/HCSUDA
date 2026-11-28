@@ -110,7 +110,8 @@ upgrade are already verified on the reference machine (INS-03/INS-04). See `docs
 * The REST API is local-only and token-authenticated. An OpenAPI 3.1 contract exists at
   `docs/api/openapi.json`; settings endpoints are implemented and UI-tested (SET-05). A
   process-wide fixed-window limit (120 requests / 10 s, HTTP 429) applies to all endpoints except
-  health (REST-06). There is no model/benchmark/translation endpoint in V1.
+  health (REST-06). `GET /api/v1/models` exposes safe catalog metadata only (REST-07); benchmark
+  and translation endpoints remain out of V1 scope.
 * MCP tool arguments do not open model files or perform downloads; `hcsuda_list_models` reads only
   the already-indexed catalog and exposes no paths (MCP-07).
 

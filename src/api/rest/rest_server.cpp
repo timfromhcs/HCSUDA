@@ -4,6 +4,7 @@
 #include "core/internal.h"
 #include "api/rest/ui_page.h"
 #include "service/settings.h"
+#include "model_store/model_vault.h"
 #include "model_store/sha256.h"
 
 #include <cctype>
@@ -13,6 +14,22 @@
 
 namespace hcs::rest {
 namespace {
+
+std::string escapeJson(const std::string& text)
+{
+    std::string out;
+    for (char c : text) {
+        if (c == '"' || c == '\\') {
+            out.push_back('\\');
+            out.push_back(c);
+        } else if (static_cast<unsigned char>(c) < 0x20) {
+            out.push_back(' ');
+        } else {
+            out.push_back(c);
+        }
+    }
+    return out;
+}
 
 std::string errorBody(int status, const char* code, const std::string& message)
 {
@@ -231,6 +248,31 @@ std::string handleRequest(const std::string& method, const std::string& target,
             return response(400, errorBody(400, "invalid_settings", hcsResultString(result)));
         }
         return response(200, store.toJson());
+    }
+    if (method == "GET" && path == "/api/v1/models") {
+        hcs::service::SettingsStore settings(config.settingsDir.empty()
+                                                 ? std::filesystem::path()
+                                                 : std::filesystem::path(config.settingsDir));
+        (void)settings.load();
+        const std::string& root = settings.get().modelDir;
+        std::string json = "{\"configured\":" + std::string(root.empty() ? "false" : "true") +
+                           ",\"models\":[";
+        if (!root.empty()) {
+            hcs::models::ModelVault vault(root);
+            std::vector<hcs::models::ModelEntry> entries;
+            if (vault.list(&entries) == HCS_SUCCESS) {
+                for (size_t i = 0; i < entries.size(); ++i) {
+                    if (i) json += ",";
+                    const auto& entry = entries[i];
+                    json += "{\"id\":\"" + escapeJson(entry.id) + "\",\"name\":\"" +
+                            escapeJson(entry.name) + "\",\"format\":\"" +
+                            escapeJson(entry.format) + "\",\"size_bytes\":" +
+                            std::to_string(entry.size_bytes) + ",\"hash_verified\":" +
+                            (entry.hash_verified ? "true" : "false") + ",\"runnable\":false}";
+                }
+            }
+        }
+        return response(200, json + "]}");
     }
     if (method != "GET") {
         return response(404, errorBody(404, "not_found",

@@ -65,6 +65,24 @@
         }
       }
     },
+    "/api/v1/models": {
+      "get": {
+        "summary": "Safe metadata of the indexed local model catalog",
+        "description": "Returns configured and a models array with id, name, format, size_bytes, hash_verified and runnable=false. No filesystem paths, file contents or downloads are exposed.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "example": { "configured": false, "models": [] }
+              }
+            }
+          },
+          "401": { "description": "Missing or invalid token" },
+          "429": { "description": "Rate limit exceeded" }
+        }
+      }
+    },
     "/api/v1/version": {
       "get": {
         "summary": "Product, version and C ABI version",

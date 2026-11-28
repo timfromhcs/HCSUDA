@@ -738,6 +738,15 @@ hash flag and `runnable:false` — no filesystem paths, file contents or downloa
 Test fix: MCP-07 initially asserted a `runnable` field, but the unconfigured catalog correctly
 returns an empty model list; replaced with a no-path-leak assertion. Result: 94/94 tests.
 
+## 2026-11-28 — Endless work iteration 13: safe REST model listing
+
+Added authenticated `GET /api/v1/models` to `src/api/rest/rest_server.cpp` with the same safe
+metadata shape as the MCP tool and no paths/file contents. Documented in `docs/api/openapi.json`.
+
+Build-Test-Fix: first build failed with `C2039: escape is not a member of hcs::mcp` because the MCP
+escape helper is file-local. Added a local `escapeJson` in the REST handler and rebuilt:
+`95 tests run, 0 failures`.
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan

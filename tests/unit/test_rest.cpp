@@ -178,3 +178,19 @@ HCS_TEST(rest_rate_limits_requests_per_process)
         hcs::rest::handleRequest("GET", "/api/v1/health", "", "", config, &exhausted);
     CHECK(statusIs(health, 200)); /* monitoring stays available */
 }
+
+HCS_TEST(rest_models_endpoint_returns_safe_metadata)
+{
+    auto config = configWithToken("token");
+    const auto unique = std::chrono::steady_clock::now().time_since_epoch().count();
+    config.settingsDir = (std::filesystem::temp_directory_path() /
+                          ("hcsuda-rest-models-" + std::to_string(unique)))
+                             .string();
+    const std::string answer =
+        hcs::rest::handleRequest("GET", "/api/v1/models", authHeader("token"), "", config);
+    CHECK(statusIs(answer, 200));
+    CHECK_MSG(answer.find("\"configured\":false") != std::string::npos, answer);
+    CHECK_MSG(answer.find("\"models\":[]") != std::string::npos, answer);
+    CHECK_MSG(answer.find("path") == std::string::npos, "no filesystem paths must be exposed");
+    CHECK(statusIs(hcs::rest::handleRequest("GET", "/api/v1/models", "", "", config), 401));
+}
