@@ -126,6 +126,15 @@ Example output on the reference machine:
     memory       : heap 9569.9 MiB, budget 9091.4 MiB, used 0.0 MiB
 ```
 
+## Verification scripts
+
+```powershell
+powershell -File scripts\build-test-once.ps1      # one lock-protected build+test cycle
+powershell -File scripts\check-secrets.ps1        # credential scan over tracked files
+powershell -File scripts\check-openapi.ps1        # OpenAPI 3.1 contract gate
+powershell -File scripts\soak.ps1 -Minutes 5       # bounded soak with verified benchmark rows
+```
+
 ## Minimal C API example
 
 ```c
