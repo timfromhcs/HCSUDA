@@ -3,8 +3,8 @@
 # HCSUDA
 
 [![CI](https://github.com/timfromhcs/HCSUDA/actions/workflows/ci.yml/badge.svg)](https://github.com/timfromhcs/HCSUDA/actions/workflows/ci.yml)
-[![Release: v0.1.0-rc.1](https://img.shields.io/badge/release-v0.1.0--rc.2-orange.svg)](https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.2)
-[![Cloud demo](https://img.shields.io/badge/cloud-WebGPU%2FWASM%20live-brightgreen.svg)](https://hcsuda-webgpu-demo-mhm11twi4-hcsmediacorp.vercel.app)
+[![Release: v0.1.0-rc.2](https://img.shields.io/badge/release-v0.1.0--rc.2-orange.svg)](https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.2)
+[![Cloud demo](https://img.shields.io/badge/cloud-WebGPU%2FWASM%20live-brightgreen.svg)](https://hcsuda-webgpu-demo.vercel.app)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Repository:** <https://github.com/timfromhcs/HCSUDA>
@@ -14,7 +14,7 @@ portable C ABI, a CPU reference backend, and an expanding CUDA-source migration 
 
 > **Status: 0.1.0 release candidate.** Local: single-file EXE, checksum and SBOM on the
 > [`v0.1.0-rc.2`](https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.2) GitHub release.
-> Cloud: a clearly scoped [WebGPU/WASM browser demo](https://hcsuda-webgpu-demo-mhm11twi4-hcsmediacorp.vercel.app)
+> Cloud: a clearly scoped [WebGPU/WASM browser demo](https://hcsuda-webgpu-demo.vercel.app)
 > is deployed on Vercel. Waves 0–13 are implemented; 96/96 tests, 8/8 hosted CI jobs, a 60-minute
 > soak (1418 iterations, 0 failures) and all release gates are green. Runtime, kernels,
 > HCSIR/HCSCC, CUDA-source migration subset, model catalog, local REST/MCP with browser UI and a
@@ -177,7 +177,7 @@ powershell -File scripts\soak.ps1 -Minutes 5       # bounded soak with verified 
 ## Browser WebGPU / WebAssembly demo
 
 A separate, static browser demo of the documented `vecadd_f32` shape runs at
-<https://hcsuda-webgpu-demo-mhm11twi4-hcsmediacorp.vercel.app> (source: `webgpu-demo/`). WebGPU
+<https://hcsuda-webgpu-demo.vercel.app> (source: `webgpu-demo/`). WebGPU
 executes the kernel; a 124-byte WebAssembly module computes the CPU reference and the page compares
 them. It is **not** the native HCSUDA runtime, uses no Vulkan backend or C ABI, and makes no
 performance claim. If WebGPU is unavailable the page reports that explicitly.
