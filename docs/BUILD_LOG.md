@@ -877,3 +877,12 @@ scripts/check-secrets.ps1           -> PASS (125 tracked files)
 scripts/check-openapi.ps1           -> OPENAPI_PASS (9 paths, 8 required endpoints)
 gh run list --limit 1               -> run 46145973873 success on main
 ```
+
+## 2026-11-28 — Endless work iteration 21: clean out-of-tree build
+
+Verified a completely fresh configure/build/test in `build/clean-verify` (separate from the
+endless loop's build tree): `cmake -S . -B build/clean-verify -G "Visual Studio 17 2022" -A x64
+-DHCS_ENABLE_VULKAN=ON ...`, then `cmake --build ... --parallel` and `ctest --test-dir ... -C
+RelWithDebInfo`. All nine shaders were compiled by `glslc` from scratch, the HCSIR fixture was
+lowered/validated, and 2/2 CTest targets passed (96/96 HCS tests). This rules out stale generated
+files masking a build problem.
