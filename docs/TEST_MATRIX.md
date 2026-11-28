@@ -101,7 +101,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | TR-01 | translate_vecadd_subset_produces_runnable_hcsir | translator | PASS | fixture → HCSIR → compile → interpreter over 1001 elements matches CPU reference |
 | TR-02 | translate_fma_variant_uses_fma_opcode | translator | PASS | scalar-factor variant emits `fma` |
 | TR-03 | translate_fails_closed_on_unsupported_constructs | translator | PASS | atomics/no-kernel/null input rejected with no partial output |
-| UI-01 | rest_serves_self_contained_local_ui | UI | PASS | self-contained HTML with live data calls, no remote resources, explicit unavailable state |
+| UI-01 | rest_serves_self_contained_local_ui | UI | PASS | self-contained HTML with live data calls (dashboard, devices, memory, models, settings), no remote resources, explicit unavailable state |
 | UI-02 | live browser UI fetch (manual) | UI + REST | PASS | GET /ui/ -> 200 text/html, 4381 bytes from the running service |
 | INS-01 | tests/installer/test_installer.ps1 | installer | PASS | staged install, file checks, installed hcsdoctor --json, uninstall, Vulkan loader intact (re-run 2026-11-28 after cache/reduce/rate-limit changes) |
 | INS-02 | full single-EXE setup run (manual) | installer | PASS | SETUP_EXIT=0, real device report from installed binary, uninstall preserved user data |

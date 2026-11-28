@@ -119,9 +119,9 @@ upgrade are already verified on the reference machine (INS-03/INS-04). See `docs
 
 * The V1 UI is a self-contained page served by the local REST service. There is no Qt or
   WebView2 native shell in this build (see ADR-0003).
-* It currently has Dashboard, Devices, Memory budget, Settings and Compatibility sections.
-  Models, Translate, Benchmarks, Visualizer, API/MCP, Diagnostics and About pages are not
-  present; they are not advertised as working features.
+* It currently has Dashboard, Devices, Memory budget, Models (safe catalog metadata via
+  `GET /api/v1/models`), Settings and Compatibility sections. Translate, Benchmarks, Visualizer,
+  API/MCP, Diagnostics and About pages are not present; they are not advertised as working features.
 * A real console screenshot exists (`docs/screenshots/ui-dashboard.png`, UI-04) and an automated
   CTest capture/regression check exists (`hcs_ui_capture`, UI-05). On machines without Chrome or
   Edge that test reports SKIP rather than failing.

@@ -747,6 +747,17 @@ Build-Test-Fix: first build failed with `C2039: escape is not a member of hcs::m
 escape helper is file-local. Added a local `escapeJson` in the REST handler and rebuilt:
 `95 tests run, 0 failures`.
 
+## 2026-11-28 — Endless work iteration 14: real UI model section
+
+Connected the new endpoint to the self-contained console: `src/api/rest/ui_page.cpp` now has a
+Models section calling `/api/v1/models`, with an explicit note that HDD is storage and no inference
+adapter exists in V1. UI-01 asserts the section and endpoint are present. No fake controls were
+added; the table is populated only from the live service.
+
+```
+powershell -File scripts\build-test-once.ps1 -> configure/build/test exit=0; 95 tests, 0 failures
+```
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan

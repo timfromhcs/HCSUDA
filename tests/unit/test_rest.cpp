@@ -122,6 +122,9 @@ HCS_TEST(rest_serves_self_contained_local_ui)
     CHECK_MSG(page.find("http://") == std::string::npos, "no remote resources");
     CHECK_MSG(page.find("Not exposed by this driver/API") != std::string::npos,
               "unavailable metrics must be marked explicitly");
+    CHECK_MSG(page.find("Models (local catalog)") != std::string::npos, page);
+    CHECK_MSG(page.find("/api/v1/models") != std::string::npos,
+              "model section must call the real endpoint");
 }
 
 HCS_TEST(rest_settings_roundtrip_and_validation)

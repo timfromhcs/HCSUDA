@@ -57,6 +57,10 @@ std::string uiPage(const std::string& token)
  </section>
  <section><h2>Devices</h2><div id="devices">Loading…</div></section>
  <section><h2>Memory budget</h2><div id="budget">Loading…</div></section>
+ <section><h2>Models (local catalog)</h2><div id="models">Loading…</div>
+  <p class="note">HDD is storage, not execution memory. No inference adapter is integrated in V1;
+  only safe catalog metadata is displayed.</p>
+ </section>
  <section><h2>Settings (persisted locally)</h2>
   <div id="settings">Loading…</div>
   <p><button id="saveSettings">Save settings</button> <button id="resetSettings">Reset to defaults</button></p>
@@ -105,9 +109,21 @@ async function refresh() {
       { key: 'budget_bytes', label: 'Budget bytes (reported)' },
       { key: 'usage_bytes', label: 'Usage bytes (reported)' }
     ]) + '<p class="note">Heap/budget/usage come from Vulkan and are not a VRAM size.</p>';
+    await loadModels();
   } catch (e) {
     document.getElementById('error').textContent = 'Request failed: ' + e.message;
   }
+}
+async function loadModels() {
+  try {
+    const m = await get('/api/v1/models');
+    document.getElementById('models').innerHTML = table(m.models, [
+      { key: 'name', label: 'Name' }, { key: 'format', label: 'Format' },
+      { key: 'size_bytes', label: 'Bytes' }, { key: 'hash_verified', label: 'Hash verified' },
+      { key: 'runnable', label: 'Runnable' }
+    ]) + '<p class="note">Catalog configured: ' + m.configured +
+      '. No file contents or paths are shown.</p>';
+  } catch (e) { document.getElementById('models').textContent = 'Request failed: ' + e.message; }
 }
 async function loadSettings() {
   try {
@@ -153,6 +169,7 @@ document.getElementById('resetSettings').addEventListener('click', () =>
 document.getElementById('refresh').addEventListener('click', () => { refresh(); loadSettings(); });
 refresh();
 loadSettings();
+loadModels();
 </script>
 </body>
 </html>
