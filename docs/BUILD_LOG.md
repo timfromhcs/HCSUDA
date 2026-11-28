@@ -932,3 +932,9 @@ added during the endless work loops, so the SBOM remains accurate.
 
 All local gates re-run cleanly: 2/2 CTest targets (96/96), secret scan 131 files, OpenAPI 9 paths,
 installer artifact checksum f18d065014ed7535. Repo clean and fully pushed.
+
+## 2026-11-28 — Endless work pulse 100
+
+100 automated 2-minute pulses, 88 pushes to main, all hosted CI runs green, all local gates green,
+60-minute soak PASS (1418 iterations). Internal work is complete; remaining items are the four
+owner actions in `docs/release/EXTERNAL_BLOCKERS.md`.
