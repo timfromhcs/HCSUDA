@@ -28,6 +28,7 @@ std::string response(int status, const std::string& body)
                          : status == 403 ? "Forbidden"
                          : status == 404 ? "Not Found"
                          : status == 413 ? "Payload Too Large"
+                         : status == 429 ? "Too Many Requests"
                                          : "Internal Server Error";
     std::string out = "HTTP/1.1 " + std::to_string(status) + " " + reason + "\r\n";
     out += "Content-Type: application/json; charset=utf-8\r\n";
@@ -146,6 +147,24 @@ std::string generateToken()
     return hash.finish(); /* 64 hex characters, unique per process */
 }
 
+bool rateLimitAllows(RateLimitState* state, std::chrono::steady_clock::time_point now)
+{
+    if (!state) {
+        return true;
+    }
+    const auto window = std::chrono::seconds(kRateLimitWindowSeconds);
+    if (state->windowStart == std::chrono::steady_clock::time_point{} ||
+        now - state->windowStart >= window) {
+        state->windowStart = now;
+        state->count = 0;
+    }
+    if (state->count >= kRateLimitMaxRequests) {
+        return false;
+    }
+    ++state->count;
+    return true;
+}
+
 bool constantTimeEquals(const std::string& a, const std::string& b)
 {
     if (a.size() != b.size()) {
@@ -160,7 +179,7 @@ bool constantTimeEquals(const std::string& a, const std::string& b)
 
 std::string handleRequest(const std::string& method, const std::string& target,
                           const std::string& headers, const std::string& body,
-                          const RestConfig& config)
+                          const RestConfig& config, RateLimitState* limiter)
 {
     if (!originAllowed(headerValue(headers, "Origin"))) {
         return response(403, errorBody(403, "security_policy", "cross-origin request blocked"));
@@ -173,6 +192,12 @@ std::string handleRequest(const std::string& method, const std::string& target,
     }
 
     const std::string path = target.substr(0, target.find('?'));
+    /* Health stays available for monitoring even when the budget is exhausted. */
+    if (path != "/api/v1/health" &&
+        !rateLimitAllows(limiter, std::chrono::steady_clock::now())) {
+        return response(429, errorBody(429, "rate_limited",
+                                       "request limit reached; retry after the current window"));
+    }
     if (method == "GET" && (path == "/" || path == "/ui/" || path == "/ui")) {
         return htmlResponse(uiPage(config.token));
     }

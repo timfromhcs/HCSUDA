@@ -68,7 +68,7 @@ Limitless Work loop active: `docs/LIMITLESS_WORK_PLAN.md`, continuous build/test
   16x16 tiled transpose, each with a CPU reference and odd-size/boundary tests.
 * Services: local-only REST with random bearer token and settings persistence, MCP stdio with
   four read-only tools, self-contained browser UI with live data.
-* Tests: 84 HCS unit/integration tests plus an automated live-UI capture test (`hcs_ui_capture`),
+* Tests: 85 HCS unit/integration tests plus an automated live-UI capture test (`hcs_ui_capture`),
   covering API contract, CPU/Vulkan correctness, memory caps, HCSIR accept/reject/serialize,
   generated GLSL + GPU execution, flows/events/graphs, scan/transpose, CUDA scan/translation,
   catalog/checksums, REST/MCP/UI, settings, stress/fuzz and installer gates.
@@ -77,8 +77,8 @@ Limitless Work loop active: `docs/LIMITLESS_WORK_PLAN.md`, continuous build/test
 
 Validation layers are wired into `windows-validation` and pass with zero errors. Hosted CI passed
 all seven jobs on commit c5f3d4c. On 2026-11-28 all three local profiles were re-verified green:
-`windows-tests` 84/84, `windows-cpu-only` 81/81, `windows-validation` 84/84 with zero validation
-errors. `ctest` presets now exist for all profiles. `hcsport --convert` was exercised end-to-end
+`windows-tests` 85/85, `windows-cpu-only` 82/82, `windows-validation` 85/85 with zero validation
+errors. A process-wide REST rate limit (120 requests / 10 s, HTTP 429) was added and tested (REST-06). `ctest` presets now exist for all profiles. `hcsport --convert` was exercised end-to-end
 (PORT-04) and a real UI screenshot was captured from the live REST service (UI-04). HCSIR binary
 serialization is implemented and fuzz-tested; a persistent shader/module cache remains deferred
 and not a release blocker (it would require an init-descriptor/config ABI extension).

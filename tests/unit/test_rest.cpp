@@ -3,6 +3,7 @@
 
 #include "api/rest/rest_server.h"
 
+#include <chrono>
 #include <filesystem>
 #include <string>
 
@@ -149,4 +150,31 @@ HCS_TEST(rest_settings_roundtrip_and_validation)
         "POST", "/api/v1/settings/reset", headers, "", config);
     CHECK(statusIs(reset, 200));
     CHECK_MSG(reset.find("\"theme\":\"dark\"") != std::string::npos, reset);
+}
+
+HCS_TEST(rest_rate_limits_requests_per_process)
+{
+    hcs::rest::RateLimitState state;
+    const auto now = std::chrono::steady_clock::now();
+    for (uint32_t i = 0; i < hcs::rest::kRateLimitMaxRequests; ++i) {
+        CHECK(hcs::rest::rateLimitAllows(&state, now));
+    }
+    CHECK(!hcs::rest::rateLimitAllows(&state, now));
+    CHECK(hcs::rest::rateLimitAllows(
+        &state, now + std::chrono::seconds(hcs::rest::kRateLimitWindowSeconds)));
+    CHECK(hcs::rest::rateLimitAllows(nullptr, now)); /* pure callers stay unlimited */
+
+    hcs::rest::RateLimitState exhausted;
+    for (uint32_t i = 0; i < hcs::rest::kRateLimitMaxRequests; ++i) {
+        (void)hcs::rest::rateLimitAllows(&exhausted, now);
+    }
+    const auto config = configWithToken("token");
+    const std::string limited = hcs::rest::handleRequest(
+        "GET", "/api/v1/version", authHeader("token"), "", config, &exhausted);
+    CHECK(statusIs(limited, 429));
+    CHECK_MSG(limited.find("rate_limited") != std::string::npos, limited);
+
+    const std::string health =
+        hcs::rest::handleRequest("GET", "/api/v1/health", "", "", config, &exhausted);
+    CHECK(statusIs(health, 200)); /* monitoring stays available */
 }

@@ -94,6 +94,11 @@ try {
 } finally {
     if ($server -and -not $server.HasExited) {
         Stop-Process -Id $server.Id -Force -ErrorAction SilentlyContinue
+        try { Wait-Process -Id $server.Id -Timeout 10 -ErrorAction SilentlyContinue } catch { }
     }
+    # A stale server holding the EXE would break the next build (LNK1168).
+    Get-Process -Name 'hcsbridge-rest' -ErrorAction SilentlyContinue |
+        Where-Object { $_.Path -eq $ServerExe } |
+        ForEach-Object { Stop-Process -Id $_.Id -Force -ErrorAction SilentlyContinue }
     Remove-Item -Path $temp -Recurse -Force -ErrorAction SilentlyContinue
 }

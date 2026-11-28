@@ -4,8 +4,8 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **1/1 CTest target passed; 84/84 HCS tests passed** (re-verified 2026-11-28).
-CPU-only profile: 81/81; validation profile: 84/84 with zero Vulkan validation errors.
+Last result: **2/2 CTest targets passed; 85/85 HCS tests passed** (re-verified 2026-11-28).
+CPU-only profile: 82/82; validation profile: 85/85 with zero Vulkan validation errors.
 The background loop (`scripts/loop-build-test.ps1`) repeats configure/build/test every ~60 s and has
 produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 
@@ -57,7 +57,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | FL-03 | flow_event_timeout_and_validation | Vulkan | PASS | idle-flow event is immediately satisfied; null flow/event misuse rejected |
 | FL-04 | flow_cpu_backend_completes_immediately | CPU | PASS | CPU flow/event complete synchronously with zero timeout |
 | FL-05 | flow_event_wait_timeout_path | mock flow | PASS | a backend flow whose counter never advances yields `HCS_E_TIMEOUT` |
-| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 84/84 tests, no validation errors |
+| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 85/85 tests, no validation errors |
 | GR-01 | graph_runs_on_cpu_backend | CPU | PASS | 2-node linear DAG with dependency, replayed on a flow, both outputs verified |
 | GR-02 | graph_runs_on_vulkan_backend | Vulkan | PASS | same DAG executes on the Radeon 680M and matches the CPU result |
 | GR-03 | graph_rejects_invalid_dependencies | CPU | PASS | empty graph, future dependency, zero group count, >8 dependencies all rejected |
@@ -87,6 +87,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | REST-03 | rest_rejects_cross_origin_oversized_and_traversal | REST handler | PASS | 403 cross-origin, 413 >64 KiB, 400 traversal, 404 unknown routes |
 | REST-04 | rest_returns_real_runtime_data | REST handler | PASS | device list and memory budget from live runtime |
 | REST-05 | live loopback request (manual) | REST server | PASS | health=200, unauthorized=401, devices=200 with Radeon 680M + CPU |
+| REST-06 | rest_rate_limits_requests_per_process | REST handler | PASS | 120 requests/window accepted, 121st → 429 `rate_limited`; window resets; pure callers unlimited; health stays 200 while exhausted |
 | TR-01 | translate_vecadd_subset_produces_runnable_hcsir | translator | PASS | fixture → HCSIR → compile → interpreter over 1001 elements matches CPU reference |
 | TR-02 | translate_fma_variant_uses_fma_opcode | translator | PASS | scalar-factor variant emits `fma` |
 | TR-03 | translate_fails_closed_on_unsupported_constructs | translator | PASS | atomics/no-kernel/null input rejected with no partial output |
@@ -127,7 +128,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | Installer staged + reference-machine install/uninstall + in-place and cross-version upgrade | **tested** (INS-01..04); clean VM still not tested | 11 |
 | Stress/fuzz (2000 CPU, 500 GPU submissions, 200 fuzz inputs) + 60-min soak | **tested** (STR-01..03, SOAK-01) | 12 |
 | Intel/NVIDIA Vulkan hardware | **not verified** | requires hardware |
-| Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (84/84 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
+| Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (85/85 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
 
 ## Benchmark evidence
 

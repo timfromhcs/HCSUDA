@@ -106,6 +106,7 @@ int main(int argc, char** argv)
                  config.port);
     std::fprintf(stderr, "bearer token: %s\n", config.token.c_str());
 
+    hcs::rest::RateLimitState limiter; /* one budget per server process, not per connection */
     while (!g_stop) {
         const SOCKET client = ::accept(listener, nullptr, nullptr);
         if (client == INVALID_SOCKET) {
@@ -155,7 +156,8 @@ int main(int argc, char** argv)
                 body = request.substr(bodyStart);
             }
         }
-        const std::string answer = hcs::rest::handleRequest(method, target, headers, body, config);
+        const std::string answer =
+            hcs::rest::handleRequest(method, target, headers, body, config, &limiter);
         sendAll(client, answer);
         closesocket(client);
     }

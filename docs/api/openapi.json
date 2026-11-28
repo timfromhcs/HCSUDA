@@ -3,7 +3,7 @@
   "info": {
     "title": "HCSBridge REST API",
     "version": "0.1.0",
-    "description": "Local-only HCSUDA runtime API. Binds 127.0.0.1 only; all non-health endpoints require a per-process random bearer token. No arbitrary code execution, shell, DLL load or unrestricted file access is exposed."
+    "description": "Local-only HCSUDA runtime API. Binds 127.0.0.1 only; all non-health endpoints require a per-process random bearer token. A process-wide fixed-window limit of 120 requests per 10 seconds applies to all endpoints except /api/v1/health; exceeding it returns HTTP 429 with error code rate_limited. No arbitrary code execution, shell, DLL load or unrestricted file access is exposed."
   },
   "servers": [
     {

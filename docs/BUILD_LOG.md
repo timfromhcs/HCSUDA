@@ -571,3 +571,23 @@ ctest --preset windows-tests -R hcs_ui_capture -V -> PASS (52937 bytes)
 powershell -File scripts\build-test-once.ps1 -> configure/build/test exit=0 (2/2 CTest targets)
 cmake --preset windows-cpu-only; ctest --preset windows-cpu-only -> 2/2 PASS
 ```
+
+## 2026-11-28 — Endless work iteration 2: REST rate limiting
+
+Closed the documented gap "no rate limiting beyond bounded bodies" (AGENTS.md 11.2). Added a
+process-wide fixed-window limiter to `src/api/rest/rest_server.{h,cpp}` (120 requests / 10 s,
+HTTP 429 with `rate_limited`), wired the server process state in `tools/hcsbridge-rest/main.cpp`,
+documented it in OpenAPI and added REST-06. Health remains exempt so monitoring stays available;
+the pure `handleRequest` helper stays unlimited when no limiter is supplied (backward compatible).
+
+Build-Test-Fix evidence:
+
+1. First build failed with `LNK1168: cannot open hcsbridge-rest.exe for writing`. Root cause was a
+   stale server process (PID 24664) holding the EXE, not a source defect. Killed it and hardened
+   `tests/ui/capture_ui.ps1` to stop and wait for its own server and to clean up any leftover
+   server pointing at the same binary.
+2. `powershell -File scripts\build-test-once.ps1` → configure/build/test exit=0, 2/2 CTest targets,
+   85/85 HCS tests.
+3. `cmake --preset windows-cpu-only && ctest --preset windows-cpu-only` → 2/2 targets, 82/82 tests.
+4. `cmake --preset windows-validation && ctest --preset windows-validation` → 2/2 targets, 85/85
+   tests, zero Vulkan validation errors.
