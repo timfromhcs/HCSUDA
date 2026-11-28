@@ -36,6 +36,11 @@ Created: 2026-11-28. Owner: autonomous agent loop. Language: German request / En
   256-bin `histogram_u32` are implemented and tested on CPU and Vulkan (KC-07..12). Image
   transforms, IR integer/bitwise opcodes and timestamp queries remain documented limitations;
   they expand the declared V1 scope and are deferred rather than claimed.
+- **[DEFERRED — explicit risk decision] IR integer/bitwise opcodes.** A correct implementation
+  requires coordinated changes in the parser, verifier, interpreter, binary serializer and the
+  type-aware GLSL store/lowering path (the current store lowering is F32-only). Shipping a partial
+  opcode set would produce misleading compiler behaviour, so the elementwise-F32 subset stays the
+  documented V1 contract instead.
 - **[DEFERRED — explicit ADR-0003] UI:** no native Qt/WebView2 shell. A real screenshot now exists;
   automated screenshot regression remains out of scope.
 
