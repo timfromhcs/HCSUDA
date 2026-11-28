@@ -630,3 +630,15 @@ zero validation errors
 
 `reduce_final_cpu_matches_reference` and `reduce_final_vulkan_matches_reference` both pass with
 37 partial sums and a 2e-4 relative tolerance (KC-07/KC-08).
+
+## 2026-11-28 — Endless work iteration 5: installer/security re-certification
+
+Re-ran the release-critical gates after the cache, rate-limit and reduce changes:
+
+```
+powershell -File tests\installer\test_installer.ps1 -> INSTALLER_TEST_PASS
+powershell -File tests\installer\test_upgrade.ps1   -> UPGRADE_TEST_PASS
+powershell -File scripts\check-secrets.ps1          -> SECRET_SCAN_PASS (120 tracked files)
+```
+
+Install/uninstall still preserves user data and leaves the system Vulkan loader untouched.
