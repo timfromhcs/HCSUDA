@@ -1228,3 +1228,9 @@ After the expanded web demo was merged to `main` and tagged `v0.1.0-rc.3`, hoste
 46188973149 passed all eight jobs including the WebGPU/WASM gate. Local gates: 96/96 tests,
 WASM seven-kernel gate PASS, secret scan 142 files, artifact 1893992bc683caf6. README, release
 notes, plan and checklist are aligned with the new release.
+
+## 2026-11-28 — Endless work pulse 320
+
+320 two-minute pulses processed. Repo clean and fully pushed, hosted CI (8 jobs) green, local gates
+green (96/96 tests, seven WASM kernels, 142-file secret scan, OpenAPI, rc.3 artifact). GitHub release
+v0.1.0-rc.3 with local EXE + checksum + SBOM and the expanded public Vercel demo remain live.
