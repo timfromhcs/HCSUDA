@@ -536,3 +536,16 @@ Further limitless iterations (same day):
   memory budgets and settings), then terminated the service (UI-04).
 
 No code defect was found in these iterations; all changes are documentation, presets and evidence.
+
+Final verification of the limitless drive (2026-11-28):
+
+```
+ctest --preset windows-tests --output-on-failure -> 84/84 (background cycles 10:25-10:31 all green)
+ctest --preset windows-cpu-only --output-on-failure -> 81/81
+ctest --preset windows-validation --timeout 180 -> 84/84, zero validation errors
+cmake --build --preset windows-analyze --parallel -> zero warnings
+powershell -File scripts\check-secrets.ps1 -> SECRET_SCAN_PASS (118 tracked files)
+```
+
+Final status: internally closable work is complete; only owner/external release actions remain
+(clean VM, signing certificate, approved GitHub release, cross-vendor hardware). Loop stopped.

@@ -83,4 +83,26 @@ no iteration is skipped. Reminders are a pulse, **not** a wait state — work co
 - [ ] §2.2 items listed verbatim as owner/external actions with exact commands/links.
 - [ ] Reminder automation deleted only after the loop is declared stable.
 
+## 5. Final state (2026-11-28)
+
+**Internally stable: yes.** All §2.1 points are closed or explicitly reclassified as intentional
+V1 scope decisions with a written reason. No branch diff existed to merge. Verified green:
+
+* `windows-tests`: configure/build/test exit 0; 84/84 HCS tests; repeated background cycles all
+  green (`logs/limitless-loop.log`, cycles 10:25–10:31).
+* `windows-cpu-only`: build exit 0; 81/81 tests via `ctest --preset windows-cpu-only`.
+* `windows-validation`: build exit 0; 84/84 tests, zero validation errors.
+* `windows-analyze`: zero MSVC `/analyze` warnings in project-owned code.
+* `scripts/check-secrets.ps1`: PASS, 118 tracked files.
+* Real CLI evidence PORT-04; real UI screenshot UI-04.
+* Two coherent commits: `1228dcf`, `6166227`.
+
+**Not closable by this agent (owner/external actions, kept honest, never marked green):**
+clean-VM install test, code signing (no certificate), manually approved GitHub Release/tag,
+Intel/NVIDIA cross-vendor hardware verification. These are listed in `docs/AGENT_STATUS.md` and
+`docs/release/v1-scope.md`; no release copy claims them as done.
+
+The background loop is stopped via `logs/limitless-loop.stop` and the 2-minute pulse automation is
+deleted once this state is recorded. The loop was a work driver, never a wait state.
+
 Made with love by HCSMedia & timfromhcs.
