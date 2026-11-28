@@ -28,11 +28,13 @@ are release-candidate notes, not a claim that every V1 gate from `AGENTS.md` has
 
 * 96/96 unit tests on the reference machine; 93/93 in CPU-only builds (three GPU-only
   tests are correctly excluded); zero Vulkan validation errors; hosted CI all seven jobs green.
-* 60-minute soak: 1610 iterations, zero failures. Performance drift was observed and is
-  documented without a performance claim.
+* 60-minute soak: 1418 iterations, zero failed runs and zero unverified benchmark rows on the
+  current build (an earlier run reached 1610 iterations). Performance drift was observed in the
+  earlier run without a diagnosed cause, so no performance claim is made.
 * Install, uninstall, same-version in-place upgrade and cross-version upgrade with two real EXEs
   tested on the reference machine (INS-01..04); system Vulkan loader unchanged.
-* Secret scan passed over all tracked files.
+* Secret scan passed over all tracked files (125); OpenAPI 3.1 contract gate passed; every
+  benchmark row is verified against a host reference.
 
 ## Explicitly not part of this RC
 
