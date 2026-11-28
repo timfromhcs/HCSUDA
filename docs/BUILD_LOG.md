@@ -758,6 +758,9 @@ added; the table is populated only from the live service.
 powershell -File scripts\build-test-once.ps1 -> configure/build/test exit=0; 95 tests, 0 failures
 ```
 
+The README screenshot was recaptured from the live service at the updated UI (Models section
+visible, empty catalog shown honestly as "No data.").
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan
