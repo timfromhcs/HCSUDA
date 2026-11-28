@@ -802,6 +802,12 @@ Rebuilt the single-file installer after the latest changes with
 `artifacts/HCSUDA-Setup-x64.exe.sha256`). Artifacts are gitignored; only the checksum is published
 in release docs.
 
+End-to-end run of the freshly rebuilt single-file EXE (`artifacts/HCSUDA-Setup-x64.exe`):
+the installer copies files asynchronously, so the first immediate `Test-Path` check was a false
+negative (INS-02 "install failed"). A bounded 30 s wait confirmed the install; the installed
+`hcsdoctor --json` reported version 0.1.0 with 2 real devices, and uninstall preserved a user
+sentinel. No installer defect was found — the test harness needed to await completion.
+
 Final sweep after the documentation scope decision:
 
 ```
