@@ -921,3 +921,9 @@ check-secrets.ps1                 -> PASS (131 files)
 check-openapi.ps1                 -> OPENAPI_PASS (9 paths)
 check-artifact.ps1                -> ARTIFACT_PASS (f18d065014ed7535)
 ```
+
+## 2026-11-28 — Endless work iteration 26: license/SBOM presence check
+
+Verified all legally required root documents are present and non-empty and that
+`docs/release/sbom.json` parses as JSON with 5 components (LEG-01). No new dependencies were
+added during the endless work loops, so the SBOM remains accurate.
