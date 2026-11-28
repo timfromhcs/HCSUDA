@@ -1,6 +1,8 @@
 # Agent status
 
-Updated: 2026-11-26 (release candidate; Waves 0–13 implemented, only external blockers remain)
+Updated: 2026-11-28 (release candidate; Waves 0–13 implemented, only external blockers remain).
+Limitless Work loop active: `docs/LIMITLESS_WORK_PLAN.md`, continuous build/test via
+`scripts/loop-build-test.ps1`, 2-minute chat pulse.
 
 ## Environment (measured, not assumed)
 
@@ -73,8 +75,12 @@ Updated: 2026-11-26 (release candidate; Waves 0–13 implemented, only external 
 ## Verification summary
 
 Validation layers are wired into `windows-validation` and pass with zero errors. Hosted CI passed
-all seven jobs on commit c5f3d4c. HCSIR binary serialization is implemented and fuzz-tested;
-a persistent shader/module cache on top of it is still deferred and not a release blocker.
+all seven jobs on commit c5f3d4c. On 2026-11-28 all three local profiles were re-verified green:
+`windows-tests` 84/84, `windows-cpu-only` 81/81, `windows-validation` 84/84 with zero validation
+errors. `ctest` presets now exist for all profiles. `hcsport --convert` was exercised end-to-end
+(PORT-04) and a real UI screenshot was captured from the live REST service (UI-04). HCSIR binary
+serialization is implemented and fuzz-tested; a persistent shader/module cache remains deferred
+and not a release blocker (it would require an init-descriptor/config ABI extension).
 
 ## Remaining external blockers
 

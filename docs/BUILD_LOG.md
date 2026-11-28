@@ -517,5 +517,22 @@ configure exit=0; build exit=0; test exit=0
 ctest --preset windows-tests --output-on-failure -> 1/1 CTest target, 84/84 HCS tests
 ```
 
-The background loop has since completed further green cycles (e.g. 10:25:58 and 10:26:29 starts,
+The background loop has since completed further green cycles (e.g. 10:25:58, 10:26:29, 10:27:35,
 all `configure/build/test exit=0`).
+
+Further limitless iterations (same day):
+
+* Added `ctest` presets for `windows-cpu-only`, `windows-release`, `windows-relwithdebinfo` and
+  `windows-vulkan`; documented `ctest --preset windows-cpu-only`. Verified:
+  `ctest --preset windows-cpu-only --output-on-failure` → 81/81, `windows-validation` → 84/84
+  with zero validation errors. First CPU-only attempt using `ctest --config` failed with
+  "Unknown argument: --config"; CTest uses `-C` or a test preset (now provided).
+* Aligned release identity: binary/CMake version is `0.1.0`, so release notes, publication
+  follow-up commands and remaining-tag wording now use `v0.1.0-rc.1` instead of `v1.0.0-rc.1`.
+* Verified the documented CLI path `hcsport --convert tests/fixtures/cuda/vecadd.cu --output
+  <temp>`: exit 0, valid `hcsir 1` module (PORT-04).
+* Started `hcsbridge-rest --port 8712` with a local-only throwaway token, captured
+  `docs/screenshots/ui-dashboard.png` with headless Chrome from the live page (real devices,
+  memory budgets and settings), then terminated the service (UI-04).
+
+No code defect was found in these iterations; all changes are documentation, presets and evidence.

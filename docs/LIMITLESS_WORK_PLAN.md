@@ -20,18 +20,23 @@ Created: 2026-11-28. Owner: autonomous agent loop. Language: German request / En
 ## 2. Classification of "open points"
 
 ### 2.1 Internally closable (this loop works on these)
-- **DOC-STALE:** `docs/KNOWN_LIMITATIONS.md` contradicts `AGENT_STATUS.md` / `TEST_MATRIX.md`:
-  claims cross-version upgrade untested (INS-04 passed), no OpenAPI (file exists + SET-05),
-  no translation (TR-01..03 passed), no settings UI (UI-03 passed), installer upgrade untested,
-  "0.1.0 development build" header vs RC status. This is a *truthful-copy release blocker*.
-- **DOC-STALE:** README line 85 says "no translation in V1" while TR-01..03 prove translation exists.
-- **CACHE:** persistent shader/module cache deferred (HCSIR binary serialization exists, IR-21..23).
-- **KERNEL:** global reduce (currently two-stage) and global scan (currently chunk-local) — optional
-  correctness surface, only add if backed by tests.
-- **IR:** elementwise subset only; integer/bitwise opcodes can be added with verifier + tests.
-- **UI:** no automated screenshot evidence; no native shell (explicit V1 scope decision ADR-0003 —
-  do **not** reopen without user authorization).
-- **BENCH:** no timestamp queries; wall-clock numbers include dispatch overhead (documented).
+- **[CLOSED] DOC-STALE:** `docs/KNOWN_LIMITATIONS.md` contradicted `AGENT_STATUS.md` /
+  `TEST_MATRIX.md` (cross-version upgrade, OpenAPI, translation, settings UI, installer upgrade,
+  version header). Fixed together with README, release notes, publication copy, v1-scope and the
+  `hcsport` tool header. Release identity aligned to the actual `0.1.0` binary version.
+- **[CLOSED] PRESETS:** no `ctest` preset existed for cpu-only/release/relwithdebinfo/vulkan;
+  added and verified (CPU-only 81/81, validation 84/84).
+- **[CLOSED] EVIDENCE:** `hcsport --convert` CLI exercised end-to-end (PORT-04); a real UI
+  screenshot captured from the live REST service (UI-04) and embedded in README.
+- **[DEFERRED — intentional scope, not a bug] CACHE:** persistent shader/module cache. HCSIR
+  binary serialization exists (IR-21..23), but plumbing a cache directory into the Vulkan backend
+  requires extending `hcsInitDesc`/`hcsContextDesc` (ABI change) or adding hidden global state,
+  which conflicts with the contract. Kept explicitly documented as deferred.
+- **[DEFERRED — intentional V1 scope] KERNEL / IR / BENCH:** global reduce/scan, integer/bitwise
+  IR opcodes and timestamp queries are documented limitations, not regressions. Adding them would
+  expand declared V1 scope; do not reopen without user authorization.
+- **[DEFERRED — explicit ADR-0003] UI:** no native Qt/WebView2 shell. A real screenshot now exists;
+  automated screenshot regression remains out of scope.
 
 ### 2.2 External blockers (cannot be closed by code; report, never fake)
 - Code signing: no publisher certificate configured → installer stays unsigned + SHA-256.

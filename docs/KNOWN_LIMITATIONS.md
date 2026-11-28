@@ -113,7 +113,8 @@ upgrade are already verified on the reference machine (INS-03/INS-04). See `docs
 * It currently has Dashboard, Devices, Memory budget, Settings and Compatibility sections.
   Models, Translate, Benchmarks, Visualizer, API/MCP, Diagnostics and About pages are not
   present; they are not advertised as working features.
-* No automated browser screenshot exists, so the README contains no product screenshot.
+* A real console screenshot exists (`docs/screenshots/ui-dashboard.png`, UI-04). There is no
+  automated screenshot regression suite yet.
 
 ## Installer (updated Wave 11)
 

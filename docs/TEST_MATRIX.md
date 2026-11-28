@@ -4,7 +4,10 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **1/1 CTest target passed; 84/84 HCS tests passed** (2026-11-26).
+Last result: **1/1 CTest target passed; 84/84 HCS tests passed** (re-verified 2026-11-28).
+CPU-only profile: 81/81; validation profile: 84/84 with zero Vulkan validation errors.
+The background loop (`scripts/loop-build-test.ps1`) repeats configure/build/test every ~60 s and has
+produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 
 | ID | Test | Backend | Result | What it proves |
 |---|---|---|---|---|
@@ -68,6 +71,7 @@ Last result: **1/1 CTest target passed; 84/84 HCS tests passed** (2026-11-26).
 | PORT-01 | hcsport_scan_reports_constructs_without_claiming_translation | scanner | PASS | line/column findings, manual vs unsupported, JSON states `translated:0` |
 | PORT-02 | hcsport_rejects_binary_and_oversized_input | scanner | PASS | NUL bytes, >4 MiB, empty and null inputs rejected |
 | PORT-03 | hcsport_plain_host_code_has_no_findings | scanner | PASS | plain C++ produces an empty report |
+| PORT-04 | hcsport --convert CLI (manual, 2026-11-28) | CLI | PASS | `hcsport --convert tests/fixtures/cuda/vecadd.cu --output <temp>` emits a valid `hcsir 1` module with kernels/buffers/const/local_size |
 | MV-01 | sha256_matches_known_vectors | model store | PASS | empty input, "abc", and split updates match FIPS vectors |
 | MV-02 | model_vault_imports_and_persists_gguf | model store | PASS | GGUF v3 import, q4_k_m hint, SHA-256, persistence, removal |
 | MV-03 | model_vault_rejects_unsafe_and_corrupt_inputs | model store | PASS | outside-root path, missing file, corrupt GGUF version, unknown format |
@@ -102,6 +106,7 @@ Last result: **1/1 CTest target passed; 84/84 HCS tests passed** (2026-11-26).
 | SET-04 | settings_recover_from_corrupt_file | settings | PASS | corrupt stored settings → error + defaults |
 | SET-05 | rest_settings_roundtrip_and_validation | REST | PASS | authenticated GET/POST/reset with 400 on invalid values |
 | UI-03 | settings controls in local UI | UI | PASS | Save/Reset buttons wired to the real settings endpoints |
+| UI-04 | real console screenshot (manual, 2026-11-28) | UI + REST | PASS | headless Chrome captured `docs/screenshots/ui-dashboard.png` from a live server; shows real Radeon 680M + CPU devices, queried memory budgets and persisted settings |
 | STR-01 | stress_repeated_cpu_dispatch_reuses_buffers | CPU | PASS | 2000 synchronous dispatches reusing the same buffers |
 | STR-02 | stress_async_flow_many_submissions | Vulkan | PASS | 500 async submissions on one flow, chunked fence wait, verified output |
 | STR-03 | fuzz_bounded_parsers_reject_random_input | parsers/API | PASS | 200 seeded random inputs through HCSIR, scanner, MCP and REST handlers |

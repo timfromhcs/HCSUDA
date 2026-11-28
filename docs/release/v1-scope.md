@@ -37,7 +37,8 @@ verified. These decisions are explicit so that no README or UI claim exceeds the
 ## Release still requires (honest open items)
 
 * Clean-VM install/upgrade test and optional code signing (no certificate configured).
-* Public GitHub publication with confirmed repository ownership and secret scan.
+* A manually approved GitHub Release/tag. Repository publication and secret scan are already
+  done (`docs/release/publication.md`); only the release approval is outstanding.
 * Any cross-vendor claim beyond the tested AMD Radeon 680M + CPU backend.
 
 These are listed as open, not silently treated as passed. The current build is a tested

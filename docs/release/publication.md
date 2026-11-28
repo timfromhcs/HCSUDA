@@ -17,7 +17,7 @@ Performed 2026-11-26 after explicit owner confirmation of the target repository.
 * **No GitHub Release was created.** The user-approved scope of the publication was repository
   creation plus push to `main`. A release tag should be created only after the remaining
   release blockers in `docs/AGENT_STATUS.md` are settled.
-* No signed tag, no code signing certificate, no `v1.0.0` tag.
+* No signed tag, no code signing certificate, no `v0.1.0-rc.1` tag.
 * No remote was fabricated or reported as pushed without verification; the URL and CI run were
   checked with `gh repo view` and `gh run list`.
 
@@ -25,10 +25,10 @@ Performed 2026-11-26 after explicit owner confirmation of the target repository.
 
 ```powershell
 # after the remaining release blockers are cleared
-git tag -a v1.0.0-rc.1 -m "HCSUDA v1.0.0 release candidate"
-git push origin v1.0.0-rc.1
-gh release create v1.0.0-rc.1 `
+git tag -a v0.1.0-rc.1 -m "HCSUDA 0.1.0 release candidate"
+git push origin v0.1.0-rc.1
+gh release create v0.1.0-rc.1 `
   artifacts/HCSUDA-Setup-x64.exe `
   artifacts/HCSUDA-Setup-x64.exe.sha256 `
-  --title "HCSUDA v1.0.0-rc.1" --notes-file docs/release/v1-scope.md
+  --title "HCSUDA v0.1.0-rc.1" --notes-file docs/release/RELEASE_NOTES.md
 ```

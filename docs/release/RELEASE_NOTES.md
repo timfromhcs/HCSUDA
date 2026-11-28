@@ -1,4 +1,4 @@
-# HCSUDA v1.0.0 release candidate — notes
+# HCSUDA 0.1.0 release candidate — notes
 
 These notes describe the actual state of commit `a5ca96c` and later CI-verified commits. They
 are release-candidate notes, not a claim that every V1 gate from `AGENTS.md` has passed.
@@ -38,7 +38,7 @@ GGUF inference adapter, PTX importer, Qt/WebView2 shell, Streamable HTTP MCP, hi
 kernels, timeline semaphores, multi-GPU, CUDA library ABI compatibility, code signing and a
 GitHub Release. See `docs/release/v1-scope.md`.
 
-## Remaining verification before a final `v1.0.0` tag
+## Remaining verification before a final `v0.1.0` tag
 
 Clean-VM install/upgrade, code signing with a publisher certificate, cross-vendor GPU hardware,
 and a manually approved GitHub Release. These are tracked in `docs/AGENT_STATUS.md`.

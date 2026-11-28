@@ -21,6 +21,11 @@ migration tooling.
 
 ---
 
+![HCSUDA local console showing live device and memory data](docs/screenshots/ui-dashboard.png)
+
+*Real V1 console captured from `http://127.0.0.1:8712/ui/` with the live Radeon 680M runtime;
+unavailable GPU metrics are explicitly marked rather than invented.*
+
 ## What works today
 
 | Capability | Status | Evidence |
@@ -72,9 +77,10 @@ cmake --preset windows-validation
 cmake --build --preset windows-validation --parallel
 ctest --preset windows-validation --timeout 180 --output-on-failure
 
-# CPU-only build (no Vulkan SDK required)
+# CPU-only build and tests (no Vulkan SDK required)
 cmake --preset windows-cpu-only
 cmake --build --preset windows-cpu-only --parallel
+ctest --preset windows-cpu-only --output-on-failure
 ```
 
 Outputs land in `build/<preset>/RelWithDebInfo/`:
