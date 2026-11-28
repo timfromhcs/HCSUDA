@@ -50,7 +50,7 @@ Every checked item links to real evidence in `docs/TEST_MATRIX.md`, `docs/BUILD_
 - [x] Third-party notices, SBOM, license files — `THIRD_PARTY_NOTICES.md`, `NOTICE`, SBOM artifact.
 - [x] EXE scanned, checksum published — SEC-01 (132 tracked files), installer docs. Rebuilt after
       the latest changes; SHA-256 `F18D065014ED7535FBA03914720543D8E24E2AD152F8AF62461FE373A249F6E0`.
-- [x] Hosted CI green — GitHub Actions run 46157166462, all seven jobs success incl. artifact scan (CI-01).
+- [x] Hosted CI green — GitHub Actions run 46157511543, all seven jobs success incl. artifact scan (CI-01).
 - [x] README and compatibility matrix match the build — README compatibility matrix, this file.
 - [ ] Code signing with a publisher certificate — **no certificate configured**; installer is
       honestly unsigned and published with SHA-256.
