@@ -866,3 +866,14 @@ The background soak finished: `scripts/soak.ps1 -Minutes 60 -Device 0` produced
 `logs/soak-20261128-123740.summary.json` with `iterations=1418`, `failed_runs=0`,
 `unverified_rows=0`, `result=PASS`. Every iteration ran all six benchmark kernels through their
 host-reference verification. No crash, JSON parse failure or unverified result occurred.
+
+## 2026-11-28 — Endless work iteration 20: final full sweep
+
+```
+ctest --preset windows-tests        -> 2/2 targets, 96/96 HCS tests
+ctest --preset windows-cpu-only     -> 2/2 targets, 93/93 tests
+ctest --preset windows-validation   -> 2/2 targets, 96/96, zero validation errors
+scripts/check-secrets.ps1           -> PASS (125 tracked files)
+scripts/check-openapi.ps1           -> OPENAPI_PASS (9 paths, 8 required endpoints)
+gh run list --limit 1               -> run 46145973873 success on main
+```
