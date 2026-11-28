@@ -74,5 +74,6 @@ Every checked item links to real evidence in `docs/TEST_MATRIX.md`, `docs/BUILD_
       (SOAK-02; 1-minute smoke also passed with 24 iterations).
 
 No P0/P1 bug and no known critical/high security issue is open in the implemented scope.
+Exact owner actions for the unchecked external items: `docs/release/EXTERNAL_BLOCKERS.md`.
 
 Made with love by HCSMedia & timfromhcs.
