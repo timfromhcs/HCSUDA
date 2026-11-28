@@ -48,7 +48,7 @@ Every checked item links to real evidence in `docs/TEST_MATRIX.md`, `docs/BUILD_
 - [x] Clean-ish staged install, uninstall, in-place and cross-version upgrade — INS-01..04.
 - [x] No driver/loader/registry modification — INS-01, uninstall tests.
 - [x] Third-party notices, SBOM, license files — `THIRD_PARTY_NOTICES.md`, `NOTICE`, SBOM artifact.
-- [x] EXE scanned, checksum published — SEC-01 (140 tracked files), installer docs. Rebuilt after
+- [x] EXE scanned, checksum published — SEC-01 (141 tracked files), installer docs. Rebuilt after
       the latest changes; SHA-256 `F18D065014ED7535FBA03914720543D8E24E2AD152F8AF62461FE373A249F6E0`.
 - [x] Hosted CI green — GitHub Actions run 46173308612, all eight jobs success incl. artifact scan and WASM gate (CI-01).
 - [x] WebGPU/WASM browser demo deployed to Vercel production and public — WEB-01, `webgpu-demo/`.
@@ -71,7 +71,7 @@ Every checked item links to real evidence in `docs/TEST_MATRIX.md`, `docs/BUILD_
 - [x] `cmake --build --preset windows-tests --parallel` + `ctest --preset windows-tests` — green.
 - [x] `ctest --preset windows-cpu-only` — 93/93; `ctest --preset windows-validation` — 96/96.
 - [x] `cmake --build --preset windows-analyze` — zero warnings.
-- [x] `scripts/check-secrets.ps1` — PASS (140 files); `scripts/check-openapi.ps1` — PASS.
+- [x] `scripts/check-secrets.ps1` — PASS (141 files); `scripts/check-openapi.ps1` — PASS.
 - [x] Clean out-of-tree build from an empty directory — CV-01, 9 shaders compiled fresh, 96/96.
 - [x] `scripts/check-artifact.ps1` — ART-01, checksum match, no secret patterns or forbidden imports.
 - [x] `scripts/soak.ps1 -Minutes 60` — PASS, 1418 iterations, 0 failed runs, 0 unverified rows

@@ -1112,3 +1112,8 @@ EXE, checksum and SBOM.
 
 Added `docs/PLAN_NEXT_STABLE.md`: exact gates, owner actions and loop protocol required before a
 v1.0.0 stable claim. No stable claim is made while signing, clean VM or cross-vendor evidence is open.
+
+## 2026-11-28 — Endless work pulse 224
+
+After the rc.2 release: local gates green (96/96 tests, WASM n=1001, artifact bc1f8a016920c2d6),
+secret scan now 141 tracked files. Documentation checksums/counts aligned with the new release.
