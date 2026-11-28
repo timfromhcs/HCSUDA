@@ -126,6 +126,24 @@ Example output on the reference machine:
     memory       : heap 9569.9 MiB, budget 9091.4 MiB, used 0.0 MiB
 ```
 
+## First run — check my GPU
+
+After installing the single EXE, run the installed diagnostic:
+
+```powershell
+& "$env:LOCALAPPDATA\Programs\HCSUDA\hcsdoctor.exe"
+& "$env:LOCALAPPDATA\Programs\HCSUDA\hcsdoctor.exe" --json
+```
+
+It prints each Vulkan device with vendor, driver/API version, compute capabilities, subgroup size
+and the driver-reported memory budget, plus the CPU backend. If no Vulkan device appears, HCSUDA
+still runs in CPU-only mode; install the GPU vendor's current driver to enable acceleration. The
+installer never touches the graphics driver or the Vulkan loader.
+
+If a device disappears or a dispatch reports `HCS_E_DEVICE_LOST`, restart the application (and
+only then the driver, if the vendor recommends it); logs are under
+`%LOCALAPPDATA%\HCSUDA\Logs`. Sanitized diagnostics can be exported from the local console.
+
 ## Verification scripts
 
 ```powershell
