@@ -251,3 +251,53 @@ HCS_TEST(global_scan_vulkan_matches_reference)
 {
     checkGlobalScan(HCS_BACKEND_VULKAN, 10001, 64, "global_scan_vulkan_matches_reference");
 }
+
+void checkHistogram(uint32_t backend, uint32_t n, const char* label)
+{
+    testutil::DeviceSession session;
+    if (!session.open(backend)) {
+        hcstest::reportSkip("device not available");
+        return;
+    }
+    std::vector<uint32_t> input(n);
+    std::vector<uint32_t> expected(256, 0);
+    for (uint32_t i = 0; i < n; ++i) {
+        input[i] = (i * 37u + 11u) & 255u;
+        ++expected[input[i]];
+    }
+    hcsBuffer in = nullptr, out = nullptr;
+    HCS_REQUIRE_OK(testutil::makeBuffer(session.context, n * sizeof(uint32_t), input.data(), &in));
+    std::vector<uint32_t> zeros(256, 0);
+    HCS_REQUIRE_OK(testutil::makeBuffer(session.context, zeros.size() * sizeof(uint32_t),
+                                       zeros.data(), &out));
+    hcsKernel kernel = nullptr;
+    HCS_REQUIRE_OK(hcsKernelCreate(session.context, "histogram_u32", &kernel));
+    testutil::ReducePush push{n, 0, 0, 0};
+    auto desc = testutil::makeDispatch({in, out}, 1, &push, sizeof(push));
+    HCS_REQUIRE_OK(hcsDispatch(kernel, &desc, nullptr));
+
+    std::vector<uint32_t> actual(256, 0);
+    HCS_REQUIRE_OK(hcsBufferDownload(out, 0, actual.data(), actual.size() * sizeof(uint32_t)));
+    for (uint32_t bin = 0; bin < 256; ++bin) {
+        if (actual[bin] != expected[bin]) {
+            char text[160];
+            std::snprintf(text, sizeof(text), "bin=%u got=%u want=%u", bin, actual[bin],
+                          expected[bin]);
+            hcstest::reportFailure(__FILE__, __LINE__, label, text);
+            break;
+        }
+    }
+    hcsKernelDestroy(kernel);
+    hcsBufferDestroy(in);
+    hcsBufferDestroy(out);
+}
+
+HCS_TEST(histogram_cpu_matches_reference)
+{
+    checkHistogram(HCS_BACKEND_CPU, 5000, "histogram_cpu_matches_reference");
+}
+
+HCS_TEST(histogram_vulkan_matches_reference)
+{
+    checkHistogram(HCS_BACKEND_VULKAN, 5000, "histogram_vulkan_matches_reference");
+}

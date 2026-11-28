@@ -29,8 +29,8 @@ verified. These decisions are explicit so that no README or UI claim exceeds the
 * **Qt/WebView2 native desktop shell.** The V1 UI is a local browser page served by REST. No Qt
   license review or WebView2 COM host is required for V1.
 * **Streamable HTTP MCP and remote API binding.** stdio MCP and 127.0.0.1 REST only.
-* **Histogram, image transforms, timeline semaphores, device-local staging, multi-GPU, dynamic
-  parallelism, CUDA library ABI compatibility.**
+* **Image transforms, timeline semaphores, device-local staging, multi-GPU, dynamic parallelism,
+  CUDA library ABI compatibility.** A tested 256-bin histogram kernel is included (KC-11/12).
 * **Full UI settings pages.** Dashboard, Devices, Memory and Compatibility exist; other
   navigation sections are not advertised as working.
 

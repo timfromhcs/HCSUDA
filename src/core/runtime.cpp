@@ -40,6 +40,8 @@ const hcs::KernelDef kKernels[] = {
      "out[0] = sum of a per-group partial-sum buffer"},
     {"scan_add_offsets_f32", hcs::KernelId::ScanAddOffsetsF32, 256,
      "result[i] = local_scan[i] + offsets[group], completing a global prefix sum"},
+    {"histogram_u32", hcs::KernelId::HistogramU32, 256,
+     "out[value & 255]++ for each u32 input element"},
 };
 
 constexpr uint32_t kKernelCount = sizeof(kKernels) / sizeof(kKernels[0]);

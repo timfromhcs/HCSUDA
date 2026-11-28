@@ -618,6 +618,7 @@ SpvBlob blobFor(KernelId id)
     case KernelId::ReduceFinalF32: return {hcs_spv_reduce_final, hcs_spv_reduce_final_len};
     case KernelId::ScanAddOffsetsF32:
         return {hcs_spv_scan_add_offsets, hcs_spv_scan_add_offsets_len};
+    case KernelId::HistogramU32: return {hcs_spv_histogram, hcs_spv_histogram_len};
     default: return {nullptr, 0};
     }
 }
@@ -994,6 +995,11 @@ public:
         if (desc->buffer_count > 8) {
             return fail(HCS_E_INVALID_ARGUMENT, "vulkan.dispatch",
                         "at most 8 storage buffers are supported");
+        }
+        if (kernel->def && kernel->def->id == KernelId::HistogramU32 &&
+            desc->group_count_x != 1) {
+            return fail(HCS_E_INVALID_ARGUMENT, "vulkan.dispatch.histogram",
+                        "histogram uses a single workgroup to avoid a bin-reset race");
         }
         for (uint32_t i = 0; i < desc->buffer_count; ++i) {
             if (!desc->buffers[i]->vk_buffer) {

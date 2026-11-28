@@ -11,8 +11,8 @@ are release-candidate notes, not a claim that every V1 gate from `AGENTS.md` has
 * **Backends:** Vulkan (dynamic `vulkan-1.dll` load, no bundled loader/driver) and CPU
   (scalar + runtime AVX2/FMA), with explicit backend reporting.
 * **Kernels:** vecadd, scale, two-stage reduce, global scan pipeline (local scan → chunk totals →
-  offsets → add offsets), 16x16 transpose and FP32 matmul, each compared against a CPU reference
-  on odd and boundary sizes.
+  offsets → add offsets), 16x16 transpose, FP32 matmul and a 256-bin histogram, each compared
+  against a CPU reference on odd and boundary sizes.
 * **Compiler path:** HCSIR v1 verifier/interpreter, HCSCC GLSL lowering, build-time `glslc`
   validation, and GPU execution of generated SPIR-V via an experimental program API.
 * **Migration:** `hcsport --scan` plus a conformance-tested vecadd source translation subset.
@@ -25,7 +25,7 @@ are release-candidate notes, not a claim that every V1 gate from `AGENTS.md` has
 
 ## Evidence
 
-* 90/90 unit tests on the reference machine; 87/87 in CPU-only builds (three GPU-only
+* 92/92 unit tests on the reference machine; 89/89 in CPU-only builds (three GPU-only
   tests are correctly excluded); zero Vulkan validation errors; hosted CI all seven jobs green.
 * 60-minute soak: 1610 iterations, zero failures. Performance drift was observed and is
   documented without a performance claim.

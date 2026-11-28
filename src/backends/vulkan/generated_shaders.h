@@ -22,3 +22,6 @@ extern const unsigned int hcs_spv_reduce_final_len;
 
 extern const unsigned char hcs_spv_scan_add_offsets[];
 extern const unsigned int hcs_spv_scan_add_offsets_len;
+
+extern const unsigned char hcs_spv_histogram[];
+extern const unsigned int hcs_spv_histogram_len;

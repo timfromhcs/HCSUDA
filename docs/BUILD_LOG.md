@@ -631,6 +631,24 @@ zero validation errors
 `reduce_final_cpu_matches_reference` and `reduce_final_vulkan_matches_reference` both pass with
 37 partial sums and a 2e-4 relative tolerance (KC-07/KC-08).
 
+## 2026-11-28 — Endless work iteration 6b: histogram kernel and stale-link finding
+
+Added `histogram_u32` (256 bins, single workgroup, atomic increments) on CPU and Vulkan. The Vulkan
+dispatch rejects `group_count_x != 1` so the bin-reset phase cannot race with increments.
+
+Build-Test-Fix: the first run failed with `HCS_E_KERNEL_NOT_FOUND (no SPIR-V module for this
+kernel)` on the Vulkan variant. A temporary diagnostic showed that after a full rebuild the blob
+was present; cause was a stale link during a parallel build cycle, not a code defect. The
+diagnostic print was removed and the suite re-run cleanly. This reinforces that a cycle must
+complete a full configure/build before trusting its test result.
+
+```
+powershell -File scripts\build-test-once.ps1 -> 0/0/0; 92 tests run, 0 failures
+cmake --preset windows-cpu-only && ctest --preset windows-cpu-only -> 2/2, 89 tests
+cmake --preset windows-validation && ctest --preset windows-validation -> 2/2, 92 tests,
+zero validation errors
+```
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan

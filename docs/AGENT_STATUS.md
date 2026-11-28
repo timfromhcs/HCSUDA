@@ -50,7 +50,8 @@ Limitless Work loop active: `docs/LIMITLESS_WORK_PLAN.md`, continuous build/test
   host-visible coherent buffers, compute pipelines, synchronous dispatch, device-loss mapping,
   and a bounded, device-fingerprinted on-disk `VkPipelineCache` configured via settings.
 * Built-in kernels: `vecadd_f32`, `scale_f32`, `reduce_sum_f32`, `reduce_final_f32`,
-  `matmul_f32`, `scan_f32`, `scan_add_offsets_f32` (global scan pipeline), `transpose_f32`.
+  `matmul_f32`, `scan_f32`, `scan_add_offsets_f32` (global scan pipeline), `transpose_f32`,
+  `histogram_u32` (256 bins, single workgroup).
 * Tools: `hcsdoctor`, `hcsbench`, `hcscc`, `hcsport`, `hcsbridge-mcp`, `hcsbridge-rest`, native single-file setup; SPIR-V compiled at build time by `glslc` and embedded.
 * HCSIR v1: bounded parser, verifier, CPU interpreter and versioned binary serialization
   with canonical round-trip and fuzz-tested deserialization for the elementwise subset
@@ -70,7 +71,7 @@ Limitless Work loop active: `docs/LIMITLESS_WORK_PLAN.md`, continuous build/test
   16x16 tiled transpose, each with a CPU reference and odd-size/boundary tests.
 * Services: local-only REST with random bearer token and settings persistence, MCP stdio with
   four read-only tools, self-contained browser UI with live data.
-* Tests: 90 HCS unit/integration tests plus an automated live-UI capture test (`hcs_ui_capture`),
+* Tests: 92 HCS unit/integration tests plus an automated live-UI capture test (`hcs_ui_capture`),
   covering API contract, CPU/Vulkan correctness, memory caps, HCSIR accept/reject/serialize,
   generated GLSL + GPU execution, flows/events/graphs, scan/transpose, CUDA scan/translation,
   catalog/checksums, REST/MCP/UI, settings, stress/fuzz and installer gates.
@@ -79,7 +80,7 @@ Limitless Work loop active: `docs/LIMITLESS_WORK_PLAN.md`, continuous build/test
 
 Validation layers are wired into `windows-validation` and pass with zero errors. Hosted CI passed
 all seven jobs on commit c5f3d4c. On 2026-11-28 all three local profiles were re-verified green:
-`windows-tests` 90/90, `windows-cpu-only` 87/87, `windows-validation` 90/90 with zero validation
+`windows-tests` 92/92, `windows-cpu-only` 89/89, `windows-validation` 92/92 with zero validation
 errors. A process-wide REST rate limit (120 requests / 10 s, HTTP 429) was added and tested
 (REST-06). `ctest` presets now exist for all profiles. `hcsport --convert` was exercised end-to-end
 (PORT-04) and a real UI screenshot was captured from the live REST service (UI-04/UI-05). A bounded,

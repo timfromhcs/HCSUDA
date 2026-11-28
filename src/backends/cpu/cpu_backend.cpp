@@ -278,6 +278,8 @@ public:
             return dispatchReduceFinal(desc);
         case KernelId::ScanAddOffsetsF32:
             return dispatchScanAddOffsets(desc);
+        case KernelId::HistogramU32:
+            return dispatchHistogram(desc);
         case KernelId::MatMulF32:
             return dispatchMatMul(desc);
         case KernelId::ScanF32:
@@ -444,6 +446,26 @@ private:
                 }
             }
         });
+        return HCS_SUCCESS;
+    }
+
+    hcsResult dispatchHistogram(const hcsDispatchDesc* desc)
+    {
+        if (!validBuffers(desc, 2)) {
+            return HCS_E_INVALID_ARGUMENT;
+        }
+        if (desc->buffers[1]->size < 256u * sizeof(uint32_t)) {
+            return fail(HCS_E_INVALID_ARGUMENT, "cpu.dispatch.histogram",
+                        "histogram output must hold 256 bins");
+        }
+        const uint64_t available = desc->buffers[0]->size / sizeof(uint32_t);
+        const uint64_t n = std::min<uint64_t>(pcU32(desc, 0), available);
+        const auto* values = static_cast<const uint32_t*>(desc->buffers[0]->host);
+        auto* hist = static_cast<uint32_t*>(desc->buffers[1]->host);
+        std::memset(hist, 0, 256u * sizeof(uint32_t));
+        for (uint64_t i = 0; i < n; ++i) {
+            ++hist[values[i] & 255u];
+        }
         return HCS_SUCCESS;
     }
 

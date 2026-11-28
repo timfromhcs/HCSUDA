@@ -37,7 +37,8 @@ the current truth of the code in this repository. It is kept consistent with
   `reduce_sum_f32` (chunk totals) → `scan_f32` (offsets) → `scan_add_offsets_f32` (add offsets),
   all on the selected backend (KC-09/KC-10). No host-side pass over chunk totals is required, but
   there is still no one-call global scan primitive.
-* **No histogram or image-transform kernels.** They are explicitly out of V1 scope, not hidden behind a menu item.
+* **Histogram is a 256-bin single-workgroup kernel** (`histogram_u32`, KC-11/KC-12). Image
+  transforms remain explicitly out of V1 scope, not hidden behind a menu item.
 * **Reduce remains two-stage.** `reduce_sum_f32` writes one partial sum per workgroup and
   `reduce_final_f32` reduces those partials to `out[0]` in one workgroup (KC-07/KC-08). There is
   still no single-kernel full reduction over the original input; both stages are required.
