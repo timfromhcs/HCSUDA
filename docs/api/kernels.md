@@ -57,8 +57,8 @@ Per-workgroup partial sums:
 
 Push constants: offset 0 `u32 n`, offset 4 `u32 groups`, 8/12 padding.
 
-The caller performs the final reduction across `groups`. This is deliberate: the partial
-result is deterministic and testable, and the final reduction is a cheap host step.
+The final reduction can be done on the host or on the device with `reduce_final_f32` below.
+Keeping the two stages separate makes the partial result deterministic and testable.
 
 ## matmul_f32
 
@@ -75,9 +75,9 @@ Push constants: offset 0 `u32 m`, 4 `u32 n`, 8 `u32 k`, 12 padding.
 ## scan_f32
 
 Exclusive prefix sum inside each contiguous chunk. `chunk = ceil(n / groups)`; chunk `g`
-covers `[g*chunk, min(n, (g+1)*chunk))`. The caller must add the chunk totals for a global scan.
-Lanes with `local_id >= chunk` are masked to zero, so workgroups never read across chunk
-boundaries.
+covers `[g*chunk, min(n, (g+1)*chunk))`. Chunks longer than one workgroup are processed in
+256-element blocks with a running prefix, so arbitrary `n` and `groups` are supported. The caller
+must add the chunk totals for a global scan (see `scan_add_offsets_f32`).
 
 | Item | Value |
 |---|---|
@@ -99,6 +99,45 @@ Row-major transpose: `B[col,row] = A[row,col]`, with `A` sized `rows x cols` and
 | Groups | `x = ceil(cols/16)`, `y = ceil(rows/16)`, `z = 1` |
 
 Push constants: offset 0 `u32 rows`, offset 4 `u32 cols`, 8/12 padding.
+
+## reduce_final_f32
+
+Single-workgroup final reduction: `out[0] = sum(partials[0 .. n-1])`.
+
+| Item | Value |
+|---|---|
+| Buffers | 0: `partials` (read), 1: `out` (write, one float) |
+| Local size | 256 |
+| Groups | **exactly 1** |
+
+Push constants: offset 0 `u32 n`, 4/8/12 padding.
+
+## scan_add_offsets_f32
+
+Final stage of the global exclusive scan:
+`result[i] = local_scan[i] + offsets[group]`.
+
+| Item | Value |
+|---|---|
+| Buffers | 0: `local_scan` (read), 1: `offsets` (read), 2: `result` (write) |
+| Local size | 256 |
+| Groups | `groups` (the original chunk count) |
+
+Push constants: offset 0 `u32 n`, offset 4 `u32 groups`, 8/12 padding. The caller first runs
+`scan_f32` on the input, `reduce_sum_f32` for chunk totals and `scan_f32` on those totals.
+
+## histogram_u32
+
+256-bin histogram: `hist[value & 255]++` for each u32 input element.
+
+| Item | Value |
+|---|---|
+| Buffers | 0: `values` (read), 1: `hist` (write, 256 u32 bins) |
+| Local size | 256 |
+| Groups | **exactly 1** (bin reset must not race with atomic updates) |
+
+Push constants: offset 0 `u32 n`, 4/8/12 padding. More than one group is rejected with
+`HCS_E_INVALID_ARGUMENT` on the Vulkan backend.
 
 ## Numerical expectations
 
