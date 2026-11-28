@@ -4,8 +4,8 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **2/2 CTest targets passed; 93/93 HCS tests passed** (re-verified 2026-11-28).
-CPU-only profile: 90/90; validation profile: 93/93 with zero Vulkan validation errors.
+Last result: **2/2 CTest targets passed; 94/94 HCS tests passed** (re-verified 2026-11-28).
+CPU-only profile: 91/91; validation profile: 94/94 with zero Vulkan validation errors.
 The background loop (`scripts/loop-build-test.ps1`) repeats configure/build/test every ~60 s and has
 produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 
@@ -58,7 +58,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | FL-03 | flow_event_timeout_and_validation | Vulkan | PASS | idle-flow event is immediately satisfied; null flow/event misuse rejected |
 | FL-04 | flow_cpu_backend_completes_immediately | CPU | PASS | CPU flow/event complete synchronously with zero timeout |
 | FL-05 | flow_event_wait_timeout_path | mock flow | PASS | a backend flow whose counter never advances yields `HCS_E_TIMEOUT` |
-| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 93/93 tests, no validation errors |
+| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 94/94 tests, no validation errors |
 | GR-01 | graph_runs_on_cpu_backend | CPU | PASS | 2-node linear DAG with dependency, replayed on a flow, both outputs verified |
 | GR-02 | graph_runs_on_vulkan_backend | Vulkan | PASS | same DAG executes on the Radeon 680M and matches the CPU result |
 | GR-03 | graph_rejects_invalid_dependencies | CPU | PASS | empty graph, future dependency, zero group count, >8 dependencies all rejected |
@@ -86,10 +86,11 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | MV-04 | model_vault_scan_detects_changes | model store | PASS | checksum and note updated after the file changes |
 | MCP-01 | mcp_initialize_negotiates_protocol | MCP | PASS | protocol 2025-11-25, tools capability, server info |
 | MCP-02 | mcp_notification_has_no_reply | MCP | PASS | notifications/initialized produces no stdout message |
-| MCP-03 | mcp_tools_list_exposes_only_safe_read_only_tools | MCP | PASS | four read-only tools; no shell/file/download tool |
+| MCP-03 | mcp_tools_list_exposes_only_safe_read_only_tools | MCP | PASS | five read-only tools; no shell/file/download tool |
 | MCP-04 | mcp_tools_call_returns_real_runtime_data | MCP | PASS | status, device list and memory budgets from the live runtime |
 | MCP-05 | mcp_rejects_unknown_methods_and_tools | MCP | PASS | -32601 for unknown method and unknown tool |
 | MCP-06 | mcp_rejects_malformed_and_oversized_messages | MCP | PASS | -32600 for empty, missing method, deep nesting and >1 MiB |
+| MCP-07 | mcp_list_models_returns_safe_metadata_only | MCP | PASS | registered tool returns `configured`/`models` and never exposes filesystem paths; no model files are opened |
 | REST-01 | rest_health_is_public_and_local_only | REST handler | PASS | public health, nosniff header |
 | REST-02 | rest_requires_random_bearer_token | REST handler | PASS | 64-hex unique token, deterministic mutation check, 401 on bad/missing token |
 | REST-03 | rest_rejects_cross_origin_oversized_and_traversal | REST handler | PASS | 403 cross-origin, 413 >64 KiB, 400 traversal, 404 unknown routes |
@@ -137,7 +138,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | Installer staged + reference-machine install/uninstall + in-place and cross-version upgrade | **tested** (INS-01..04); clean VM still not tested | 11 |
 | Stress/fuzz (2000 CPU, 500 GPU submissions, 200 fuzz inputs) + 60-min soak | **tested** (STR-01..03, SOAK-01) | 12 |
 | Intel/NVIDIA Vulkan hardware | **not verified** | requires hardware |
-| Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (93/93 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
+| Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (94/94 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
 
 ## Benchmark evidence
 

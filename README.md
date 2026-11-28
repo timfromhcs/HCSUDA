@@ -45,7 +45,7 @@ unavailable GPU metrics are explicitly marked rather than invented.*
 | HCSIR v1 parser/verifier + CPU interpreter + HCSCC GLSL lowering → Vulkan execution | **Experimental** | `ir_*` tests, IR-18 GPU run, `docs/api/hcsir.md` |
 | CUDA source scan + narrow vecadd translation (`hcsport`) | **Experimental** | PORT-01..03, TR-01..03, `docs/api/hcsport.md` |
 | Model vault catalog (SHA-256, path allowlist, storage only); GGUF inference out of V1 scope | **Experimental** | MV-01..04, `docs/api/model-vault.md` |
-| Local-only REST with token auth and rate limit + MCP stdio (4 read-only tools) | **Experimental** | REST-01..06, MCP-01..06, `docs/api/openapi.json` |
+| Local-only REST with token auth and rate limit + MCP stdio (5 read-only tools) | **Experimental** | REST-01..06, MCP-01..07, `docs/api/openapi.json` |
 | Local browser UI (Dashboard, Devices, Memory, Settings, Compatibility) | **Experimental** | UI-01..03, SET-01..05, served at `http://127.0.0.1:<port>/ui/` |
 | One-file native EXE installer (unsigned, SHA-256 published) | **Experimental** | INS-01..04, `docs/release/installer.md` |
 

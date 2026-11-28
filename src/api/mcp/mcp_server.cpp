@@ -1,8 +1,11 @@
 #include "api/mcp/mcp_server.h"
 
 #include "core/internal.h"
+#include "model_store/model_vault.h"
+#include "service/settings.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <cctype>
 #include <cstdio>
 #include <cstring>
@@ -111,8 +114,36 @@ std::string toolsList()
            "and usage (no invented VRAM size)\",\"inputSchema\":{\"type\":\"object\","
            "\"properties\":{}}},"
            "{\"name\":\"hcsuda_get_diagnostics\",\"description\":\"Sanitized version and "
-           "capability report\",\"inputSchema\":{\"type\":\"object\",\"properties\":{}}}"
-           "]}";
+            "capability report\",\"inputSchema\":{\"type\":\"object\",\"properties\":{}}},"
+            "{\"name\":\"hcsuda_list_models\",\"description\":\"Safe metadata of the locally "
+            "indexed model catalog; no file contents or paths are exposed\","
+            "\"inputSchema\":{\"type\":\"object\",\"properties\":{}}}"
+            "]}";
+}
+
+std::string modelsPayload()
+{
+    hcs::service::SettingsStore settings(std::filesystem::path{});
+    (void)settings.load();
+    const std::string& root = settings.get().modelDir;
+    std::string json = "{\"configured\":" + std::string(root.empty() ? "false" : "true") +
+                       ",\"models\":[";
+    if (!root.empty()) {
+        hcs::models::ModelVault vault(root);
+        std::vector<hcs::models::ModelEntry> entries;
+        if (vault.list(&entries) == HCS_SUCCESS) {
+            for (size_t i = 0; i < entries.size(); ++i) {
+                if (i) json += ",";
+                const auto& entry = entries[i];
+                json += "{\"id\":\"" + escape(entry.id) + "\",\"name\":\"" +
+                        escape(entry.name) + "\",\"format\":\"" + escape(entry.format) +
+                        "\",\"size_bytes\":" + std::to_string(entry.size_bytes) +
+                        ",\"hash_verified\":" + (entry.hash_verified ? "true" : "false") +
+                        ",\"runnable\":false}";
+            }
+        }
+    }
+    return json + "]}";
 }
 
 std::string statusPayload()
@@ -248,6 +279,8 @@ std::string handle(const std::string& line)
             payload = budgetPayload();
         } else if (name == "hcsuda_get_diagnostics") {
             payload = statusPayload();
+        } else if (name == "hcsuda_list_models") {
+            payload = modelsPayload();
         } else {
             return errorReply(id, -32601, "unknown tool: " + name);
         }

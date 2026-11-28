@@ -19,13 +19,14 @@ are release-candidate notes, not a claim that every V1 gate from `AGENTS.md` has
   Unsupported constructs fail closed.
 * **Models:** local catalog with SHA-256, path allowlist and format inspection — **storage only**;
   every model is reported `runnable: false`.
-* **Local services:** REST on `127.0.0.1` with random bearer token and bounded bodies; MCP stdio
-  with four read-only tools; self-contained browser UI with live data and persisted settings.
+* **Local services:** REST on `127.0.0.1` with random bearer token, bounded bodies and rate limit;
+  MCP stdio with five read-only tools (including safe model-catalog metadata); self-contained
+  browser UI with live data and persisted settings.
 * **Packaging:** unsigned single-file native EXE, silent per-user install/uninstall, SHA-256.
 
 ## Evidence
 
-* 93/93 unit tests on the reference machine; 90/90 in CPU-only builds (three GPU-only
+* 94/94 unit tests on the reference machine; 91/91 in CPU-only builds (three GPU-only
   tests are correctly excluded); zero Vulkan validation errors; hosted CI all seven jobs green.
 * 60-minute soak: 1610 iterations, zero failures. Performance drift was observed and is
   documented without a performance claim.

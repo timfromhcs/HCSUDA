@@ -50,6 +50,7 @@ HCS_TEST(mcp_tools_list_exposes_only_safe_read_only_tools)
     CHECK_MSG(answer.find("hcsuda_list_devices") != std::string::npos, answer);
     CHECK_MSG(answer.find("hcsuda_get_memory_budget") != std::string::npos, answer);
     CHECK_MSG(answer.find("hcsuda_get_diagnostics") != std::string::npos, answer);
+    CHECK_MSG(answer.find("hcsuda_list_models") != std::string::npos, answer);
     CHECK_MSG(answer.find("run_command") == std::string::npos, "no shell tool allowed");
     CHECK_MSG(answer.find("read_file") == std::string::npos, "no arbitrary file read");
     CHECK_MSG(answer.find("download") == std::string::npos, "no download tool");
@@ -75,6 +76,19 @@ HCS_TEST(mcp_tools_call_returns_real_runtime_data)
             "{\"name\":\"hcsuda_get_memory_budget\",\"arguments\":{}}}");
         CHECK_MSG(budgets.find("heap_bytes") != std::string::npos, budgets);
     });
+}
+
+HCS_TEST(mcp_list_models_returns_safe_metadata_only)
+{
+    const std::string answer = hcs::mcp::handle(
+        "{\"jsonrpc\":\"2.0\",\"id\":4,\"method\":\"tools/call\",\"params\":"
+        "{\"name\":\"hcsuda_list_models\",\"arguments\":{}}}");
+    CHECK_MSG(answer.find("\"isError\":false") != std::string::npos, answer);
+    CHECK_MSG(answer.find("configured") != std::string::npos, answer);
+    CHECK_MSG(answer.find("models") != std::string::npos, answer);
+    CHECK_MSG(answer.find("path") == std::string::npos, "no filesystem paths must be exposed");
+    CHECK_MSG(answer.find("\"code\":-32601") == std::string::npos,
+              "tool must be registered, not rejected");
 }
 
 HCS_TEST(mcp_rejects_unknown_methods_and_tools)

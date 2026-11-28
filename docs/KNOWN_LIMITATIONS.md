@@ -104,13 +104,15 @@ upgrade are already verified on the reference machine (INS-03/INS-04). See `docs
 
 ## API surface (updated Wave 9)
 
-* MCP supports stdio only. There is no Streamable HTTP transport and no remote binding.
+* MCP supports stdio only. There is no Streamable HTTP transport and no remote binding. The five
+  read-only tools include `hcsuda_list_models`, which returns catalog metadata only (id, name,
+  format, size, hash flag, `runnable:false`) and no filesystem paths or file contents.
 * The REST API is local-only and token-authenticated. An OpenAPI 3.1 contract exists at
   `docs/api/openapi.json`; settings endpoints are implemented and UI-tested (SET-05). A
   process-wide fixed-window limit (120 requests / 10 s, HTTP 429) applies to all endpoints except
   health (REST-06). There is no model/benchmark/translation endpoint in V1.
-* MCP tool arguments do not currently open model files; `hcsuda_list_models` is intentionally
-  absent until path scopes are configured in a service layer.
+* MCP tool arguments do not open model files or perform downloads; `hcsuda_list_models` reads only
+  the already-indexed catalog and exposes no paths (MCP-07).
 
 ## UI (updated Wave 10)
 

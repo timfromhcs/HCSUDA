@@ -729,6 +729,15 @@ powershell -File scripts\soak.ps1 -Minutes 1 -Device 0
 A 60-minute run was started in the background afterwards; its summary will be recorded in
 `docs/TEST_MATRIX.md` (SOAK-02) when it completes.
 
+## 2026-11-28 — Endless work iteration 12: safe MCP model listing
+
+Added the fifth read-only MCP tool `hcsuda_list_models` in `src/api/mcp/mcp_server.cpp`. It reads
+the configured model catalog via `ModelVault::list` and returns only id, name, format, size,
+hash flag and `runnable:false` — no filesystem paths, file contents or downloads.
+
+Test fix: MCP-07 initially asserted a `runnable` field, but the unconfigured catalog correctly
+returns an empty model list; replaced with a no-path-leak assertion. Result: 94/94 tests.
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan
