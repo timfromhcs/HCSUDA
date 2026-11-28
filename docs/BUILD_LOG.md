@@ -613,3 +613,20 @@ Build-Test-Fix evidence:
 4. `windows-cpu-only`: 2/2 CTest targets, 83/83 HCS tests.
    `windows-validation`: 2/2 CTest targets, 86/86 HCS tests, zero validation errors.
    `windows-analyze`: zero warnings.
+
+## 2026-11-28 — Endless work iteration 4: final reduction kernel
+
+Added `reduce_final_f32` as a single-workgroup kernel: GLSL (`shaders/hksl/reduce_final.comp`,
+compiled and embedded by `glslc`), CPU scalar implementation, kernel registry entry and SPIR-V
+mapping. This completes the documented two-stage reduction without changing any ABI.
+
+```
+for i in retry(lock); powershell -File scripts\build-test-once.ps1  -> 0/0/0
+& build\windows-tests\RelWithDebInfo\hcs_tests.exe -> 88 tests run, 0 failures
+cmake --preset windows-cpu-only && ctest --preset windows-cpu-only -> 2/2, 85 tests
+cmake --preset windows-validation && ctest --preset windows-validation -> 2/2, 88 tests,
+zero validation errors
+```
+
+`reduce_final_cpu_matches_reference` and `reduce_final_vulkan_matches_reference` both pass with
+37 partial sums and a 2e-4 relative tolerance (KC-07/KC-08).

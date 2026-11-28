@@ -35,7 +35,7 @@ unavailable GPU metrics are explicitly marked rather than invented.*
 | Capability reporting (workgroups, subgroup, memory budget) | **Supported via Vulkan** | `hcsdoctor`, `vulkaninfo` cross-check |
 | FP16 / INT8 / matrix claims | **Not claimed** unless the queried feature exists | capability bits |
 | Buffer create/upload/download/clear | **Native / Stable** | unit + integration tests |
-| Compute dispatch: vector add, scale, reduce-sum, FP32 matmul, chunked scan, transpose | **Native / Stable** | CPU + Vulkan tests |
+| Compute dispatch: vector add, scale, reduce-sum + final reduce, FP32 matmul, chunked scan, transpose | **Native / Stable** | CPU + Vulkan tests, KC-01..08 |
 | CPU backend (scalar + runtime AVX2/FMA) | **Native / Stable** | `cpu_*` tests |
 | Memory cap and clean OOM error | **Native / Stable** | `vulkan_memory_cap_is_enforced` |
 | Bounded on-disk Vulkan pipeline cache (device-fingerprinted, corruption-safe) | **Native / Stable** | `vulkan_pipeline_cache_persists_across_contexts` (VK-06) |

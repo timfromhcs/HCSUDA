@@ -133,3 +133,51 @@ HCS_TEST(transpose_single_element_and_tile_edge)
     checkTranspose(HCS_BACKEND_CPU, 1, 1, "transpose_single");
     checkTranspose(HCS_BACKEND_VULKAN, 17, 16, "transpose_tile_edge");
 }
+
+void checkReduceFinal(uint32_t backend, uint32_t groups, const char* label)
+{
+    testutil::DeviceSession session;
+    if (!session.open(backend)) {
+        hcstest::reportSkip("device not available");
+        return;
+    }
+    std::vector<float> partials(groups, 0.0f);
+    testutil::fillPattern(partials, 3.0f, 7);
+    double expected = 0.0;
+    for (float value : partials) {
+        expected += static_cast<double>(value);
+    }
+    hcsBuffer in = nullptr, out = nullptr;
+    HCS_REQUIRE_OK(testutil::makeBuffer(session.context, groups * sizeof(float),
+                                       partials.data(), &in));
+    HCS_REQUIRE_OK(testutil::makeBuffer(session.context, sizeof(float), nullptr, &out));
+    hcsKernel kernel = nullptr;
+    HCS_REQUIRE_OK(hcsKernelCreate(session.context, "reduce_final_f32", &kernel));
+    testutil::PushConsts push{};
+    push.u0 = groups;
+    auto desc = testutil::makeDispatch({in, out}, 1, &push, sizeof(push));
+    HCS_REQUIRE_OK(hcsDispatch(kernel, &desc, nullptr));
+
+    float actual = 0.0f;
+    HCS_REQUIRE_OK(hcsBufferDownload(out, 0, &actual, sizeof(actual)));
+    const double tolerance = 2e-4 * std::max(1.0, std::fabs(expected));
+    if (std::fabs(static_cast<double>(actual) - expected) > tolerance) {
+        char text[160];
+        std::snprintf(text, sizeof(text), "got=%.9g want=%.9g groups=%u",
+                      static_cast<double>(actual), expected, groups);
+        hcstest::reportFailure(__FILE__, __LINE__, label, text);
+    }
+    hcsBufferDestroy(in);
+    hcsBufferDestroy(out);
+    hcsKernelDestroy(kernel);
+}
+
+HCS_TEST(reduce_final_cpu_matches_reference)
+{
+    checkReduceFinal(HCS_BACKEND_CPU, 37, "reduce_final_cpu_matches_reference");
+}
+
+HCS_TEST(reduce_final_vulkan_matches_reference)
+{
+    checkReduceFinal(HCS_BACKEND_VULKAN, 37, "reduce_final_vulkan_matches_reference");
+}

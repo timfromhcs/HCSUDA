@@ -36,6 +36,8 @@ const hcs::KernelDef kKernels[] = {
      "exclusive prefix sum within contiguous chunks; caller adds chunk totals"},
     {"transpose_f32", hcs::KernelId::TransposeF32, 16,
      "b[col,row] = a[row,col], row major, 16x16 tiles"},
+    {"reduce_final_f32", hcs::KernelId::ReduceFinalF32, 256,
+     "out[0] = sum of a per-group partial-sum buffer"},
 };
 
 constexpr uint32_t kKernelCount = sizeof(kKernels) / sizeof(kKernels[0]);

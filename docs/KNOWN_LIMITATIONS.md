@@ -36,8 +36,9 @@ the current truth of the code in this repository. It is kept consistent with
 * **Scan is chunk-local.** `scan_f32` writes per-chunk exclusive prefixes; a global scan needs
   a host-side pass over the chunk totals. There is no global scan kernel yet.
 * **No histogram or image-transform kernels.** They are explicitly out of V1 scope, not hidden behind a menu item.
-* **Reduce is two-stage by design.** `reduce_sum_f32` writes one partial sum per workgroup;
-  the caller performs the final reduction. There is no single-call full reduction kernel yet.
+* **Reduce remains two-stage.** `reduce_sum_f32` writes one partial sum per workgroup and
+  `reduce_final_f32` reduces those partials to `out[0]` in one workgroup (KC-07/KC-08). There is
+  still no single-kernel full reduction over the original input; both stages are required.
 * **Single device per context.** Multi-GPU and peer access are out of scope for V1.
 * **No timestamp queries yet**, so `hcsbench` measures CPU wall-clock around submit+wait.
   Numbers therefore include dispatch overhead and are not pure kernel durations.

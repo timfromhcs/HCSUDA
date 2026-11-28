@@ -274,6 +274,8 @@ public:
             return dispatchScale(desc);
         case KernelId::ReduceSumF32:
             return dispatchReduce(desc);
+        case KernelId::ReduceFinalF32:
+            return dispatchReduceFinal(desc);
         case KernelId::MatMulF32:
             return dispatchMatMul(desc);
         case KernelId::ScanF32:
@@ -388,6 +390,27 @@ private:
                 out[g] = static_cast<float>(sum);
             }
         });
+        return HCS_SUCCESS;
+    }
+
+    hcsResult dispatchReduceFinal(const hcsDispatchDesc* desc)
+    {
+        if (!validBuffers(desc, 2)) {
+            return HCS_E_INVALID_ARGUMENT;
+        }
+        if (desc->buffers[1]->size < sizeof(float)) {
+            return fail(HCS_E_INVALID_ARGUMENT, "cpu.dispatch.reduce_final",
+                        "output buffer must hold at least one float");
+        }
+        const uint64_t available = desc->buffers[0]->size / sizeof(float);
+        const uint64_t n = std::min<uint64_t>(pcU32(desc, 0), available);
+        const auto* partials = static_cast<const float*>(desc->buffers[0]->host);
+        auto* out = static_cast<float*>(desc->buffers[1]->host);
+        double sum = 0.0;
+        for (uint64_t i = 0; i < n; ++i) {
+            sum += partials[i];
+        }
+        out[0] = static_cast<float>(sum);
         return HCS_SUCCESS;
     }
 
