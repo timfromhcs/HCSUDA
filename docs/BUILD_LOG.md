@@ -1234,3 +1234,8 @@ notes, plan and checklist are aligned with the new release.
 320 two-minute pulses processed. Repo clean and fully pushed, hosted CI (8 jobs) green, local gates
 green (96/96 tests, seven WASM kernels, 142-file secret scan, OpenAPI, rc.3 artifact). GitHub release
 v0.1.0-rc.3 with local EXE + checksum + SBOM and the expanded public Vercel demo remain live.
+
+## 2026-11-28 — Endless work pulse 326
+
+Verified the Vercel project `hcsuda-webgpu-demo` still has READY production deployments and the
+stable alias serving the expanded demo. Hosted CI 8/8 green, local gates green, repo clean.
