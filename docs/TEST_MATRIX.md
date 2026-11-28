@@ -110,7 +110,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | UI-01 | rest_serves_self_contained_local_ui | UI | PASS | self-contained HTML with live data calls (dashboard, devices, memory, models, settings), no remote resources, explicit unavailable state |
 | UI-02 | live browser UI fetch (manual) | UI + REST | PASS | GET /ui/ -> 200 text/html, 4381 bytes from the running service |
 | INS-01 | tests/installer/test_installer.ps1 | installer | PASS | staged install, file checks, installed hcsdoctor --json, uninstall, Vulkan loader intact (re-run 2026-11-28 after cache/reduce/rate-limit changes) |
-| INS-02 | full single-EXE setup run (manual) | installer | PASS | freshly rebuilt EXE (latest SHA-256 F18D0650…9E0) installed asynchronously, installed `hcsdoctor --json` reported version 0.1.0 and 2 real devices, uninstall preserved user data |
+| INS-02 | full single-EXE setup run (manual) | installer | PASS | freshly rebuilt EXE (latest SHA-256 1893992B…47D2) installed asynchronously, installed `hcsdoctor --json` reported version 0.1.0 and 2 real devices, uninstall preserved user data |
 | INS-03 | tests/installer/test_upgrade.ps1 | installer | PASS | in-place reinstall keeps user files, binaries still run, uninstall removes only HCSUDA files (re-run 2026-11-28) |
 | INS-04 | cross-version upgrade (manual, real EXEs) | installer | PASS | setup built from commit b81457e installed first, current setup upgraded it; user sentinel preserved, upgraded hcsdoctor reports real devices, uninstall clean |
 | SEC-01 | scripts/check-secrets.ps1 | repository | PASS | 141 tracked files scanned (2026-11-28), no credential patterns in code (dummy tokens only in docs/tests) |

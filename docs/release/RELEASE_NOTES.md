@@ -1,11 +1,13 @@
-# HCSUDA 0.1.0-rc.2 — release notes
+# HCSUDA 0.1.0-rc.3 — release notes
 
-These notes describe the current `main` state at tagging time: local single-file installer plus a
-public WebGPU/WASM browser demo. They are release-candidate notes, not a claim that every V1 gate
-from `AGENTS.md` has passed. `v0.1.0-rc.1` remains available for the earlier local-only snapshot.
+These notes describe the current `main` state at tagging time: local single-file installer plus an
+expanded public WebGPU/WASM browser demo covering all seven built-in kernel shapes with
+configurable inputs, JSON/CSV export, measured visualisations and benchmarks. These are
+release-candidate notes, not a claim that every V1 gate from `AGENTS.md` has passed. Earlier
+`v0.1.0-rc.1` and `v0.1.0-rc.2` tags remain available.
 
 **Local artifact:** `HCSUDA-Setup-x64.exe`, unsigned, SHA-256
-`BC1F8A016920C2D6938E31B719ACF31307B7222392754BCDDA5E98AF9CAEF24D`.
+`1893992BC683CAF633E7E706D3514BCFFF8150EDCEF70B79D5F0CE26399047D2`.
 **Cloud artifact:** <https://hcsuda-webgpu-demo.vercel.app> (standalone demo, not the native runtime).
 
 ## What is included

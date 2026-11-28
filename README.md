@@ -3,7 +3,7 @@
 # HCSUDA
 
 [![CI](https://github.com/timfromhcs/HCSUDA/actions/workflows/ci.yml/badge.svg)](https://github.com/timfromhcs/HCSUDA/actions/workflows/ci.yml)
-[![Release: v0.1.0-rc.2](https://img.shields.io/badge/release-v0.1.0--rc.2-orange.svg)](https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.2)
+[![Release: v0.1.0-rc.3](https://img.shields.io/badge/release-v0.1.0--rc.3-orange.svg)](https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.3)
 [![Cloud demo](https://img.shields.io/badge/cloud-WebGPU%2FWASM%20live-brightgreen.svg)](https://hcsuda-webgpu-demo.vercel.app)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -13,7 +13,7 @@
 portable C ABI, a CPU reference backend, and an expanding CUDA-source migration path.
 
 > **Status: 0.1.0 release candidate.** Local: single-file EXE, checksum and SBOM on the
-> [`v0.1.0-rc.2`](https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.2) GitHub release.
+> [`v0.1.0-rc.3`](https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.3) GitHub release.
 > Cloud: a clearly scoped [WebGPU/WASM browser demo](https://hcsuda-webgpu-demo.vercel.app)
 > is deployed on Vercel. Waves 0–13 are implemented; 96/96 tests, 8/8 hosted CI jobs, a 60-minute
 > soak (1418 iterations, 0 failures) and all release gates are green. Runtime, kernels,
