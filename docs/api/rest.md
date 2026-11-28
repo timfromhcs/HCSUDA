@@ -13,6 +13,7 @@ prints it to stderr. No token is hardcoded or stored in the repository.
 | GET | `/api/v1/devices` | bearer | index, name, backend, kind per real device |
 | GET | `/api/v1/runtime/status` | bearer | same device inventory |
 | GET | `/api/v1/memory/budget` | bearer | driver-reported heap/budget/usage |
+| GET | `/api/v1/models` | bearer | safe catalog metadata (no paths/file contents) |
 | GET | `/api/v1/settings` | bearer | validated settings with safe defaults |
 | POST | `/api/v1/settings` | bearer | validate, persist and return settings (64 KiB body limit) |
 | POST | `/api/v1/settings/reset` | bearer | restore defaults and persist |
@@ -29,6 +30,8 @@ download or unrestricted file access. `POST /api/v1/jobs/compute` is intentional
 * Request body limited to 64 KiB → otherwise 413.
 * Target path rejects `..` and backslashes → 400.
 * `X-Content-Type-Options: nosniff`, `Cache-Control: no-store`, `Connection: close`.
+* Process-wide fixed-window rate limit: 120 requests per 10 s → HTTP 429 (`rate_limited`);
+  `/api/v1/health` stays available for monitoring.
 * Errors are structured JSON with `status`, `code` and `message`.
 
 The server reads at most `kMaxRequestBytes + 1` bytes per connection, so a hostile client cannot
@@ -47,14 +50,16 @@ Invoke-RestMethod http://127.0.0.1:8710/api/v1/devices `
 
 ## Not implemented
 
-* OpenAPI 3.1 document generation (the table above is the current hand-written contract).
-* Model endpoints, benchmark endpoints, translation endpoints, authentication token rotation.
+* OpenAPI 3.1 document generation at runtime — the checked-in `docs/api/openapi.json` is the
+  current machine-readable contract.
+* Benchmark endpoints, translation endpoints, authentication token rotation.
 * Streamable HTTP MCP / remote binding / TLS.
-* Rate limiting beyond the bounded request/body size.
+* Model import/load/inference endpoints; only safe catalog metadata listing is implemented.
 
 ## Evidence
 
 `tests/unit/test_rest.cpp` covers health, token generation and comparison, auth failures,
-cross-origin rejection, oversized bodies, path traversal, unknown routes and real device/budget
-data. A live loopback check returned `health=200`, `unauthorized=401`, `devices=200` with real
-Radeon 680M and CPU records.
+cross-origin rejection, oversized bodies, path traversal, unknown routes, rate limiting, safe model
+listing and real device/budget data (REST-01..07). Live loopback checks returned `health=200`,
+`unauthorized=401`, `devices=200` with real Radeon 680M and CPU records, and
+`models.configured=false`, `models.count=0`.
