@@ -859,3 +859,10 @@ powershell -File scripts\check-openapi.ps1          -> OPENAPI_PASS (9 paths, 8 
 cmake --build --preset windows-analyze --parallel   -> zero warnings
 windows-cpu-only 93/93, windows-validation 96/96, windows-tests 96/96
 ```
+
+## 2026-11-28 — Endless work iteration 19: 60-minute soak completed
+
+The background soak finished: `scripts/soak.ps1 -Minutes 60 -Device 0` produced
+`logs/soak-20261128-123740.summary.json` with `iterations=1418`, `failed_runs=0`,
+`unverified_rows=0`, `result=PASS`. Every iteration ran all six benchmark kernels through their
+host-reference verification. No crash, JSON parse failure or unverified result occurred.
