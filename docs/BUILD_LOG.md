@@ -1198,3 +1198,8 @@ GitHub release v0.1.0-rc.2 (local + cloud) live, next-stable plan in `docs/PLAN_
 
 All gates green: 2/2 CTest targets (96/96), WASM n=1001 worst=0, secret scan 141 files,
 OpenAPI 9 paths, artifact bc1f8a016920c2d6 (rc.2). Repo clean and fully pushed.
+
+## 2026-11-28 — Endless work pulse 288
+
+All gates green: 2/2 CTest targets (96/96), WASM n=1001 worst=0, secret scan 141 files,
+OpenAPI 9 paths, artifact bc1f8a016920c2d6 (rc.2). Repo clean and fully pushed.
