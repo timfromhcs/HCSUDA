@@ -1021,3 +1021,20 @@ With explicit owner approval, created annotated tag `v0.1.0-rc.1` and GitHub Rel
 <https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.1> containing the single-file EXE,
 SHA-256 checksum and SBOM. README, publication record, release checklist and limitation docs were
 updated. Release blocker #3 is now closed; three external items remain.
+
+## 2026-11-28 — Browser WebGPU/WASM demo and Vercel release
+
+Added `webgpu-demo/` as a clearly scoped standalone demo: WGSL/WebGPU executes the documented
+vecadd shape, a WAT-built 124-byte WASM module computes the CPU reference, and the page compares
+results. `kernel.wasm` is built with `npx wabt wat2wasm`; `node test-wasm.mjs` validated 1001
+elements against a double reference with worst error 0.
+
+Build-Test-Fix: first WASM test failed with `Cannot read properties of undefined (reading
+'memory')` because `WebAssembly.instantiate(bytes)` returns `{instance, module}`; fixed in both
+`test-wasm.mjs` and `app.js`.
+
+Deployed with `vercel deploy --prod --yes --project hcsuda-webgpu-demo --create-if-missing` from
+`webgpu-demo/`. The first live check hit Vercel Authentication (protection page), so SSO
+protection was disabled for this public demo project with
+`vercel project protection disable hcsuda-webgpu-demo --sso`. Deployment
+`hcsuda-webgpu-demo-mhm11twi4-hcsmediacorp.vercel.app` is READY and publicly serves all three files.

@@ -171,6 +171,14 @@ powershell -File scripts\check-artifact.ps1       # installer checksum/secret/im
 powershell -File scripts\soak.ps1 -Minutes 5       # bounded soak with verified benchmark rows
 ```
 
+## Browser WebGPU / WebAssembly demo
+
+A separate, static browser demo of the documented `vecadd_f32` shape runs at
+<https://hcsuda-webgpu-demo-mhm11twi4-hcsmediacorp.vercel.app> (source: `webgpu-demo/`). WebGPU
+executes the kernel; a 124-byte WebAssembly module computes the CPU reference and the page compares
+them. It is **not** the native HCSUDA runtime, uses no Vulkan backend or C ABI, and makes no
+performance claim. If WebGPU is unavailable the page reports that explicitly.
+
 ## Local REST API and MCP
 
 ```powershell

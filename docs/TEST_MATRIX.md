@@ -22,6 +22,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | CV-01 | clean out-of-tree build (2026-11-28) | full build | PASS | fresh `build/clean-verify` configure + build + ctest from an empty directory: all 9 shaders compiled by glslc, 2/2 CTest targets, 96/96 HCS tests |
 | ART-01 | scripts/check-artifact.ps1 | release artifact | PASS | installer SHA-256 matches published checksum, no secret-like patterns in binary, no static imports of `nvcuda.dll`/`nvrtc.dll`/`cudart64`/`vulkan-1.dll` (dumpbin inspected) |
 | LEG-01 | license and SBOM presence (2026-11-28) | repository | PASS | LICENSE, NOTICE, THIRD_PARTY_NOTICES, SECURITY, CONTRIBUTING, CODE_OF_CONDUCT, CITATION all present and non-empty; `docs/release/sbom.json` parses with 5 components |
+| WEB-01 | WebGPU/WASM browser demo | static site + WASM | PASS | WAT compiled to a 124-byte WASM module; Node gate `test-wasm.mjs` matches a 1001-element double reference (worst=0); Vercel production deployment `hcsuda-webgpu-demo` READY and publicly serves index/app.js/kernel.wasm; explicitly a standalone demo, not the native runtime |
 | CPU-01 | cpu_vecadd_matches_reference | CPU | PASS | 1000 elements (non-multiple of 64), alpha 2.5, rel 1e-5 |
 | CPU-02 | cpu_scale_matches_reference | CPU | PASS | 4096 elements, negative alpha |
 | CPU-03 | cpu_reduce_matches_reference | CPU | PASS | 8 groups over 10000 elements, rel 1e-4 |
