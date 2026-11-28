@@ -796,6 +796,14 @@ Added `scripts/check-openapi.ps1` as a reproducible contract gate:
 powershell -File scripts\check-openapi.ps1 -> OPENAPI_PASS (9 paths, 8 required endpoints)
 ```
 
+Final sweep after the documentation scope decision:
+
+```
+cmake --build --preset windows-analyze --parallel -> zero warnings
+ctest --preset windows-tests --output-on-failure -> 2/2 CTest targets, 95/95 HCS tests
+powershell -File scripts\check-openapi.ps1 -> OPENAPI_PASS (9 paths, 8 required endpoints)
+```
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan
