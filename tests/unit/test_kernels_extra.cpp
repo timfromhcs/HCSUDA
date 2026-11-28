@@ -119,6 +119,13 @@ HCS_TEST(scan_single_element)
     checkScan(HCS_BACKEND_VULKAN, 1, 1, "scan_single_element_vulkan");
 }
 
+HCS_TEST(scan_chunk_larger_than_workgroup)
+{
+    /* chunk=2500 forces the GPU shader through ten 256-element blocks. */
+    checkScan(HCS_BACKEND_CPU, 10000, 4, "scan_large_chunk_cpu");
+    checkScan(HCS_BACKEND_VULKAN, 10000, 4, "scan_large_chunk_vulkan");
+}
+
 HCS_TEST(transpose_cpu_odd_dimensions)
 {
     checkTranspose(HCS_BACKEND_CPU, 37, 29, "transpose_cpu_odd_dimensions");

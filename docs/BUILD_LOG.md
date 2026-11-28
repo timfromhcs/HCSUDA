@@ -684,6 +684,24 @@ Build-Test-Fix:
 3. Final run: all six rows `verified:true` on the Radeon 680M; full unit suite still green
    (92/92, 2/2 CTest targets).
 
+## 2026-11-28 — Endless work iteration 9: arbitrary-size scan chunks
+
+The verified benchmark exposed a kernel limitation: `scan_f32` handled only 256 elements per
+workgroup chunk, which had forced a benchmark workaround. Rewrote `shaders/hksl/scan.comp` to
+iterate over 256-element blocks with a shared `running` prefix, added KC-13 (n=10000, groups=4 →
+2500-element chunks) on CPU and Vulkan, and reverted the benchmark to `groups=256`.
+
+```
+for i in retry(lock); powershell -File scripts\build-test-once.ps1 -> 0/0/0; 93 tests run, 0 failures
+cmake --preset windows-cpu-only && ctest --preset windows-cpu-only -> 2/2, 90 tests
+cmake --preset windows-validation && ctest --preset windows-validation -> 2/2, 93 tests,
+zero validation errors
+hcsbench --device 0 --reps 5 --warmup 2 --json -> all six rows verified:true,
+scan_f32 n=1048576 g=256 median 0.4535 ms
+```
+
+Also removed the last C4456 shadowing warning in `tools/hcsbench/main.cpp`.
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan

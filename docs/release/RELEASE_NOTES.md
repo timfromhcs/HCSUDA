@@ -25,7 +25,7 @@ are release-candidate notes, not a claim that every V1 gate from `AGENTS.md` has
 
 ## Evidence
 
-* 92/92 unit tests on the reference machine; 89/89 in CPU-only builds (three GPU-only
+* 93/93 unit tests on the reference machine; 90/90 in CPU-only builds (three GPU-only
   tests are correctly excluded); zero Vulkan validation errors; hosted CI all seven jobs green.
 * 60-minute soak: 1610 iterations, zero failures. Performance drift was observed and is
   documented without a performance claim.

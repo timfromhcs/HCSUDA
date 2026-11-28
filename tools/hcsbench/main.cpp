@@ -351,8 +351,8 @@ int main(int argc, char** argv)
                     });
                     if (row.timing.ok) {
                         std::vector<float> expected(n);
-                        for (uint32_t i = 0; i < n; ++i) {
-                            expected[i] = static_cast<float>(0.5 * static_cast<double>(x[i]));
+                        for (uint32_t idx = 0; idx < n; ++idx) {
+                            expected[idx] = static_cast<float>(0.5 * static_cast<double>(x[idx]));
                         }
                         row.verified =
                             verifyOutput(out, expected, 2e-4f, "scale_f32", deviceName.c_str());
@@ -501,11 +501,11 @@ int main(int argc, char** argv)
             if (bufC) hcsBufferDestroy(bufC);
         }
 
-        /* scan: exclusive chunked prefix sum. scan_f32 handles at most 256
-         * elements per chunk, so the group count must satisfy ceil(n/groups) <= 256. */
+        /* scan: exclusive chunked prefix sum; the shader now handles chunks
+         * larger than one workgroup by iterating over 256-element blocks. */
         {
             const uint32_t n = options.vecElements;
-            const uint32_t groups = (n + 255u) / 256u;
+            const uint32_t groups = 256;
             std::vector<float> x(n);
             fill(x, 7);
             hcsBufferDesc inDesc{};

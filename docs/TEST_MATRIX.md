@@ -4,8 +4,8 @@ Environment: Windows 11 Pro 10.0.26200, Ryzen 7 7735HS, Radeon 680M (UMA),
 AMD driver 32.0.21043.12001, Vulkan 1.4.315, MSVC 19.44 (RelWithDebInfo).
 
 Run: `ctest --preset windows-tests --output-on-failure`
-Last result: **2/2 CTest targets passed; 92/92 HCS tests passed** (re-verified 2026-11-28).
-CPU-only profile: 89/89; validation profile: 92/92 with zero Vulkan validation errors.
+Last result: **2/2 CTest targets passed; 93/93 HCS tests passed** (re-verified 2026-11-28).
+CPU-only profile: 90/90; validation profile: 93/93 with zero Vulkan validation errors.
 The background loop (`scripts/loop-build-test.ps1`) repeats configure/build/test every ~60 s and has
 produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 
@@ -58,7 +58,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | FL-03 | flow_event_timeout_and_validation | Vulkan | PASS | idle-flow event is immediately satisfied; null flow/event misuse rejected |
 | FL-04 | flow_cpu_backend_completes_immediately | CPU | PASS | CPU flow/event complete synchronously with zero timeout |
 | FL-05 | flow_event_wait_timeout_path | mock flow | PASS | a backend flow whose counter never advances yields `HCS_E_TIMEOUT` |
-| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 92/92 tests, no validation errors |
+| VAL-01 | full unit suite under validation layers | Vulkan + validation | PASS | `VK_LAYER_KHRONOS_validation` enabled explicitly; 93/93 tests, no validation errors |
 | GR-01 | graph_runs_on_cpu_backend | CPU | PASS | 2-node linear DAG with dependency, replayed on a flow, both outputs verified |
 | GR-02 | graph_runs_on_vulkan_backend | Vulkan | PASS | same DAG executes on the Radeon 680M and matches the CPU result |
 | GR-03 | graph_rejects_invalid_dependencies | CPU | PASS | empty graph, future dependency, zero group count, >8 dependencies all rejected |
@@ -75,6 +75,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | KC-10 | global_scan_vulkan_matches_reference | Vulkan | PASS | same shape on Radeon 680M with glslc-validated `scan_add_offsets` SPIR-V |
 | KC-11 | histogram_cpu_matches_reference | CPU | PASS | 5000 u32 values, all 256 bins match the host reference |
 | KC-12 | histogram_vulkan_matches_reference | Vulkan | PASS | same data on Radeon 680M; single workgroup avoids bin-reset races, group count >1 is rejected |
+| KC-13 | scan_chunk_larger_than_workgroup | both | PASS | n=10000, 4 groups → 2500-element chunks processed in ten 256-element blocks per workgroup |
 | PORT-01 | hcsport_scan_reports_constructs_without_claiming_translation | scanner | PASS | line/column findings, manual vs unsupported, JSON states `translated:0` |
 | PORT-02 | hcsport_rejects_binary_and_oversized_input | scanner | PASS | NUL bytes, >4 MiB, empty and null inputs rejected |
 | PORT-03 | hcsport_plain_host_code_has_no_findings | scanner | PASS | plain C++ produces an empty report |
@@ -135,7 +136,7 @@ produced only green cycles since 2026-11-28 10:25 (`logs/limitless-loop.log`).
 | Installer staged + reference-machine install/uninstall + in-place and cross-version upgrade | **tested** (INS-01..04); clean VM still not tested | 11 |
 | Stress/fuzz (2000 CPU, 500 GPU submissions, 200 fuzz inputs) + 60-min soak | **tested** (STR-01..03, SOAK-01) | 12 |
 | Intel/NVIDIA Vulkan hardware | **not verified** | requires hardware |
-| Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (92/92 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
+| Vulkan validation layers run | **PASS** via `ctest --preset windows-validation --timeout 180` (93/93 tests, `VK_LAYER_KHRONOS_validation` explicitly enabled) | 5 |
 
 ## Benchmark evidence
 

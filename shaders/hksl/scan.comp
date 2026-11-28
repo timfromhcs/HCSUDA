@@ -1,6 +1,8 @@
 #version 450
 
-/* Exclusive prefix sum within one contiguous chunk. The caller adds the chunk totals. */
+/* Exclusive prefix sum within one contiguous chunk of arbitrary length.
+ * The chunk is processed in 256-element blocks; 'running' carries the prefix
+ * total across blocks inside the same workgroup. The caller adds chunk totals. */
 layout(local_size_x = 256) in;
 
 layout(std430, binding = 0) buffer HcsInput {
@@ -19,26 +21,43 @@ layout(push_constant) uniform Params {
 };
 
 shared float scratch[256];
+shared float running;
 
 void main()
 {
     const uint lid = gl_LocalInvocationID.x;
     const uint chunk = (n + groups - 1u) / groups;
     const uint start = gl_WorkGroupID.x * chunk;
-    const uint index = start + lid;
-    const bool inChunk = lid < chunk && index < n;
-    const float value = inChunk ? src_data[index] : 0.0f;
-
-    scratch[lid] = value;
-    barrier();
-    for (uint offset = 1u; offset < 256u; offset <<= 1u) {
-        const float mine = scratch[lid];
-        const float other = lid >= offset ? scratch[lid - offset] : 0.0f;
-        barrier();
-        scratch[lid] = mine + other;
-        barrier();
+    if (lid == 0u) {
+        running = 0.0;
     }
-    if (inChunk) {
-        dst_data[index] = scratch[lid] - value;
+    barrier();
+
+    for (uint base = 0u; base < chunk; base += 256u) {
+        const uint index = base + lid;
+        const uint globalIndex = start + index;
+        const bool inRange = (index < chunk) && (globalIndex < n);
+        const float value = inRange ? src_data[globalIndex] : 0.0f;
+        scratch[lid] = value;
+        barrier();
+
+        for (uint offset = 1u; offset < 256u; offset <<= 1u) {
+            const float mine = scratch[lid];
+            const float other = lid >= offset ? scratch[lid - offset] : 0.0f;
+            barrier();
+            scratch[lid] = mine + other;
+            barrier();
+        }
+
+        const float prefixBefore = scratch[lid] - value; /* inclusive - own value */
+        if (inRange) {
+            dst_data[globalIndex] = prefixBefore + running;
+        }
+        const float blockSum = scratch[255];
+        barrier();
+        if (lid == 0u) {
+            running += blockSum;
+        }
+        barrier();
     }
 }

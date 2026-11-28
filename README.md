@@ -165,8 +165,8 @@ wait** (V1 dispatches are synchronous). Median and p10/p90 reported. Every row i
 against an independently computed host reference (`verified: true` in JSON). Raw JSON:
 `benchmarks/baselines/radeon680m-2026-11-25.json`.
 
-`scan_f32` is benchmarked with `groups = ceil(n/256)` because one workgroup handles at most
-256 elements of a chunk; using fewer groups silently leaves later elements untouched.
+`scan_f32` handles chunks longer than one workgroup by iterating over 256-element blocks, so the
+benchmark uses 256 groups for 1 Mi elements and the result stays fully verified.
 
 | Kernel | Size | Vulkan median | Vulkan GB/s | CPU median | CPU GB/s |
 |---|---|---|---|---|---|
