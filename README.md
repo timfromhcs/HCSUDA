@@ -176,10 +176,13 @@ powershell -File scripts\soak.ps1 -Minutes 5       # bounded soak with verified 
 
 ## Browser WebGPU / WebAssembly demo
 
-A separate, static browser demo of the documented `vecadd_f32` shape runs at
-<https://hcsuda-webgpu-demo.vercel.app> (source: `webgpu-demo/`). WebGPU
-executes the kernel; a 124-byte WebAssembly module computes the CPU reference and the page compares
-them. It is **not** the native HCSUDA runtime, uses no Vulkan backend or C ABI, and makes no
+A separate, static browser demo at <https://hcsuda-webgpu-demo.vercel.app> (source:
+`webgpu-demo/`) now covers all seven built-in kernel shapes: vecadd, scale, reduce, scan, histogram,
+matmul and transpose. WebGPU executes each kernel; a WebAssembly module computes the CPU reference.
+Inputs are user-configurable (kernel, sizes, alpha, groups, warmup/reps) and can be shared via URL
+parameters. Results are downloadable as JSON/CSV; a canvas visualises measured output, a benchmark
+table reports wall-clock median/p10/p90, and an interactive "kernel race" is explicitly labelled a
+demo. This is **not** the native HCSUDA runtime, uses no Vulkan backend or C ABI, and makes no
 performance claim. If WebGPU is unavailable the page reports that explicitly.
 
 ## Local REST API and MCP

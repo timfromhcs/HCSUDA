@@ -6,27 +6,62 @@
   <title>HCSUDA WebGPU / WASM demo</title>
   <style>
     body { font-family: Segoe UI, system-ui, sans-serif; margin: 0; background: #0f1b2a; color: #e8f2ff; }
-    main { max-width: 860px; margin: 48px auto; padding: 0 20px; }
-    h1 { font-size: 28px; margin-bottom: 4px; }
-    .tag { color: #20d7c8; font-size: 14px; }
-    .card { background: #16273b; border: 1px solid #2d4d6b; border-radius: 12px; padding: 20px; margin-top: 22px; }
-    button { background: #4aa8ff; color: #061322; border: 0; border-radius: 6px; padding: 9px 16px; font-weight: 700; cursor: pointer; }
-    code { color: #8fe3d8; }
-    .note { color: #92b4d0; font-size: 14px; }
-    .error { color: #ff9c9c; }
+    main { max-width: 1040px; margin: 32px auto; padding: 0 20px 60px; }
+    h1 { font-size: 26px; margin-bottom: 4px; } .tag { color: #20d7c8; font-size: 14px; }
+    .card { background: #16273b; border: 1px solid #2d4d6b; border-radius: 12px; padding: 18px; margin-top: 18px; }
+    label { display: inline-block; margin: 4px 12px 4px 0; font-size: 14px; }
+    input, select { background: #0f1b2a; color: #e8f2ff; border: 1px solid #3b6285; border-radius: 5px; padding: 5px 8px; }
+    button { background: #4aa8ff; color: #061322; border: 0; border-radius: 6px; padding: 8px 14px; font-weight: 700; cursor: pointer; margin: 4px 6px 0 0; }
+    button.alt { background: #20d7c8; }
+    code { color: #8fe3d8; } .note { color: #92b4d0; font-size: 13px; }
+    .error { color: #ff9c9c; } .ok { color: #7ee787; }
+    canvas { width: 100%; height: 180px; background: #0b1420; border: 1px solid #2d4d6b; border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #2d4d6b; }
   </style>
 </head>
 <body>
 <main>
   <h1>HCSUDA <span class="tag">WebGPU / WebAssembly demo</span></h1>
-  <p class="note">Browser-only demonstration of the documented <code>vecadd_f32</code> shape.
-  WebGPU executes the kernel; a WebAssembly module computes the CPU reference.
-  This is <strong>not</strong> the native HCSUDA runtime and makes no performance claim.</p>
+  <p class="note">Browser-only demo of the documented HCSUDA kernel shapes. WebGPU executes each
+  kernel; a WebAssembly module computes the CPU reference. This is <strong>not</strong> the native
+  HCSUDA runtime and makes no performance claim. All visualisations and the race game are labelled
+  demo/synthetic.</p>
+
   <div class="card">
-    <p><button id="run">Run 1,001-element check</button></p>
-    <p id="status">Idle.</p>
-    <p id="detail" class="note"></p>
-    <p id="error" class="error"></p>
+    <h2>Configure</h2>
+    <label>Kernel <select id="kernel"></select></label>
+    <label>n / rows <input id="n" type="number" min="1" max="8192" value="1024"></label>
+    <label>cols <input id="cols" type="number" min="1" max="64" value="8"></label>
+    <label>k <input id="k" type="number" min="1" max="64" value="8"></label>
+    <label>alpha <input id="alpha" type="number" step="0.1" value="1.5"></label>
+    <label>groups <input id="groups" type="number" min="1" max="256" value="16"></label>
+    <label>warmup <input id="warmup" type="number" min="0" max="20" value="2"></label>
+    <label>reps <input id="reps" type="number" min="1" max="50" value="5"></label>
+    <label>Backend <select id="backend"><option value="both">WebGPU vs WASM</option><option value="gpu">WebGPU only</option><option value="wasm">WASM only</option></select></label>
+    <p><button id="run">Run kernel</button><button id="bench" class="alt">Run benchmark</button><button id="race" class="alt">Kernel race (demo)</button></p>
+    <p id="status">Idle.</p><p id="error" class="error"></p>
+  </div>
+
+  <div class="card">
+    <h2>Result</h2>
+    <table><thead><tr><th>Kernel</th><th>Backend</th><th>Values</th><th>Worst error</th><th>Status</th></tr></thead>
+      <tbody id="results"><tr><td colspan="5">No run yet.</td></tr></tbody></table>
+    <p class="note">Download the exact parameters, measured timings and result samples:</p>
+    <p><button id="exportJson">Download JSON</button><button id="exportCsv">Download CSV</button></p>
+  </div>
+
+  <div class="card">
+    <h2>Visualisation (demo/synthetic colour mapping of measured output)</h2>
+    <canvas id="heatmap" width="1000" height="180"></canvas>
+    <p id="vizNote" class="note">No data yet.</p>
+  </div>
+
+  <div class="card">
+    <h2>Benchmark (wall-clock, includes submit + readback)</h2>
+    <table><thead><tr><th>Backend</th><th>Median ms</th><th>p10 ms</th><th>p90 ms</th></tr></thead>
+      <tbody id="benchRows"><tr><td colspan="4">No benchmark yet.</td></tr></tbody></table>
+    <p class="note">These are browser measurements on the current device, not HCSUDA native GPU timings.</p>
   </div>
 </main>
 <script type="module" src="./app.js"></script>

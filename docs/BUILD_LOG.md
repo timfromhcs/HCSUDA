@@ -1208,3 +1208,16 @@ OpenAPI 9 paths, artifact bc1f8a016920c2d6 (rc.2). Repo clean and fully pushed.
 
 All gates green: 2/2 CTest targets (96/96), WASM n=1001 worst=0, secret scan 141 files,
 OpenAPI 9 paths, artifact bc1f8a016920c2d6 (rc.2). Repo clean and fully pushed.
+
+## 2026-11-28 — Web expansion phases 1-3
+
+Extended `webgpu-demo/kernel.wat` from vecadd to seven WASM references (scale, reduce, scan,
+histogram, matmul, transpose). Build-Test-Fix: `i32.min_u`/`i32.min` do not exist in WASM and the
+build script masked wat2wasm failures; replaced min with `select`, added `$limit` locals and made
+`build.ps1` fail on non-zero exit. Result: 922-byte WASM, `WASM_TEST_PASS kernels=7`.
+
+Rewrote the browser app with a kernel selector, configurable sizes/alpha/groups/warmup/reps,
+URL-shareable parameters, seven WGSL kernels, WASM-vs-WebGPU validation, JSON/CSV download,
+canvas visualisation with measured timing bars, benchmark median/p10/p90 and a clearly labelled
+race game with a localStorage scoreboard. Headless Chrome checked all seven kernels via
+`?backend=wasm` — all PASS. Vercel production alias redeployed and serves all assets with 200.
