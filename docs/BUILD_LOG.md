@@ -927,3 +927,8 @@ check-artifact.ps1                -> ARTIFACT_PASS (f18d065014ed7535)
 Verified all legally required root documents are present and non-empty and that
 `docs/release/sbom.json` parses as JSON with 5 components (LEG-01). No new dependencies were
 added during the endless work loops, so the SBOM remains accurate.
+
+## 2026-11-28 — Endless work iteration 27: recurring stability cycle
+
+All local gates re-run cleanly: 2/2 CTest targets (96/96), secret scan 131 files, OpenAPI 9 paths,
+installer artifact checksum f18d065014ed7535. Repo clean and fully pushed.
