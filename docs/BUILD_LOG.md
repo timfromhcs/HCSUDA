@@ -1044,3 +1044,8 @@ protection was disabled for this public demo project with
 All gates after the WebGPU/WASM addition are green: secret scan 140 tracked files, OpenAPI 9 paths,
 artifact f18d065014ed7535, 2/2 CTest targets (96/96), Node WASM gate n=1001 worst=0. Release
 checklist now records the public Vercel demo.
+
+## 2026-11-28 — Endless work pulse 179
+
+All gates green: 2/2 CTest targets (96/96), WASM reference n=1001 worst=0, secret scan 140 files,
+OpenAPI 9 paths, artifact f18d065014ed7535. Repo clean, GitHub release and Vercel demo live.
