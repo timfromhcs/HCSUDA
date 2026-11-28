@@ -1239,3 +1239,8 @@ v0.1.0-rc.3 with local EXE + checksum + SBOM and the expanded public Vercel demo
 
 Verified the Vercel project `hcsuda-webgpu-demo` still has READY production deployments and the
 stable alias serving the expanded demo. Hosted CI 8/8 green, local gates green, repo clean.
+
+## 2026-11-28 — Endless work pulse 329
+
+Local gates green: 2/2 CTest targets (96/96), WASM seven-kernel gate PASS, artifact
+1893992bc683caf6 (rc.3). Repo clean and fully pushed; hosted CI 8/8 green.
