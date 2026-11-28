@@ -14,9 +14,9 @@ Performed 2026-11-26 after explicit owner confirmation of the target repository.
 
 ## Release created (explicit owner approval, 2026-11-28)
 
-* Annotated tags `v0.1.0-rc.1` and `v0.1.0-rc.2` pushed to `origin`.
-* Latest GitHub Release: <https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.2>
-  (previous: <https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.1>).
+* Annotated tags `v0.1.0-rc.1`, `v0.1.0-rc.2` and `v0.1.0-rc.3` pushed to `origin`.
+* Latest GitHub Release: <https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.3>
+  (previous: rc.2 and rc.1 under the same URL pattern).
 * Assets verified: `HCSUDA-Setup-x64.exe`, `HCSUDA-Setup-x64.exe.sha256`, `sbom.json`.
   rc.2 EXE SHA-256: `1893992BC683CAF633E7E706D3514BCFFF8150EDCEF70B79D5F0CE26399047D2`.
 * Cloud release: `https://hcsuda-webgpu-demo.vercel.app` (production alias, public, READY).
