@@ -649,6 +649,17 @@ cmake --preset windows-validation && ctest --preset windows-validation -> 2/2, 9
 zero validation errors
 ```
 
+## 2026-11-28 — Endless work iteration 7: loop hardening
+
+The stale-link incident was addressed at the harness level: `scripts/build-test-once.ps1` now
+builds the loop preset **sequentially** (no `--parallel`) and checks that `hcs_tests.exe` is not
+older than `hcsuda_core.lib`; if it is, it relinks once before running tests. Manual profile builds
+still use `--parallel` in separate build directories. Verified:
+
+```
+powershell -File scripts\build-test-once.ps1 -> configure/build/test exit=0; 2/2 CTest targets
+```
+
 ## 2026-11-28 — Endless work iteration 6: host-free global scan
 
 Added `scan_add_offsets_f32` (GLSL + CPU + registry + SPIR-V mapping) so a global exclusive scan

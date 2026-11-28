@@ -30,9 +30,23 @@ try {
     $cfgCode = $LASTEXITCODE
     Write-Log "configure exit=$cfgCode"
     if ($cfgCode -eq 0) {
-        $build = & cmake --build --preset windows-tests --parallel 2>&1
+        # Sequential on purpose: a parallel MSBuild once linked hcs_tests.exe
+        # against a stale hcsuda_core.lib, producing a false KERNEL_NOT_FOUND.
+        $build = & cmake --build --preset windows-tests 2>&1
         $buildCode = $LASTEXITCODE
         Write-Log "build exit=$buildCode"
+        if ($buildCode -eq 0) {
+            $outDir = Join-Path $repo 'build\windows-tests\RelWithDebInfo'
+            $lib = Join-Path $outDir 'hcsuda_core.lib'
+            $exe = Join-Path $outDir 'hcs_tests.exe'
+            if ((Test-Path $lib) -and (Test-Path $exe) -and
+                (Get-Item $exe).LastWriteTime -lt (Get-Item $lib).LastWriteTime) {
+                Write-Log 'stale link detected; relinking sequentially'
+                $build = & cmake --build --preset windows-tests 2>&1
+                $buildCode = $LASTEXITCODE
+                Write-Log "relink exit=$buildCode"
+            }
+        }
         if ($buildCode -eq 0) {
             $test = & ctest --preset windows-tests --output-on-failure 2>&1
             $testCode = $LASTEXITCODE
