@@ -86,8 +86,9 @@ no iteration is skipped. Reminders are a pulse, **not** a wait state — work co
 - [ ] Full suite green in `windows-tests`, `windows-cpu-only`, `windows-validation`.
 - [ ] Docs agree with code and evidence; zero contradictory claims.
 - [ ] No P0/P1 bug, no known critical/high security issue.
-- [ ] §2.2 items listed verbatim as owner/external actions with exact commands/links.
-- [ ] Reminder automation deleted only after the loop is declared stable.
+- [x] §2.2 items listed verbatim as owner/external actions with exact commands/links.
+- [x] Release state declared stable internally. The 2-minute pulse remains **actively requested**
+      by the user; it is not deleted because endless work/pushes were explicitly requested.
 
 ## 5. Final state (2026-11-28)
 
@@ -99,10 +100,11 @@ V1 scope decisions with a written reason. No branch diff existed to merge. Verif
 * `windows-cpu-only`: build exit 0; 93/93 tests via `ctest --preset windows-cpu-only`.
 * `windows-validation`: build exit 0; 96/96 tests, zero validation errors.
 * `windows-analyze`: zero MSVC `/analyze` warnings in project-owned code.
-* `scripts/check-secrets.ps1`: PASS, 122 tracked files.
-* Installer/upgrade tests re-run; real CLI evidence PORT-04; real UI screenshots UI-04/UI-05;
-  reproducible soak harness SOAK-02.
-* All iterations were committed and pushed to `main` incrementally (latest `55c00d8`).
+* `scripts/check-secrets.ps1`: PASS, 125 tracked files; `scripts/check-openapi.ps1`: PASS.
+* Installer/upgrade tests re-run and fresh single EXE verified end-to-end; real CLI evidence
+  PORT-04; real UI screenshots UI-04/UI-05; reproducible soak harness SOAK-02.
+* Hosted CI run 46145049072 green with all seven jobs.
+* All iterations were committed and pushed to `main` incrementally (latest `584f4ed`).
 
 **Not closable by this agent (owner/external actions, kept honest, never marked green):**
 clean-VM install test, code signing (no certificate), manually approved GitHub Release/tag,
