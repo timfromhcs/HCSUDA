@@ -3,7 +3,8 @@
 # HCSUDA
 
 [![CI](https://github.com/timfromhcs/HCSUDA/actions/workflows/ci.yml/badge.svg)](https://github.com/timfromhcs/HCSUDA/actions/workflows/ci.yml)
-[![Release: v0.1.0-rc.1](https://img.shields.io/badge/release-v0.1.0--rc.1-orange.svg)](https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.1)
+[![Release: v0.1.0-rc.1](https://img.shields.io/badge/release-v0.1.0--rc.2-orange.svg)](https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.2)
+[![Cloud demo](https://img.shields.io/badge/cloud-WebGPU%2FWASM%20live-brightgreen.svg)](https://hcsuda-webgpu-demo-mhm11twi4-hcsmediacorp.vercel.app)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Repository:** <https://github.com/timfromhcs/HCSUDA>
@@ -11,13 +12,15 @@
 **HCS Unified Compute Runtime** — a Vulkan-based, cross-vendor GPU compute runtime with a
 portable C ABI, a CPU reference backend, and an expanding CUDA-source migration path.
 
-> **Status: 0.1.0 release candidate, published as [`v0.1.0-rc.1`](https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.1).**
-> Waves 0–13 are implemented; the single-file EXE, checksum and SBOM are attached to the GitHub release. Runtime, kernels, HCSIR/HCSCC,
-> a narrow CUDA-source migration subset, a local model catalog, local REST/MCP with a browser UI,
-> and a single-file installer are present and tested on the reference hardware (Radeon 680M,
-> Vulkan 1.4.315) and CPU backend. GGUF inference, PTX import and a native Qt/WebView2 shell are
-> deliberately out of V1 scope. Every capability below is backed by code and by the evidence in
-> `docs/TEST_MATRIX.md`; external release blockers are listed in `docs/AGENT_STATUS.md`.
+> **Status: 0.1.0 release candidate.** Local: single-file EXE, checksum and SBOM on the
+> [`v0.1.0-rc.2`](https://github.com/timfromhcs/HCSUDA/releases/tag/v0.1.0-rc.2) GitHub release.
+> Cloud: a clearly scoped [WebGPU/WASM browser demo](https://hcsuda-webgpu-demo-mhm11twi4-hcsmediacorp.vercel.app)
+> is deployed on Vercel. Waves 0–13 are implemented; 96/96 tests, 8/8 hosted CI jobs, a 60-minute
+> soak (1418 iterations, 0 failures) and all release gates are green. Runtime, kernels,
+> HCSIR/HCSCC, CUDA-source migration subset, model catalog, local REST/MCP with browser UI and a
+> single-file installer are tested on Radeon 680M (Vulkan 1.4.315) and CPU. GGUF inference, PTX
+> import and a native Qt/WebView2 shell are out of V1 scope. Evidence: `docs/TEST_MATRIX.md`;
+> remaining owner actions: `docs/release/EXTERNAL_BLOCKERS.md`.
 
 HCSUDA is an independent project. It is **not** affiliated with, endorsed by, or sponsored by
 NVIDIA Corporation. "CUDA" is a trademark of NVIDIA and appears here only to describe
