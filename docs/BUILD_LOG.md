@@ -886,3 +886,11 @@ endless loop's build tree): `cmake -S . -B build/clean-verify -G "Visual Studio 
 RelWithDebInfo`. All nine shaders were compiled by `glslc` from scratch, the HCSIR fixture was
 lowered/validated, and 2/2 CTest targets passed (96/96 HCS tests). This rules out stale generated
 files masking a build problem.
+
+## 2026-11-28 — Endless work iteration 22: release artifact gate
+
+Added `scripts/check-artifact.ps1` to cover AGENTS.md 12.3: verifies the installer SHA-256 against
+the published `.sha256`, scans raw bytes for private-key/token/GitHub-PAT patterns and uses
+`dumpbin /dependents` to reject static imports of `nvcuda.dll`, `nvrtc.dll`, `cudart64*` and
+`vulkan-1.dll`. Result: `ARTIFACT_PASS sha256=6f2b0fc2ce1d6533 bytes=5316608 imports_checked=True`.
+The installer remains unsigned; no signature is claimed.
